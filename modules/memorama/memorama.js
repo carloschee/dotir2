@@ -1,30 +1,21 @@
 /* ============================================================
    Dótir 2 — modules/memorama/memorama.js
-   Juego de memoria con pictogramas multiidioma.
-
-   · Completamente modular — sin dependencias globales
-   · TTS desde core/tts.js compartido
-   · Confeti desde core/ui.js compartido
-   · Selector de dificultad: Fácil (6p) / Normal (10p) / Difícil (12p)
-   · Contador de intentos y tiempo en la navbar del shell
-   · Idiomas en la navbar del shell (design system unificado)
-   · Pila de pares encontrados con nombre en idioma activo
-   · Dorsos SVG por tema
-   · Intro animada con imágenes flotando al elegir tema
+   · 12 pares fijos → 24 cartas en grid 8 columnas × 3 filas
+   · Cartas siempre visibles completas en el iPad (aspect-ratio 3/4)
+   · Sin estadísticas, sin selector de dificultad
+   · TTS multiidioma, confeti de victoria
+   · Controles en la navbar del shell (design system unificado)
    ============================================================ */
 
-import { TTS           } from '../../core/tts.js';
+import { TTS            } from '../../core/tts.js';
 import { lanzarConfeti, toast } from '../../core/ui.js';
-import { fetchTimeout   } from '../../core/offline.js';
+import { fetchTimeout    } from '../../core/offline.js';
 
-const TEMAS_URL  = './data/memorama-temas.json';
-const PICS_BASE  = './';
-
-const DIFICULTAD = {
-  facil:   { pares: 6,  label: 'Fácil',   cols: 4 },
-  normal:  { pares: 10, label: 'Normal',  cols: 5 },
-  dificil: { pares: 12, label: 'Difícil', cols: 6 },
-};
+const TEMAS_URL = './data/memorama-temas.json';
+const PICS_BASE = './';
+const MAX_PARES = 12;   // fijo → 24 cartas → 8 cols × 3 filas
+const COLS      = 8;
+const FILAS     = 3;
 
 const IDIOMAS = [
   { id: 'es-MX', bandera: '🇲🇽', lang: 'es-MX' },
@@ -33,12 +24,9 @@ const IDIOMAS = [
   { id: 'zh-CN', bandera: '🇨🇳', lang: 'zh-CN' },
 ];
 
-const LS_IDIOMAS    = 'dotir2-mem-idiomas';
-const LS_DIFICULTAD = 'dotir2-mem-dificultad';
-
+const LS_IDIOMAS  = 'dotir2-mem-idiomas';
 const TEMA_EMOJIS = { frutas: '🍎', transportes: '🚗', vegetales: '🥦' };
 
-// Dorsos SVG por tema
 const DORSOS = {
   frutas: {
     bg: 'linear-gradient(145deg,#1a4731 0%,#2d6a4f 40%,#52b788 100%)',
@@ -78,29 +66,25 @@ const DORSOS = {
   },
 };
 
-// ── Estado interno ────────────────────────────────────────────
-let _container   = null;
-let _temas       = [];
-let _temaActivo  = null;
-let _itemMap     = {};
-let _cartas      = [];
-let _volteadas   = [];
-let _bloqueado   = false;
-let _parejas     = 0;
-let _intentos    = 0;
-let _timerInterval = null;
-let _segundos    = 0;
+// ── Estado ────────────────────────────────────────────────────
+let _container  = null;
+let _temas      = [];
+let _temaActivo = null;
+let _itemMap    = {};
+let _cartas     = [];
+let _volteadas  = [];
+let _bloqueado  = false;
+let _parejas    = 0;
 
 let _idiomasActivos = new Set(
   JSON.parse(localStorage.getItem(LS_IDIOMAS) || '["es-MX"]')
 );
-let _dificultad = localStorage.getItem(LS_DIFICULTAD) || 'normal';
 
 // ── Helpers ───────────────────────────────────────────────────
-const _q         = sel => _container?.querySelector(sel);
-const _idiomaAl  = () => { const a = [..._idiomasActivos]; return a[Math.floor(Math.random() * a.length)]; };
-const _nombre    = (item, idioma) => item[idioma] || item['es-MX'] || String(item.id);
-const _dorso     = id => DORSOS[id] || DORSOS.default;
+const _q      = sel => _container?.querySelector(sel);
+const _idiomaAl = () => { const a = [..._idiomasActivos]; return a[Math.floor(Math.random() * a.length)]; };
+const _nombre   = (item, idioma) => item[idioma] || item['es-MX'] || String(item.id);
+const _dorso    = id => DORSOS[id] || DORSOS.default;
 
 // ── Carga de datos ────────────────────────────────────────────
 async function _cargarTemas() {
@@ -121,7 +105,7 @@ async function _cargarTema(meta) {
   return res.json();
 }
 
-// ── Ciclo de vida del módulo ──────────────────────────────────
+// ── Ciclo de vida ─────────────────────────────────────────────
 export async function init(container) {
   _container = container;
   await _cargarTemas();
@@ -132,48 +116,30 @@ export async function init(container) {
 }
 
 export function destroy() {
-  _detenerTimer();
   _cartas = []; _volteadas = [];
   _temaActivo = null; _container = null;
   const acc = document.getElementById('modulo-acciones');
   if (acc) acc.innerHTML = '';
-  const s = document.getElementById('mem-nav-style');
-  if (s) s.remove();
+  document.getElementById('mem-nav-style')?.remove();
 }
 
 export function onEnter() {}
-export function onLeave() { TTS.stop(); _detenerTimer(); }
+export function onLeave() { TTS.stop(); }
 
-// ── Navbar del shell: inyectar controles ──────────────────────
+// ── Navbar del shell ──────────────────────────────────────────
 function _renderNavAcciones() {
   const acc = document.getElementById('modulo-acciones');
   if (!acc) return;
   acc.innerHTML = '';
 
-  // CSS de stats (inyectar una sola vez en el head)
   if (!document.getElementById('mem-nav-style')) {
     const s = document.createElement('style');
     s.id = 'mem-nav-style';
-    s.textContent = `
-      .mem-stat-nav {
-        display:flex; align-items:center; gap:4px;
-        color:rgba(255,255,255,0.55); font-size:0.72rem; font-weight:700;
-      }
-      .mem-stat-nav strong { color:white; font-size:0.85rem; }
-    `;
+    s.textContent = `.mem-stat-nav { display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.55);font-size:.72rem;font-weight:700; } .mem-stat-nav strong{color:white;font-size:.85rem;}`;
     document.head.appendChild(s);
   }
 
-  // Stats compactos
-  const stats = document.createElement('div');
-  stats.style.cssText = 'display:flex;gap:10px;align-items:center;';
-  stats.innerHTML = `
-    <span class="mem-stat-nav" title="Pares">🃏 <strong id="nav-stat-pares">0</strong></span>
-    <span class="mem-stat-nav" title="Intentos">🔁 <strong id="nav-stat-intentos">0</strong></span>
-    <span class="mem-stat-nav" title="Tiempo">⏱ <strong id="nav-stat-tiempo">0:00</strong></span>
-  `;
-
-  // Selectores de idioma (usando clase del design system)
+  // Selectores de idioma
   const langsWrap = document.createElement('div');
   langsWrap.style.cssText = 'display:flex;gap:4px;';
   IDIOMAS.forEach(({ id, bandera }) => {
@@ -190,188 +156,214 @@ function _renderNavAcciones() {
     langsWrap.appendChild(btn);
   });
 
-  // Botones de acción (usando clase del design system)
+  // Botón nuevo juego
   const btnNuevo = document.createElement('button');
   btnNuevo.className = 'd-nav-btn';
   btnNuevo.title = 'Nueva partida';
   btnNuevo.textContent = '🔄';
   btnNuevo.addEventListener('click', () => { if (_temaActivo) _iniciarJuego(); });
 
+  // Botón elegir tema
   const btnTema = document.createElement('button');
   btnTema.className = 'd-nav-btn';
   btnTema.textContent = '🎴 Tema';
   btnTema.addEventListener('click', _mostrarModalTemas);
 
-  acc.append(stats, langsWrap, btnNuevo, btnTema);
+  acc.append(langsWrap, btnNuevo, btnTema);
 }
 
-// ── Shell HTML del módulo ─────────────────────────────────────
+// ── Shell HTML ────────────────────────────────────────────────
 function _renderShell() {
   _container.innerHTML = `
     <style>
       #mem-wrap {
-        display:flex; flex-direction:column;
-        height:100%; overflow:hidden;
-        background:#1a1a2e; position:relative;
+        display: flex; flex-direction: column;
+        height: 100%; overflow: hidden;
+        background: #1a1a2e; position: relative;
       }
 
-      /* Grid de cartas */
+      /* ── Grid
+         El tablero debe caber exactamente en el espacio disponible:
+         alto total - navbar shell (44px) - pila inferior (~48px) - padding (16px)
+         Usamos CSS puro con grid-template-rows para que las 3 filas
+         dividan el espacio disponible sin scroll.
+      ────────────────────────────────────────────── */
       #mem-grid-wrap {
-        flex:1; min-height:0; overflow-y:auto;
-        padding:10px 10px 4px;
+        flex: 1; min-height: 0;
+        padding: 8px;
+        display: flex; align-items: stretch;
       }
       #mem-grid {
-        display:grid; gap:8px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(${COLS}, 1fr);
+        grid-template-rows: repeat(${FILAS}, 1fr);
+        gap: 6px;
       }
 
-      /* Carta */
-      .mem-celda { aspect-ratio:3/4; perspective:600px; }
-      .mem-carta {
-        width:100%; height:100%; position:relative;
-        cursor:pointer; transform-style:preserve-3d;
-        transition:transform .5s cubic-bezier(.4,.2,.2,1);
+      /* Carta — aspect-ratio garantiza la proporción,
+         pero dentro del grid de filas fijas, la altura
+         la dicta el grid y la imagen se adapta. */
+      .mem-celda {
+        perspective: 600px;
+        min-height: 0; /* crucial para que el grid comprima correctamente */
       }
-      .mem-carta.volteada  { transform:rotateY(180deg); }
-      .mem-carta.encontrada { cursor:default; opacity:.75; }
+      .mem-carta {
+        width: 100%; height: 100%;
+        position: relative; cursor: pointer;
+        transform-style: preserve-3d;
+        transition: transform .5s cubic-bezier(.4,.2,.2,1);
+      }
+      .mem-carta.volteada   { transform: rotateY(180deg); }
+      .mem-carta.encontrada { cursor: default; opacity: .72; }
 
       .mem-cara {
-        position:absolute; inset:0; border-radius:10px;
-        backface-visibility:hidden; -webkit-backface-visibility:hidden;
-        overflow:hidden; display:flex; align-items:center; justify-content:center;
+        position: absolute; inset: 0; border-radius: 8px;
+        backface-visibility: hidden; -webkit-backface-visibility: hidden;
+        overflow: hidden;
+        display: flex; align-items: center; justify-content: center;
       }
       .mem-dorso {
-        border:2px solid rgba(255,255,255,0.4);
-        box-shadow:0 4px 14px rgba(0,0,0,0.35);
+        border: 2px solid rgba(255,255,255,0.38);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.35);
       }
       .mem-frente {
-        transform:rotateY(180deg); background:white;
-        flex-direction:column; gap:4px; padding:6px;
-        box-shadow:0 4px 14px rgba(0,0,0,0.25);
+        transform: rotateY(180deg);
+        background: white;
+        flex-direction: column; gap: 3px; padding: 4px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.22);
       }
       .mem-frente img {
-        width:75%; height:70%; object-fit:contain; pointer-events:none;
+        /* imagen ocupa ~70% del alto de la carta, sin desbordarse */
+        width: 100%; flex: 1; min-height: 0;
+        object-fit: contain; pointer-events: none;
       }
-      .mem-frente .mem-label {
-        font-size:clamp(.55rem,.9vw,.75rem); font-weight:800;
-        text-align:center; color:#1a1a2e; line-height:1.1; pointer-events:none;
+      .mem-label {
+        font-size: clamp(.5rem, 1vw, .72rem);
+        font-weight: 800; text-align: center;
+        color: #1a1a2e; line-height: 1; pointer-events: none;
+        flex-shrink: 0;
       }
 
       @keyframes mem-pop {
-        from { opacity:0; transform:scale(.7); }
+        from { opacity:0; transform:scale(.75); }
         to   { opacity:1; transform:scale(1); }
       }
-      .mem-celda { animation:mem-pop .35s cubic-bezier(.34,1.56,.64,1) both; }
+      .mem-celda { animation: mem-pop .32s cubic-bezier(.34,1.56,.64,1) both; }
 
-      /* Pila de pares */
+      /* ── Pila de pares encontrados ── */
       #mem-pila-wrap {
-        flex-shrink:0; padding:6px 10px 8px;
-        background:rgba(0,0,0,0.2);
-        border-top:1px solid rgba(255,255,255,0.08);
-        min-height:48px;
+        flex-shrink: 0;
+        padding: 5px 8px 6px;
+        background: rgba(0,0,0,0.22);
+        border-top: 1px solid rgba(255,255,255,0.08);
+        min-height: 42px; max-height: 52px;
+        display: flex; align-items: center; gap: 6px;
+        overflow-x: auto; overflow-y: hidden;
       }
       #mem-pila-label {
-        font-size:.6rem; font-weight:800; color:rgba(255,255,255,.4);
-        text-transform:uppercase; letter-spacing:.07em; margin-bottom:4px;
+        font-size: .58rem; font-weight: 800;
+        color: rgba(255,255,255,.35); text-transform: uppercase;
+        letter-spacing: .07em; white-space: nowrap; flex-shrink: 0;
       }
-      #mem-pila { display:flex; flex-wrap:wrap; gap:4px; align-items:center; }
+      #mem-pila { display: flex; gap: 4px; align-items: center; }
       .mem-par-chip {
-        background:rgba(255,255,255,0.12); border-radius:20px;
-        padding:3px 10px; font-size:.7rem; font-weight:700; color:white;
-        display:flex; align-items:center; gap:5px;
-        animation:mem-pop .3s ease both;
+        background: rgba(255,255,255,0.12); border-radius: 16px;
+        padding: 3px 9px; font-size: .68rem; font-weight: 700;
+        color: white; display: flex; align-items: center; gap: 4px;
+        white-space: nowrap; flex-shrink: 0;
+        animation: mem-pop .28s ease both;
       }
-      .mem-par-chip img { width:18px; height:18px; object-fit:contain; }
+      .mem-par-chip img { width:16px; height:16px; object-fit:contain; }
 
-      /* Modal de temas */
+      /* ── Modal de temas ── */
       #mem-modal {
-        position:absolute; inset:0; z-index:40;
-        background:rgba(10,10,30,0.88);
-        display:flex; align-items:center; justify-content:center;
-        backdrop-filter:blur(6px);
+        position: absolute; inset: 0; z-index: 40;
+        background: rgba(10,10,30,0.88);
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(6px);
       }
-      #mem-modal.oculto { display:none; }
+      #mem-modal.oculto { display: none; }
       #mem-modal-box {
-        background:#1e1e3a; border-radius:24px; padding:24px;
-        width:90%; max-width:360px;
-        border:1px solid rgba(255,255,255,0.15);
-        box-shadow:0 20px 60px rgba(0,0,0,0.5);
-        display:flex; flex-direction:column; gap:14px;
-        max-height:85vh; overflow-y:auto;
+        background: #1e1e3a; border-radius: 24px; padding: 24px;
+        width: 90%; max-width: 340px;
+        border: 1px solid rgba(255,255,255,0.15);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        display: flex; flex-direction: column; gap: 12px;
+        max-height: 80vh; overflow-y: auto;
       }
-      #mem-modal-box h2 { color:white; font-size:1.1rem; font-weight:900; text-align:center; }
-
-      /* Dificultad */
-      #mem-dif-btns { display:flex; gap:8px; justify-content:center; }
-      .mem-dif-btn {
-        flex:1; padding:8px 4px; border-radius:12px;
-        border:2px solid rgba(255,255,255,0.2);
-        background:rgba(255,255,255,0.08); color:white;
-        font-weight:700; font-size:.78rem; cursor:pointer; transition:all .15s;
+      #mem-modal-box h2 {
+        color: white; font-size: 1.1rem; font-weight: 900; text-align: center;
       }
-      .mem-dif-btn.activo { border-color:#7B61FF; background:#7B61FF33; color:#c4b5fd; }
-
-      /* Lista de temas */
       .mem-tema-btn {
-        width:100%; display:flex; align-items:center; gap:12px;
-        padding:12px 14px; border-radius:16px;
-        border:1px solid rgba(255,255,255,0.1);
-        background:rgba(255,255,255,0.06); color:white;
-        cursor:pointer; text-align:left; transition:background .15s;
+        width: 100%; display: flex; align-items: center; gap: 12px;
+        padding: 12px 14px; border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.06); color: white;
+        cursor: pointer; text-align: left; transition: background .15s;
       }
-      .mem-tema-btn:active { background:rgba(255,255,255,0.14); }
-      .mem-tema-btn .mt-emoji { font-size:1.8rem; }
-      .mem-tema-btn .mt-titulo { font-weight:800; font-size:.9rem; }
-      .mem-tema-btn .mt-items  { font-size:.7rem; color:rgba(255,255,255,.45); }
+      .mem-tema-btn:active { background: rgba(255,255,255,0.14); }
+      .mem-tema-btn .mt-emoji  { font-size: 1.8rem; }
+      .mem-tema-btn .mt-titulo { font-weight: 800; font-size: .9rem; }
+      .mem-tema-btn .mt-items  { font-size: .7rem; color: rgba(255,255,255,.4); }
 
-      /* Intro animada */
+      /* ── Intro animada ── */
       #mem-intro {
-        position:absolute; inset:0; z-index:30;
-        display:flex; flex-direction:column;
-        align-items:center; justify-content:center; gap:16px;
-        background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+        position: absolute; inset: 0; z-index: 30;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 16px;
+        background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
       }
-      #mem-intro.oculto { display:none; }
-      #mem-intro-titulo { color:white; font-size:1.5rem; font-weight:900; text-shadow:0 2px 12px rgba(0,0,0,.5); }
-      #mem-intro-elementos { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; max-width:340px; padding:0 16px; }
-
+      #mem-intro.oculto { display: none; }
+      #mem-intro-titulo {
+        color: white; font-size: 1.6rem; font-weight: 900;
+        text-shadow: 0 2px 12px rgba(0,0,0,.5);
+      }
+      #mem-intro-elementos {
+        display: flex; flex-wrap: wrap;
+        justify-content: center; gap: 10px;
+        max-width: 380px; padding: 0 16px;
+      }
       @keyframes mem-flotar {
-        0%,100% { transform:translateY(0) rotate(0deg); }
-        33%      { transform:translateY(-12px) rotate(3deg); }
-        66%      { transform:translateY(-6px) rotate(-2deg); }
+        0%,100% { transform: translateY(0) rotate(0deg); }
+        33%      { transform: translateY(-12px) rotate(3deg); }
+        66%      { transform: translateY(-6px) rotate(-2deg); }
       }
-      .mem-flotar { animation:mem-flotar 2.4s ease-in-out infinite; }
+      .mem-flotar { animation: mem-flotar 2.4s ease-in-out infinite; }
 
-      /* Victoria */
+      /* ── Victoria ── */
       #mem-victoria {
-        position:absolute; inset:0; z-index:50;
-        display:flex; flex-direction:column;
-        align-items:center; justify-content:center; gap:12px;
-        pointer-events:none; transition:opacity .6s ease;
+        position: absolute; inset: 0; z-index: 50;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 12px;
+        pointer-events: none; transition: opacity .6s ease;
       }
-      #mem-victoria.oculto { opacity:0; pointer-events:none; }
+      #mem-victoria.oculto { opacity: 0; pointer-events: none; }
       #mem-trofeo {
-        font-size:5rem;
-        transition:transform .5s cubic-bezier(.175,.885,.32,1.275), opacity .5s;
-        transform:scale(0); opacity:0;
+        font-size: 6rem;
+        transition: transform .5s cubic-bezier(.175,.885,.32,1.275), opacity .5s;
+        transform: scale(0); opacity: 0;
       }
-      #mem-victoria-label { color:white; font-size:1.1rem; font-weight:900; text-shadow:0 2px 12px rgba(0,0,0,.6); }
-      #mem-victoria-stats { color:rgba(255,255,255,.7); font-size:.85rem; font-weight:600; text-align:center; line-height:1.6; }
+      #mem-victoria-label {
+        color: white; font-size: 1.2rem; font-weight: 900;
+        text-shadow: 0 2px 12px rgba(0,0,0,.6);
+      }
     </style>
 
     <div id="mem-wrap">
 
-      <!-- Grid de cartas -->
+      <!-- Tablero -->
       <div id="mem-grid-wrap">
         <div id="mem-grid"></div>
       </div>
 
-      <!-- Pila de pares encontrados -->
+      <!-- Pila de pares -->
       <div id="mem-pila-wrap">
-        <div id="mem-pila-label">Pares encontrados</div>
+        <span id="mem-pila-label">Pares</span>
         <div id="mem-pila"></div>
       </div>
 
-      <!-- Intro animada -->
+      <!-- Intro -->
       <div id="mem-intro" class="oculto">
         <p id="mem-intro-titulo"></p>
         <div id="mem-intro-elementos"></div>
@@ -380,47 +372,24 @@ function _renderShell() {
       <!-- Victoria -->
       <div id="mem-victoria" class="oculto">
         <span id="mem-trofeo">🏆</span>
-        <p id="mem-victoria-label">¡Completado!</p>
-        <p id="mem-victoria-stats"></p>
+        <p id="mem-victoria-label">¡Muy bien!</p>
       </div>
 
       <!-- Modal de temas -->
       <div id="mem-modal">
         <div id="mem-modal-box">
           <h2>🎴 Elige un tema</h2>
-          <div id="mem-dif-btns">
-            ${Object.entries(DIFICULTAD).map(([k, v]) =>
-              `<button class="mem-dif-btn${_dificultad === k ? ' activo' : ''}" data-dif="${k}">
-                ${v.label}<br><small>${v.pares} pares</small>
-              </button>`
-            ).join('')}
-          </div>
           <div id="mem-lista-temas"></div>
         </div>
       </div>
 
     </div>
   `;
-
-  // Dificultad
-  _q('#mem-dif-btns').addEventListener('click', e => {
-    const btn = e.target.closest('[data-dif]');
-    if (!btn) return;
-    _dificultad = btn.dataset.dif;
-    localStorage.setItem(LS_DIFICULTAD, _dificultad);
-    _q('#mem-dif-btns').querySelectorAll('.mem-dif-btn').forEach(b =>
-      b.classList.toggle('activo', b.dataset.dif === _dificultad)
-    );
-  });
 }
 
 // ── Modal de temas ────────────────────────────────────────────
-function _mostrarModalTemas() {
-  _q('#mem-modal')?.classList.remove('oculto');
-}
-function _cerrarModal() {
-  _q('#mem-modal')?.classList.add('oculto');
-}
+function _mostrarModalTemas() { _q('#mem-modal')?.classList.remove('oculto'); }
+function _cerrarModal()       { _q('#mem-modal')?.classList.add('oculto'); }
 
 function _renderListaTemas() {
   const lista = _q('#mem-lista-temas');
@@ -434,7 +403,7 @@ function _renderListaTemas() {
 
   _temas.forEach(meta => {
     const emoji = TEMA_EMOJIS[meta.id] || '🎴';
-    const btn = document.createElement('button');
+    const btn   = document.createElement('button');
     btn.className = 'mem-tema-btn';
     btn.innerHTML = `
       <span class="mt-emoji">${emoji}</span>
@@ -457,12 +426,12 @@ async function _activarTema(meta) {
   try {
     const datos = await _cargarTema(meta);
     _temaActivo = datos;
-    _itemMap = {};
+    _itemMap    = {};
     datos.items.forEach(item => { _itemMap[item.id] = item; });
     TTS.speak(datos.titulo, { lang: 'es-MX', pitch: 1.2, rate: .95 });
     _mostrarIntro();
   } catch (e) {
-    console.error('[Memorama] Error al cargar tema:', e);
+    console.error('[Memorama] Error:', e);
     toast('Error al cargar el tema', { emoji: '❌' });
   }
 }
@@ -470,12 +439,9 @@ async function _activarTema(meta) {
 // ── Intro animada ─────────────────────────────────────────────
 function _mostrarIntro() {
   if (!_temaActivo) return;
-  const intro     = _q('#mem-intro');
-  const elementos = _q('#mem-intro-elementos');
-  const titulo    = _q('#mem-intro-titulo');
-
-  titulo.textContent = _temaActivo.titulo;
-  elementos.innerHTML = '';
+  _q('#mem-intro-titulo').textContent = _temaActivo.titulo;
+  const el = _q('#mem-intro-elementos');
+  el.innerHTML = '';
 
   _temaActivo.items.forEach((item, i) => {
     const imgUrl = _temaActivo.carpeta_img
@@ -487,37 +453,33 @@ function _mostrarIntro() {
     div.style.animationDuration = `${2.2 + (i % 4) * 0.3}s`;
     const img = document.createElement('img');
     img.src = imgUrl; img.alt = item['es-MX'] || '';
-    img.style.cssText = 'width:52px;height:52px;object-fit:contain;border-radius:8px;';
+    img.style.cssText = 'width:54px;height:54px;object-fit:contain;border-radius:8px;';
     img.onerror = () => div.remove();
     div.appendChild(img);
-    elementos.appendChild(div);
+    el.appendChild(div);
   });
 
-  intro.classList.remove('oculto');
-  setTimeout(() => { intro.classList.add('oculto'); _iniciarJuego(); }, 2200);
+  _q('#mem-intro').classList.remove('oculto');
+  setTimeout(() => { _q('#mem-intro').classList.add('oculto'); _iniciarJuego(); }, 2200);
 }
 
 // ── Iniciar juego ─────────────────────────────────────────────
 function _iniciarJuego() {
   if (!_temaActivo) return;
-  _detenerTimer();
   _cartas = []; _volteadas = [];
-  _bloqueado = false; _parejas = 0; _intentos = 0; _segundos = 0;
-  _actualizarStats();
+  _bloqueado = false; _parejas = 0;
 
-  const cfg   = DIFICULTAD[_dificultad] || DIFICULTAD.normal;
   const items = [..._temaActivo.items]
     .sort(() => Math.random() - 0.5)
-    .slice(0, cfg.pares);
+    .slice(0, MAX_PARES);
 
   _cartas = [...items, ...items]
     .sort(() => Math.random() - 0.5)
     .map((item, idx) => ({ idx, itemId: item.id, volteada: false, encontrada: false }));
 
-  _renderGrid(cfg.cols);
-  _iniciarTimer();
+  _renderGrid();
 
-  // Limpiar pila y victoria
+  // Limpiar pila y ocultar victoria
   _q('#mem-pila').innerHTML = '';
   const vict   = _q('#mem-victoria');
   const trofeo = _q('#mem-trofeo');
@@ -528,11 +490,9 @@ function _iniciarJuego() {
 }
 
 // ── Render del tablero ────────────────────────────────────────
-function _renderGrid(cols) {
+function _renderGrid() {
   const grid = _q('#mem-grid');
   grid.innerHTML = '';
-  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-
   const dorso = _dorso(_temaActivo?.id);
 
   _cartas.forEach((carta, i) => {
@@ -543,14 +503,14 @@ function _renderGrid(cols) {
 
     const celda = document.createElement('div');
     celda.className = 'mem-celda';
-    celda.style.animationDelay = `${i * 0.03}s`;
+    celda.style.animationDelay = `${i * 0.025}s`;
     celda.innerHTML = `
       <div class="mem-carta" data-idx="${i}">
         <div class="mem-cara mem-dorso" style="background:${dorso.bg}">${dorso.svg}</div>
         <div class="mem-cara mem-frente">
           ${imgUrl
-            ? `<img src="${imgUrl}" alt="${nombre}" onerror="this.style.opacity='.2'">`
-            : `<span style="font-size:1.8rem">${nombre}</span>`}
+            ? `<img src="${imgUrl}" alt="${nombre}" onerror="this.style.opacity='.15'">`
+            : `<span style="font-size:1.6rem">${nombre}</span>`}
           <span class="mem-label">${nombre}</span>
         </div>
       </div>
@@ -570,27 +530,25 @@ function _voltear(idx) {
   _volteadas.push(idx);
   if (_volteadas.length < 2) return;
 
-  _intentos++;
-  _actualizarStats();
   _bloqueado = true;
-
   const [a, b] = _volteadas;
+
   if (_cartas[a].itemId === _cartas[b].itemId) {
     _cartas[a].encontrada = _cartas[b].encontrada = true;
     _q(`[data-idx="${a}"]`).classList.add('encontrada');
     _q(`[data-idx="${b}"]`).classList.add('encontrada');
     _parejas++;
-    _actualizarStats();
     _volteadas = [];
     _bloqueado = false;
 
-    const item   = _itemMap[_cartas[a].itemId];
-    const idioma = _idiomaAl();
+    // TTS en idioma aleatorio
+    const item    = _itemMap[_cartas[a].itemId];
+    const idioma  = _idiomaAl();
     const langObj = IDIOMAS.find(l => l.id === idioma);
     TTS.speak(_nombre(item, idioma), { lang: langObj?.lang || 'es-MX', pitch: 1.2, rate: .9, delay: 150 });
     _agregarPila(_cartas[a].itemId);
 
-    if (_parejas === _cartas.length / 2) setTimeout(_victoria, 600);
+    if (_parejas === MAX_PARES) setTimeout(_victoria, 600);
   } else {
     setTimeout(() => {
       _q(`[data-idx="${a}"]`).classList.remove('volteada');
@@ -598,7 +556,7 @@ function _voltear(idx) {
       _cartas[a].volteada = _cartas[b].volteada = false;
       _volteadas = [];
       _bloqueado = false;
-    }, 1000);
+    }, 900);
   }
 }
 
@@ -619,18 +577,11 @@ function _agregarPila(itemId) {
 
 // ── Victoria ──────────────────────────────────────────────────
 function _victoria() {
-  _detenerTimer();
   lanzarConfeti({ container: _q('#mem-wrap') });
   TTS.speak('¡Muy bien!', { lang: 'es-MX', pitch: 1.3, rate: .9 });
 
-  const mins   = Math.floor(_segundos / 60);
-  const segs   = _segundos % 60;
-  const tiempo = `${mins}:${String(segs).padStart(2, '0')}`;
-
   const vict   = _q('#mem-victoria');
   const trofeo = _q('#mem-trofeo');
-  _q('#mem-victoria-stats').textContent = `${_parejas} pares · ${_intentos} intentos · ${tiempo}`;
-
   vict.classList.remove('oculto');
   vict.style.opacity = '1';
   requestAnimationFrame(() => {
@@ -647,29 +598,5 @@ function _victoria() {
       trofeo.style.opacity   = '0';
       _mostrarModalTemas();
     }, 600);
-  }, 3200);
-}
-
-// ── Timer ─────────────────────────────────────────────────────
-function _iniciarTimer() {
-  _timerInterval = setInterval(() => {
-    _segundos++;
-    const m  = Math.floor(_segundos / 60);
-    const s  = _segundos % 60;
-    const el = document.querySelector('#nav-stat-tiempo strong');
-    if (el) el.textContent = `${m}:${String(s).padStart(2, '0')}`;
-  }, 1000);
-}
-
-function _detenerTimer() {
-  clearInterval(_timerInterval);
-  _timerInterval = null;
-}
-
-// ── Stats en navbar ───────────────────────────────────────────
-function _actualizarStats() {
-  const elP = document.querySelector('#nav-stat-pares strong');
-  const elI = document.querySelector('#nav-stat-intentos strong');
-  if (elP) elP.textContent = _parejas;
-  if (elI) elI.textContent = _intentos;
+  }, 3000);
 }
