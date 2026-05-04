@@ -1,0 +1,96 @@
+{
+  "name": "Dótir - Comunicación y Aprendizaje",
+  "short_name": "Dótir",
+  "description": "Herramienta modular de comunicación aumentativa, juego y multimedia para infancias neurodivergentes.",
+
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+
+  "theme_color": "#4A90E2",
+  "background_color": "#F0F4FA",
+
+  "lang": "es-MX",
+  "dir": "ltr",
+
+  "categories": ["education", "kids", "medical"],
+
+  "icons": [
+    {
+      "src": "assets/img/icon-72.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    },
+    {
+      "src": "assets/img/icon-96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "assets/img/icon-128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "assets/img/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/img/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/img/icon-maskable-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/img/icon-maskable-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+
+  "screenshots": [
+    {
+      "src": "assets/img/screenshot-menu.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Menú principal de Dótir"
+    },
+    {
+      "src": "assets/img/screenshot-saac.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tablero de comunicación SAAC"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "Comunicador",
+      "short_name": "SAAC",
+      "description": "Abrir el tablero de comunicación directamente",
+      "url": "./index.html?modulo=saac",
+      "icons": [{ "src": "assets/img/icon-saac.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Memorama",
+      "short_name": "Memorama",
+      "description": "Ir directamente al juego de memoria",
+      "url": "./index.html?modulo=memorama",
+      "icons": [{ "src": "assets/img/icon-memorama.png", "sizes": "96x96" }]
+    }
+  ],
+
+  "prefer_related_applications": false
+}

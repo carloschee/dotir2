@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0,
+                 user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable"            content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style"   content="black-translucent">
+  <meta name="apple-mobile-web-app-title"              content="Dótir">
+  <meta name="theme-color"                             content="#4A90E2">
+  <title>Dótir 2</title>
+
+  <link id="manifest-link"  rel="manifest"         href="manifest.json">
+  <link id="apple-icon"     rel="apple-touch-icon" href="assets/img/icon-192.png">
+  <link id="favicon"        rel="icon" type="image/png" href="assets/img/icon-192.png">
+
+  <style>
+    /* ── Reset & tokens ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-primary:   #4A90E2;
+      --color-secondary: #7B61FF;
+      --color-accent:    #F5A623;
+      --color-bg:        #F0F4FA;
+      --color-surface:   #FFFFFF;
+      --color-text:      #1A1A2E;
+      --color-muted:     #6B7A99;
+      --radius-card:     20px;
+      --radius-btn:      14px;
+      --shadow-card:     0 4px 20px rgba(74,144,226,0.13);
+      --shadow-deep:     0 8px 32px rgba(0,0,0,0.18);
+      --safe-bottom:     env(safe-area-inset-bottom, 0px);
+      --safe-top:        env(safe-area-inset-top, 0px);
+    }
+
+    html, body {
+      height: 100%; width: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    #app {
+      display: flex; flex-direction: column;
+      height: 100%; width: 100%;
+      padding-top: var(--safe-top);
+      overflow: hidden;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    #app-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px 8px;
+      background: var(--color-surface);
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+      flex-shrink: 0;
+      gap: 10px;
+    }
+
+    #app-header h1 {
+      font-size: 1.5rem; font-weight: 900;
+      letter-spacing: -0.5px;
+      color: var(--color-primary);
+    }
+
+    #app-header .version {
+      font-size: 0.65rem; font-weight: 700;
+      color: var(--color-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* Indicador offline */
+    #indicador-offline {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 700;
+      border: 1.5px solid;
+      transition: all 0.3s ease;
+    }
+    #indicador-offline.online  { background:#dcfce7; border-color:#86efac; color:#166534; }
+    #indicador-offline.offline { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
+    #indicador-offline.checking{ background:#fef9c3; border-color:#fde047; color:#713f12; }
+
+    #dot-conexion {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0; transition: background 0.3s;
+    }
+    .online  #dot-conexion  { background: #22c55e; }
+    .offline #dot-conexion  { background: #ef4444; }
+    .checking #dot-conexion { background: #eab308; }
+
+    /* ── Menú principal ──────────────────────────────────── */
+    #menu-principal {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      padding: 20px 16px;
+      padding-bottom: calc(20px + var(--safe-bottom));
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 14px;
+      align-content: start;
+    }
+
+    .module-tile {
+      background: var(--color-surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      padding: 22px 14px 18px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 10px;
+      cursor: pointer;
+      border: 2.5px solid transparent;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .module-tile:active {
+      transform: scale(0.96);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .module-tile .tile-emoji { font-size: 2.6rem; line-height: 1; }
+    .module-tile .tile-label {
+      font-size: 0.82rem; font-weight: 800;
+      text-align: center; color: var(--color-text);
+      line-height: 1.2;
+    }
+    .module-tile .tile-desc {
+      font-size: 0.7rem; color: var(--color-muted);
+      text-align: center; font-weight: 500;
+    }
+    .module-tile[data-requiere-pin]::after {
+      content: '🔒';
+      font-size: 0.7rem; position: absolute; top: 8px; right: 10px;
+    }
+    .module-tile { position: relative; }
+
+    /* ── Vista de módulo ─────────────────────────────────── */
+    #modulo-header {
+      display: none; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: var(--color-surface);
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+      flex-shrink: 0;
+    }
+    #modulo-header.visible { display: flex; }
+
+    #btn-volver {
+      width: 38px; height: 38px; border-radius: 12px;
+      border: none; background: var(--color-bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    #btn-volver:active { background: #dde4f0; }
+
+    #modulo-titulo {
+      font-size: 1rem; font-weight: 800;
+      flex: 1; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #modulo-contenido {
+      flex: 1; min-height: 0;
+      display: none; flex-direction: column;
+      overflow: hidden;
+    }
+    #modulo-contenido.visible { display: flex; }
+
+    /* ── PIN modal ───────────────────────────────────────── */
+    #modal-pin {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: none; align-items: center; justify-content: center;
+      z-index: 9000; backdrop-filter: blur(4px);
+    }
+    #modal-pin.visible { display: flex; }
+
+    .pin-box {
+      background: white; border-radius: 24px;
+      padding: 28px; width: 88%; max-width: 340px;
+      text-align: center; box-shadow: var(--shadow-deep);
+    }
+    .pin-box h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
+    .pin-box p  { font-size: 0.8rem; color: var(--color-muted); margin-bottom: 16px; }
+
+    #input-pin {
+      width: 100%; padding: 14px;
+      text-align: center; font-size: 1.6rem; font-weight: 700;
+      border: 2px solid #e2e8f0; border-radius: 14px;
+      outline: none; margin-bottom: 14px;
+    }
+    #input-pin:focus { border-color: var(--color-primary); }
+
+    .pin-btns { display: flex; gap: 10px; }
+    .pin-btns button {
+      flex: 1; padding: 12px;
+      border-radius: 12px; border: none;
+      font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    }
+    #btn-pin-ok     { background: var(--color-primary); color: white; }
+    #btn-pin-cancel { background: var(--color-bg); color: var(--color-text); }
+    #pin-error {
+      color: #ef4444; font-size: 0.78rem;
+      font-weight: 600; margin-top: 8px; min-height: 1em;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── Header ────────────────────────────────────────────── -->
+  <header id="app-header">
+    <div>
+      <h1>Dótir</h1>
+      <span class="version">v2.0</span>
+    </div>
+    <div id="indicador-offline" class="checking">
+      <span id="dot-conexion"></span>
+      <span id="texto-conexion">Verificando…</span>
+    </div>
+  </header>
+
+  <!-- ── Menú principal (tiles de módulos) ─────────────────── -->
+  <nav id="menu-principal" aria-label="Módulos de la aplicación">
+    <!-- Generado dinámicamente por el registry -->
+  </nav>
+
+  <!-- ── Header del módulo activo ──────────────────────────── -->
+  <div id="modulo-header">
+    <button id="btn-volver" aria-label="Volver al menú">←</button>
+    <span id="modulo-titulo"></span>
+    <div id="modulo-acciones"></div><!-- acciones propias del módulo -->
+  </div>
+
+  <!-- ── Contenedor del módulo activo ──────────────────────── -->
+  <main id="modulo-contenido" aria-live="polite"></main>
+
+</div><!-- /app -->
+
+<!-- ── Modal de PIN ───────────────────────────────────────── -->
+<div id="modal-pin" role="dialog" aria-modal="true" aria-labelledby="pin-titulo">
+  <div class="pin-box">
+    <h3 id="pin-titulo">Acceso Protegido</h3>
+    <p id="pin-hint"></p>
+    <input type="number" id="input-pin" placeholder="···"
+           inputmode="numeric" autocomplete="off">
+    <div class="pin-btns">
+      <button id="btn-pin-cancel">Cancelar</button>
+      <button id="btn-pin-ok">Entrar</button>
+    </div>
+    <p id="pin-error" role="alert"></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MÓDULOS — importar aquí cada módulo al crearlo
+     ════════════════════════════════════════════════════════ -->
+<script type="module">
+import { registrarSW, onConexionChange } from './core/offline.js';
+import { toast, animarEntrada, $        } from './core/ui.js';
+
+/* ── 1. SERVICE WORKER ───────────────────────────────────── */
+registrarSW();
+
+/* ── 2. INDICADOR DE CONEXIÓN ────────────────────────────── */
+onConexionChange(estado => {
+  const ind   = $('indicador-offline');
+  const texto = $('texto-conexion');
+  ind.className = estado; // 'online' | 'offline' | 'checking'
+  texto.textContent = { online:'En línea', offline:'Sin conexión', checking:'Verificando…' }[estado];
+});
+
+/* ══════════════════════════════════════════════════════════
+   3. MODULE REGISTRY
+   Cada entrada sigue el contrato definido en el análisis.
+   Para AGREGAR un módulo:   importarlo aquí + añadirlo al array.
+   Para DESHABILITAR:        habilitado: false
+   Para REORDENAR el menú:   cambiar el campo `orden`
+   ════════════════════════════════════════════════════════ */
+
+// ── Importar módulos disponibles ──────────────────────────
+// import SaacModule     from './modules/saac/module.js';
+// import MemoramaModule from './modules/memorama/module.js';
+// import MusicaModule   from './modules/musica/module.js';
+// import LibrosModule   from './modules/libros/module.js';
+// import VideosModule   from './modules/videos/module.js';
+
+// ── Registro (descomenta a medida que se construyen) ──────
+const MODULE_REGISTRY = [
+  // SaacModule,
+  // MemoramaModule,
+  // MusicaModule,
+  // LibrosModule,
+  // VideosModule,
+
+  // ── MÓDULO DE PLACEHOLDER — borrar cuando existan módulos reales
+  {
+    id: 'saac', label: 'Comunicador', emoji: '💬',
+    desc: 'Tablero SAAC', color: '#4A90E2', orden: 1,
+    habilitado: true, requierePin: false,
+    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo SAAC en construcción…</p>'; },
+    destroy: () => {},
+    onEnter: () => {},
+    onLeave: () => {},
+    cache: [],
+  },
+  {
+    id: 'memorama', label: 'Memorama', emoji: '🃏',
+    desc: 'Juego de memoria', color: '#7B61FF', orden: 2,
+    habilitado: true, requierePin: false,
+    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Memorama en construcción…</p>'; },
+    destroy: () => {},
+    onEnter: () => {},
+    onLeave: () => {},
+    cache: [],
+  },
+  {
+    id: 'musica', label: 'Música', emoji: '🎵',
+    desc: 'Reproductor', color: '#F5A623', orden: 3,
+    habilitado: true, requierePin: false,
+    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Música en construcción…</p>'; },
+    destroy: () => {},
+    onEnter: () => {},
+    onLeave: () => {},
+    cache: [],
+  },
+  {
+    id: 'ajustes', label: 'Ajustes', emoji: '⚙️',
+    desc: 'Configuración', color: '#6B7A99', orden: 99,
+    habilitado: true, requierePin: true,
+    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Ajustes en construcción…</p>'; },
+    destroy: () => {},
+    onEnter: () => {},
+    onLeave: () => {},
+    cache: [],
+  },
+].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
+
+/* ── 4. RENDERIZAR MENÚ ──────────────────────────────────── */
+const menu = $('menu-principal');
+
+MODULE_REGISTRY.forEach(mod => {
+  const tile = document.createElement('button');
+  tile.className          = 'module-tile';
+  tile.setAttribute('aria-label', mod.label);
+  tile.dataset.id         = mod.id;
+  if (mod.requierePin) tile.dataset.requierePin = '1';
+  tile.style.borderColor  = `${mod.color}33`;
+
+  tile.innerHTML = `
+    <span class="tile-emoji">${mod.emoji}</span>
+    <span class="tile-label">${mod.label}</span>
+    ${mod.desc ? `<span class="tile-desc">${mod.desc}</span>` : ''}
+  `;
+
+  tile.addEventListener('click', () =>
+    mod.requierePin ? abrirPin(mod) : navegarA(mod)
+  );
+
+  menu.appendChild(tile);
+});
+
+/* ── 5. NAVEGACIÓN ───────────────────────────────────────── */
+let _moduloActivo = null;
+
+async function navegarA(mod) {
+  // Ocultar menú
+  $('menu-principal').style.display  = 'none';
+  $('modulo-header').classList.add('visible');
+  $('modulo-contenido').classList.add('visible');
+  $('modulo-titulo').textContent = `${mod.emoji} ${mod.label}`;
+
+  // Limpiar acciones anteriores
+  $('modulo-acciones').innerHTML = '';
+
+  // Desmontar módulo previo
+  if (_moduloActivo && _moduloActivo.id !== mod.id) {
+    try { _moduloActivo.onLeave?.(); _moduloActivo.destroy?.(); } catch (_) {}
+  }
+
+  _moduloActivo = mod;
+
+  // Montar nuevo módulo
+  const contenedor = $('modulo-contenido');
+  contenedor.innerHTML = '';
+  try {
+    await mod.init(contenedor);
+    mod.onEnter?.();
+    animarEntrada(contenedor);
+  } catch (e) {
+    console.error(`[App] Error al iniciar módulo "${mod.id}":`, e);
+    contenedor.innerHTML = `<p style="padding:2rem;color:#ef4444;">
+      Error al cargar el módulo. Recarga la página.</p>`;
+  }
+}
+
+function volverAlMenu() {
+  if (_moduloActivo) {
+    try { _moduloActivo.onLeave?.(); _moduloActivo.destroy?.(); } catch (_) {}
+    _moduloActivo = null;
+  }
+  $('modulo-header').classList.remove('visible');
+  $('modulo-contenido').classList.remove('visible');
+  $('modulo-contenido').innerHTML = '';
+  $('menu-principal').style.display = '';
+}
+
+$('btn-volver').addEventListener('click', volverAlMenu);
+
+/* ── 6. ACCESO CON PIN ───────────────────────────────────── */
+let _pinTarget     = null;
+let _pinRespuesta  = 0;
+
+function abrirPin(mod) {
+  _pinTarget = mod;
+  const a = Math.floor(Math.random() * 9) + 1;
+  const b = Math.floor(Math.random() * 9) + 1;
+  _pinRespuesta = a + b;
+
+  $('pin-hint').textContent    = `Resuelve: ${a} + ${b} = ?`;
+  $('input-pin').value         = '';
+  $('pin-error').textContent   = '';
+  $('modal-pin').classList.add('visible');
+  setTimeout(() => $('input-pin').focus(), 100);
+}
+
+function cerrarPin() {
+  $('modal-pin').classList.remove('visible');
+  _pinTarget = null;
+}
+
+$('btn-pin-ok').addEventListener('click', () => {
+  const val = parseInt($('input-pin').value, 10);
+  if (val === _pinRespuesta) {
+    cerrarPin();
+    navegarA(_pinTarget);
+  } else {
+    $('pin-error').textContent = 'Respuesta incorrecta, intenta de nuevo.';
+    $('input-pin').value = '';
+    $('input-pin').focus();
+  }
+});
+
+$('btn-pin-cancel').addEventListener('click', cerrarPin);
+
+$('input-pin').addEventListener('keydown', e => {
+  if (e.key === 'Enter') $('btn-pin-ok').click();
+});
+
+// Cerrar al tocar el fondo del overlay
+$('modal-pin').addEventListener('click', e => {
+  if (e.target === $('modal-pin')) cerrarPin();
+});
+
+/* ── 7. EXPONER API global (para módulos que la necesiten) ──
+   Los módulos pueden llamar window.DotirApp.volverAlMenu(), etc. */
+window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
+
+</script>
+</body>
+</html>
