@@ -22,42 +22,47 @@
        neutra para no competir con los pictogramas SAAC.
        ══════════════════════════════════════════════ */
     :root {
-      /* Colores base */
-      --d-bg:          #F0F4FA;   /* fondo del menú */
+      /* ── Paleta alegre para niña de 3 años ──────────────────
+         Inspirada en DJ Emmy (violeta-rosa-índigo) pero
+         llevada a tonos más suaves, saturados y amigables.
+         Fondo cálido en lugar de azul frío.              */
+
+      /* Fondo del menú — amarillo muy suave, como papel de color */
+      --d-bg:          #FFF8F0;
       --d-surface:     #FFFFFF;
-      --d-text:        #1A1A2E;
-      --d-muted:       #6B7A99;
-      --d-border:      rgba(0,0,0,0.08);
+      --d-text:        #2D1B4E;   /* púrpura oscuro, más cálido que negro */
+      --d-muted:       #9B7EC8;
+      --d-border:      rgba(155,126,200,0.15);
 
-      /* Acento principal */
-      --d-primary:     #4A90E2;
-      --d-primary-dk:  #2F6FBF;
+      /* Acento principal — violeta medio (herencia DJ Emmy) */
+      --d-primary:     #A855F7;
+      --d-primary-dk:  #7C3AED;
 
-      /* Navbar del módulo */
-      --d-nav-bg:      #1A1A2E;   /* casi negro, alto contraste */
-      --d-nav-h:       44px;      /* altura fija de la barra */
-      --d-nav-text:    rgba(255,255,255,0.55);
+      /* Navbar — gradiente violeta→rosa como DJ Emmy, más suave */
+      --d-nav-bg:      linear-gradient(135deg, #7C3AED 0%, #C026D3 60%, #EC4899 100%);
+      --d-nav-h:       48px;      /* un poco más alta = más fácil de tocar */
+      --d-nav-text:    rgba(255,255,255,0.70);
       --d-nav-icon:    #FFFFFF;
 
-      /* Categorías SAAC (se usan también en el SAAC module) */
-      --cat-social:    #FFCCBC;  --cat-social-t:    #BF360C;
-      --cat-emociones: #F8BBD9;  --cat-emociones-t: #880E4F;
-      --cat-medical:   #FFCDD2;  --cat-medical-t:   #B71C1C;
-      --cat-action:    #C5E1A5;  --cat-action-t:    #33691E;
-      --cat-place:     #D1D8E0;  --cat-place-t:     #37474F;
-      --cat-noun:      #BBDEFB;  --cat-noun-t:      #0D47A1;
-      --cat-juego:     #E1BEE7;  --cat-juego-t:     #4A148C;
-      --cat-favs:      #FFF3CD;  --cat-favs-t:      #856404;
+      /* Categorías SAAC — más saturadas y alegres */
+      --cat-social:    #FFD6E7;  --cat-social-t:    #9D174D;
+      --cat-emociones: #FDE68A;  --cat-emociones-t: #92400E;
+      --cat-medical:   #FCA5A5;  --cat-medical-t:   #7F1D1D;
+      --cat-action:    #A7F3D0;  --cat-action-t:    #064E3B;
+      --cat-place:     #BAE6FD;  --cat-place-t:     #0C4A6E;
+      --cat-noun:      #DDD6FE;  --cat-noun-t:      #3B0764;
+      --cat-juego:     #FBCFE8;  --cat-juego-t:     #831843;
+      --cat-favs:      #FEF08A;  --cat-favs-t:      #713F12;
 
-      /* Radios */
-      --r-sm:   10px;
-      --r-md:   16px;
-      --r-lg:   22px;
-      --r-xl:   28px;
+      /* Radios — más redondeados = más amigable */
+      --r-sm:   12px;
+      --r-md:   18px;
+      --r-lg:   24px;
+      --r-xl:   32px;
 
-      /* Sombras */
-      --s-card: 0 4px 20px rgba(74,144,226,0.12);
-      --s-deep: 0 8px 32px rgba(0,0,0,0.18);
+      /* Sombras — más coloridas, menos grises */
+      --s-card: 0 4px 20px rgba(168,85,247,0.14);
+      --s-deep: 0 8px 32px rgba(124,58,237,0.22);
 
       /* Safe areas */
       --safe-top:    env(safe-area-inset-top, 0px);
@@ -68,12 +73,16 @@
 
     html, body {
       height: 100%; width: 100%; overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      /* Fuente redondeada y amigable — igual que DJ Emmy usa system-ui */
+      font-family: 'Nunito', 'Varela Round', system-ui, sans-serif;
       background: var(--d-bg);
       color: var(--d-text);
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
+
+    /* Importar Nunito desde Google Fonts (redondeada, muy legible para niñas) */
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
 
     #app {
       position: fixed; inset: 0;
@@ -95,6 +104,9 @@
       padding: 14px 20px 10px;
       background: var(--d-nav-bg);
       flex-shrink: 0;
+      /* Borde inferior redondeado — toque amigable */
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.25);
     }
 
     .menu-logo { display: flex; align-items: baseline; gap: 7px; }
@@ -185,25 +197,25 @@
       height: var(--d-nav-h);
       flex-shrink: 0;
       background: var(--d-nav-bg);
-      padding: 0 8px;
+      padding: 0 10px;
       gap: 8px;
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 4px 16px rgba(124,58,237,0.22);
     }
 
-    /* Botón casa — esquina izquierda, siempre */
     #btn-volver {
       display: flex; align-items: center; justify-content: center;
       width: 36px; height: 36px; flex-shrink: 0;
-      border-radius: var(--r-sm);
+      border-radius: var(--r-md);
       border: none;
-      background: rgba(255,255,255,0.10);
-      color: var(--d-nav-icon);
-      font-size: 1.05rem;
+      background: rgba(255,255,255,0.18);
+      color: white;
+      font-size: 1.1rem;
       cursor: pointer;
       transition: background 0.15s, transform 0.12s;
     }
-    #btn-volver:active { background: rgba(255,255,255,0.22); transform: scale(0.92); }
+    #btn-volver:active { background: rgba(255,255,255,0.32); transform: scale(0.90); }
 
-    /* Slot para acciones del módulo (botones contextuales a la derecha) */
     #modulo-acciones {
       margin-left: auto;
       display: flex; align-items: center; gap: 6px;
