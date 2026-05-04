@@ -1,370 +1,19 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
- <meta charset="UTF-8">
- <meta name="viewport"
-       content="width=device-width, initial-scale=1.0, maximum-scale=1.0,
-                user-scalable=no, viewport-fit=cover">
- <meta name="apple-mobile-web-app-capable"            content="yes">
- <meta name="apple-mobile-web-app-status-bar-style"   content="black-translucent">
- <meta name="apple-mobile-web-app-title"              content="Dotir">
- <meta name="theme-color"                             content="#7C3AED">
- <title>Dotir 2</title>
-
- <link rel="manifest"         href="manifest.json">
- <link rel="apple-touch-icon" href="assets/img/icon-192.png">
- <link rel="icon" type="image/png" href="assets/img/icon-192.png">
-
- <link rel="preconnect" href="https://fonts.googleapis.com">
- <link rel="stylesheet"
-       href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap">
-
- <style>
-   :root {
-     --d-bg:          #FFF8F0;
-     --d-surface:     #FFFFFF;
-     --d-text:        #2D1B4E;
-     --d-muted:       #9B7EC8;
-     --d-border:      rgba(155,126,200,0.15);
-     --d-primary:     #A855F7;
-     --d-primary-dk:  #7C3AED;
-     --d-nav-bg:      linear-gradient(135deg,#7C3AED 0%,#C026D3 60%,#EC4899 100%);
-     --d-nav-h:       48px;
-     --d-nav-icon:    #FFFFFF;
-     --cat-social:    #FFD6E7;  --cat-social-t:    #9D174D;
-     --cat-emociones: #FDE68A;  --cat-emociones-t: #92400E;
-     --cat-medical:   #FCA5A5;  --cat-medical-t:   #7F1D1D;
-     --cat-action:    #A7F3D0;  --cat-action-t:    #064E3B;
-     --cat-place:     #BAE6FD;  --cat-place-t:     #0C4A6E;
-     --cat-noun:      #DDD6FE;  --cat-noun-t:      #3B0764;
-     --cat-juego:     #FBCFE8;  --cat-juego-t:     #831843;
-     --cat-favs:      #FEF08A;  --cat-favs-t:      #713F12;
-     --r-sm:   12px;
-     --r-md:   18px;
-     --r-lg:   24px;
-     --r-xl:   32px;
-     --s-card: 0 4px 20px rgba(168,85,247,0.14);
-     --s-deep: 0 8px 32px rgba(124,58,237,0.22);
-     --safe-top:    env(safe-area-inset-top, 0px);
-     --safe-bottom: env(safe-area-inset-bottom, 0px);
-   }
-
-   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-   html, body {
-     height: 100%; width: 100%; overflow: hidden;
-     font-family: 'Nunito', system-ui, sans-serif;
-     background: var(--d-bg);
-     color: var(--d-text);
-     -webkit-tap-highlight-color: transparent;
-     user-select: none;
-   }
-
-   #app {
-     position: fixed; inset: 0;
-     padding-top: var(--safe-top);
-     display: flex; flex-direction: column;
-   }
-
-   #vista-menu {
-     display: flex; flex-direction: column;
-     height: 100%; width: 100%;
-   }
-
-   #menu-header {
-     display: flex; align-items: center;
-     justify-content: space-between;
-     padding: 14px 20px 10px;
-     background: var(--d-nav-bg);
-     flex-shrink: 0;
-     border-radius: 0 0 20px 20px;
-     box-shadow: 0 4px 20px rgba(124,58,237,0.25);
-   }
-
-   .menu-logo { display: flex; align-items: baseline; gap: 7px; }
-   .menu-logo h1 {
-     font-size: 1.6rem; font-weight: 900;
-     letter-spacing: -0.5px; color: #fff;
-   }
-   .menu-logo .version {
-     font-size: 0.62rem; font-weight: 700;
-     color: rgba(255,255,255,.4);
-     text-transform: uppercase; letter-spacing: .1em;
-   }
-
-   #indicador-offline {
-     display: flex; align-items: center; gap: 6px;
-     padding: 5px 12px; border-radius: 20px;
-     font-size: 0.72rem; font-weight: 700;
-     border: 1.5px solid; transition: all 0.3s ease;
-   }
-   #indicador-offline.online   { background:#dcfce7; border-color:#86efac; color:#166534; }
-   #indicador-offline.offline  { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
-   #indicador-offline.checking { background:#fef9c3; border-color:#fde047; color:#713f12; }
-   #dot-conexion {
-     width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-   }
-   .online  #dot-conexion  { background: #22c55e; }
-   .offline #dot-conexion  { background: #ef4444; }
-   .checking #dot-conexion { background: #eab308; }
-
-   #menu-grid {
-     flex: 1; overflow-y: auto; overflow-x: hidden;
-     padding: 20px;
-     padding-bottom: calc(20px + var(--safe-bottom));
-     display: grid;
-     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-     gap: 16px;
-     align-content: start;
-     background:
-       radial-gradient(circle, rgba(168,85,247,0.07) 1px, transparent 1px),
-       radial-gradient(circle, rgba(236,72,153,0.05) 1px, transparent 1px);
-     background-size: 28px 28px, 14px 14px;
-     background-position: 0 0, 14px 14px;
-   }
-
-   .module-tile {
-     background: var(--d-surface);
-     border-radius: var(--r-xl);
-     box-shadow: var(--s-card);
-     padding: 26px 14px 20px;
-     display: flex; flex-direction: column;
-     align-items: center; gap: 12px;
-     cursor: pointer; position: relative;
-     border: 3px solid transparent;
-     transition: transform 0.15s ease, box-shadow 0.15s ease;
-   }
-   .module-tile:active { transform: scale(0.93); box-shadow: none; }
-   .module-tile .tile-emoji  { font-size: 3.2rem; line-height: 1; }
-   .module-tile .tile-label  {
-     font-size: 0.95rem; font-weight: 900;
-     text-align: center; color: var(--d-text); line-height: 1.2;
-   }
-   .module-tile .tile-desc {
-     font-size: 0.78rem; color: #5B3E9B;
-     text-align: center; font-weight: 800;
-   }
-   .module-tile[data-requiere-pin]::after {
-     content: 'lock'; font-size: 0.7rem;
-     position: absolute; top: 10px; right: 12px;
-   }
-
-   #vista-modulo {
-     display: none;
-     position: fixed; inset: 0;
-     padding-top: var(--safe-top);
-     padding-bottom: var(--safe-bottom);
-     flex-direction: column;
-     z-index: 10;
-   }
-   #vista-modulo.activa { display: flex; }
-
-   #modulo-nav {
-     display: flex; align-items: center;
-     height: var(--d-nav-h); flex-shrink: 0;
-     background: var(--d-nav-bg);
-     padding: 0 10px; gap: 8px;
-     border-radius: 0 0 16px 16px;
-     box-shadow: 0 4px 16px rgba(124,58,237,0.22);
-   }
-
-   #btn-volver {
-     display: flex; align-items: center; justify-content: center;
-     width: 36px; height: 36px; flex-shrink: 0;
-     border-radius: var(--r-md); border: none;
-     background: rgba(255,255,255,0.18);
-     color: white; font-size: 1.1rem;
-     cursor: pointer;
-     transition: background 0.15s, transform 0.12s;
-   }
-   #btn-volver:active { background: rgba(255,255,255,0.32); transform: scale(0.90); }
-
-   #modulo-acciones {
-     margin-left: auto;
-     display: flex; align-items: center; gap: 6px;
-   }
-
-   #modulo-contenido {
-     flex: 1; min-height: 0;
-     display: flex; flex-direction: column;
-     overflow: hidden;
-   }
-
-   .d-nav-btn {
-     display: flex; align-items: center; justify-content: center;
-     height: 32px; padding: 0 13px; border-radius: var(--r-md);
-     border: none; background: rgba(255,255,255,0.18);
-     color: white; font-size: 0.8rem; font-weight: 800;
-     cursor: pointer; gap: 5px; white-space: nowrap;
-     transition: background 0.15s, transform 0.12s;
-   }
-   .d-nav-btn:active { background: rgba(255,255,255,0.32); transform: scale(0.93); }
-   .d-nav-btn.activo { background: rgba(255,255,255,0.28); }
-
-   .d-lang-btn {
-     display: flex; align-items: center; justify-content: center;
-     width: 32px; height: 32px; border-radius: var(--r-sm);
-     border: 2px solid rgba(255,255,255,0.25);
-     background: rgba(255,255,255,0.12);
-     color: white; font-size: 1rem;
-     cursor: pointer; transition: all 0.15s;
-   }
-   .d-lang-btn.activo { border-color: white; background: rgba(255,255,255,0.28); }
-
-   #modal-pin {
-     position: fixed; inset: 0;
-     background: rgba(124,58,237,0.45);
-     display: none; align-items: center; justify-content: center;
-     z-index: 9000; backdrop-filter: blur(8px);
-   }
-   #modal-pin.visible { display: flex; }
-
-   .pin-box {
-     background: white; border-radius: var(--r-xl);
-     padding: 32px; width: 88%; max-width: 340px;
-     text-align: center; box-shadow: var(--s-deep);
-     border: 3px solid rgba(168,85,247,0.2);
-   }
-   .pin-box h3 {
-     font-size: 1.3rem; font-weight: 900;
-     margin-bottom: 8px; color: #2D1B4E;
-   }
-   .pin-box p {
-     font-size: 1rem; color: #2D1B4E;
-     margin-bottom: 16px; font-weight: 800;
-   }
-   #input-pin {
-     width: 100%; padding: 16px;
-     text-align: center; font-size: 2.6rem; font-weight: 900;
-     border: 3px solid rgba(168,85,247,0.25); border-radius: var(--r-md);
-     outline: none; margin-bottom: 14px; color: #2D1B4E;
-     font-family: inherit;
-   }
-   #input-pin:focus { border-color: var(--d-primary); }
-   .pin-btns { display: flex; gap: 10px; }
-   .pin-btns button {
-     flex: 1; padding: 15px; border-radius: var(--r-md);
-     border: none; font-weight: 900; font-size: 1.1rem;
-     cursor: pointer; font-family: inherit;
-   }
-   #btn-pin-ok     { background: var(--d-primary); color: white; }
-   #btn-pin-cancel { background: var(--d-bg); color: #2D1B4E; }
-   #pin-error {
-     color: #C2185B; font-size: 0.95rem;
-     font-weight: 800; margin-top: 8px; min-height: 1em;
-   }
- </style>
-</head>
-<body>
-
-<script>
-window.addEventListener('error', e => {
- document.body.innerHTML +=
-   '<pre style="background:red;color:white;padding:10px;font-size:12px;position:fixed;top:0;left:0;right:0;z-index:99999;overflow:auto;">ERROR: ' + e.message + '\n' + e.filename + '\nLinea: ' + e.lineno + '</pre>';
-});
-window.addEventListener('unhandledrejection', e => {
- document.body.innerHTML +=
-   '<pre style="background:orange;color:black;padding:10px;font-size:12px;position:fixed;top:0;left:0;right:0;z-index:99999;overflow:auto;">PROMISE: ' + e.reason + '</pre>';
-});
-</script>
-
-<div id="app">
-
- <div id="vista-menu">
-   <header id="menu-header">
-     <div class="menu-logo">
-       <h1>Dotir</h1>
-       <span class="version">v2.0</span>
-     </div>
-     <div id="indicador-offline" class="checking">
-       <span id="dot-conexion"></span>
-       <span id="texto-conexion">Verificando...</span>
-     </div>
-   </header>
-   <nav id="menu-grid" aria-label="Modulos de la aplicacion"></nav>
- </div>
-
- <div id="vista-modulo">
-   <div id="modulo-nav">
-     <button id="btn-volver" aria-label="Volver al menu">&#127968;</button>
-     <div id="modulo-acciones"></div>
-   </div>
-   <main id="modulo-contenido" aria-live="polite"></main>
- </div>
-
-</div>
-
-<div id="modal-pin" role="dialog" aria-modal="true">
- <div class="pin-box">
-   <h3>Acceso Protegido</h3>
-   <p id="pin-hint"></p>
-   <input type="number" id="input-pin" placeholder="..."
-          inputmode="numeric" autocomplete="off">
-   <div class="pin-btns">
-     <button id="btn-pin-cancel">Cancelar</button>
-     <button id="btn-pin-ok">Entrar</button>
-   </div>
-   <p id="pin-error" role="alert"></p>
- </div>
-</div>
-
-<script type="module">
-import { registrarSW, onConexionChange } from './core/offline.js';
-import { toast, animarEntrada          } from './core/ui.js';
-
-const $ = id => document.getElementById(id);
-
-registrarSW();
-
-onConexionChange(estado => {
- $('indicador-offline').className = estado;
- $('texto-conexion').textContent = {
-   online: 'En linea', offline: 'Sin conexion', checking: 'Verificando...'
- }[estado];
-});
-
-import SaacModule     from './modules/saac/module.js';
-import MemoramaModule from './modules/memorama/module.js';
-import MusicaModule   from './modules/musica/module.js';
-import AjustesModule  from './modules/ajustes/module.js';
-
-const _ph = n =>
- '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#1a1a2e;color:rgba(255,255,255,.3);font-size:1rem;font-weight:600;">Modulo ' + n + ' en construccion...</div>';
-
-const MODULE_REGISTRY = [
- SaacModule,
- MemoramaModule,
- MusicaModule,
- AjustesModule,
- { id:'libros', label:'Libros', emoji:'📚', desc:'Visor PDF',
-   color:'#10B981', orden:4, habilitado:true, requierePin:false,
-   init:async c=>{c.innerHTML=_ph('Libros')},
-   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
- { id:'videos', label:'Videos', emoji:'🎬', desc:'Reproductor video',
-   color:'#EF4444', orden:5, habilitado:true, requierePin:false,
-   init:async c=>{c.innerHTML=_ph('Videos')},
-   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
-].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
-
-MODULE_REGISTRY.forEach(mod => {
- const tile = document.createElement('button');
- tile.className = 'module-tile';
- tile.setAttribute('aria-label', mod.label);
- tile.dataset.id = mod.id;
- if (mod.requierePin) tile.dataset.requierePin = '1';
- tile.style.borderColor = mod.color + '33';
- tile.innerHTML =
-   '<span class="tile-emoji">' + mod.emoji + '</span>' +
-   '<span class="tile-label">' + mod.label + '</span>' +
-   (mod.desc ? '<span class="tile-desc">' + mod.desc + '</span>' : '');
- tile.addEventListener('click', () =>
-   mod.requierePin ? abrirPin(mod) : navegarA(mod)
- );
- $('menu-grid').appendChild(tile);
-});
-
 let _moduloActivo    = null;
 const _modulosPausados = {};
+const _contenedores    = {};
+
+function _getContenedor(id) {
+ if (!_contenedores[id]) {
+   const div = document.createElement('div');
+   div.style.cssText =
+     'position:fixed;inset:0;padding-top:var(--safe-top);' +
+     'padding-bottom:var(--safe-bottom);display:none;flex-direction:column;' +
+     'z-index:9;overflow:hidden;margin-top:var(--d-nav-h);';
+   document.getElementById('app').appendChild(div);
+   _contenedores[id] = div;
+ }
+ return _contenedores[id];
+}
 
 async function navegarA(mod) {
  $('vista-menu').style.display = 'none';
@@ -374,47 +23,50 @@ async function navegarA(mod) {
    try { _moduloActivo.onLeave?.(); } catch (_) {}
    if (_moduloActivo.pause) {
      try { _moduloActivo.pause(); } catch (_) {}
-     $('modulo-contenido').style.display = 'none';
+     _getContenedor(_moduloActivo.id).style.display = 'none';
      _modulosPausados[_moduloActivo.id] = _moduloActivo;
    } else {
      try { _moduloActivo.destroy?.(); } catch (_) {}
-     $('modulo-contenido').innerHTML = '';
+     const c = _contenedores[_moduloActivo.id];
+     if (c) { c.innerHTML = ''; c.style.display = 'none'; }
    }
    _moduloActivo = null;
  }
 
+ const contenedor = _getContenedor(mod.id);
+
  if (_modulosPausados[mod.id] && mod.resume) {
    _moduloActivo = mod;
-   $('modulo-contenido').style.display = '';
+   contenedor.style.display = 'flex';
    $('modulo-acciones').innerHTML = '';
    try {
-     await mod.resume($('modulo-contenido'));
+     await mod.resume(contenedor);
      mod.onEnter?.();
-     animarEntrada($('modulo-contenido'));
+     animarEntrada(contenedor);
    } catch (e) {
      console.error('[App] Error al resumir ' + mod.id, e);
    }
    return;
  }
 
- if (!mod.resume && _modulosPausados[mod.id]) {
+ if (_modulosPausados[mod.id] && !mod.resume) {
    try { _modulosPausados[mod.id].destroy?.(); } catch (_) {}
    delete _modulosPausados[mod.id];
-   $('modulo-contenido').innerHTML = '';
-   $('modulo-contenido').style.display = '';
+   contenedor.innerHTML = '';
  }
 
  _moduloActivo = mod;
- $('modulo-contenido').style.display = '';
+ contenedor.innerHTML = '';
+ contenedor.style.display = 'flex';
  $('modulo-acciones').innerHTML = '';
 
  try {
-   await mod.init($('modulo-contenido'));
+   await mod.init(contenedor);
    mod.onEnter?.();
-   animarEntrada($('modulo-contenido'));
+   animarEntrada(contenedor);
  } catch (e) {
    console.error('[App] Error en modulo ' + mod.id, e);
-   $('modulo-contenido').innerHTML =
+   contenedor.innerHTML =
      '<div style="padding:2rem;color:#ef4444;font-weight:600;">Error al cargar el modulo.</div>';
  }
 }
@@ -422,13 +74,15 @@ async function navegarA(mod) {
 function volverAlMenu() {
  if (_moduloActivo) {
    try { _moduloActivo.onLeave?.(); } catch (_) {}
+   const contenedor = _getContenedor(_moduloActivo.id);
    if (_moduloActivo.pause) {
      try { _moduloActivo.pause(); } catch (_) {}
-     $('modulo-contenido').style.display = 'none';
+     contenedor.style.display = 'none';
      _modulosPausados[_moduloActivo.id] = _moduloActivo;
    } else {
      try { _moduloActivo.destroy?.(); } catch (_) {}
-     $('modulo-contenido').innerHTML = '';
+     contenedor.innerHTML = '';
+     contenedor.style.display = 'none';
    }
    _moduloActivo = null;
  }
@@ -436,55 +90,3 @@ function volverAlMenu() {
  $('modulo-acciones').innerHTML = '';
  $('vista-menu').style.display = '';
 }
-
-$('btn-volver').addEventListener('click', volverAlMenu);
-
-let _pinTarget = null, _pinRespuesta = 0;
-
-function abrirPin(mod) {
- _pinTarget = mod;
- const a = Math.floor(Math.random() * 9) + 1;
- const b = Math.floor(Math.random() * 9) + 1;
- _pinRespuesta = a + b;
- $('pin-hint').textContent  = 'Resuelve: ' + a + ' + ' + b + ' = ?';
- $('input-pin').value       = '';
- $('pin-error').textContent = '';
- $('modal-pin').classList.add('visible');
- setTimeout(() => $('input-pin').focus(), 100);
-}
-
-function cerrarPin() {
- $('modal-pin').classList.remove('visible');
- _pinTarget = null;
-}
-
-$('btn-pin-ok').addEventListener('click', () => {
- if (parseInt($('input-pin').value, 10) === _pinRespuesta) {
-   const mod = _pinTarget;
-   cerrarPin();
-   navegarA(mod);
- } else {
-   $('pin-error').textContent = 'Respuesta incorrecta, intenta de nuevo.';
-   $('input-pin').value = '';
-   $('input-pin').focus();
- }
-});
-$('btn-pin-cancel').addEventListener('click', cerrarPin);
-$('input-pin').addEventListener('keydown', e => {
- if (e.key === 'Enter') $('btn-pin-ok').click();
-});
-$('modal-pin').addEventListener('click', e => {
- if (e.target === $('modal-pin')) cerrarPin();
-});
-
-const moduloUrl = new URLSearchParams(location.search).get('modulo');
-if (moduloUrl) {
- const mod = MODULE_REGISTRY.find(m => m.id === moduloUrl);
- if (mod) navegarA(mod);
-}
-
-window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
-
-</script>
-</body>
-</html>
