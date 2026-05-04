@@ -84,9 +84,9 @@
       border: 1.5px solid;
       transition: all 0.3s ease;
     }
-    #indicador-offline.online  { background:#dcfce7; border-color:#86efac; color:#166534; }
-    #indicador-offline.offline { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
-    #indicador-offline.checking{ background:#fef9c3; border-color:#fde047; color:#713f12; }
+    #indicador-offline.online   { background:#dcfce7; border-color:#86efac; color:#166534; }
+    #indicador-offline.offline  { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
+    #indicador-offline.checking { background:#fef9c3; border-color:#fde047; color:#713f12; }
 
     #dot-conexion {
       width: 8px; height: 8px; border-radius: 50%;
@@ -236,7 +236,7 @@
   <div id="modulo-header">
     <button id="btn-volver" aria-label="Volver al menú">←</button>
     <span id="modulo-titulo"></span>
-    <div id="modulo-acciones"></div><!-- acciones propias del módulo -->
+    <div id="modulo-acciones"></div>
   </div>
 
   <!-- ── Contenedor del módulo activo ──────────────────────── -->
@@ -260,7 +260,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
-     MÓDULOS — importar aquí cada módulo al crearlo
+     NÚCLEO
      ════════════════════════════════════════════════════════ -->
 <script type="module">
 import { registrarSW, onConexionChange } from './core/offline.js';
@@ -273,74 +273,76 @@ registrarSW();
 onConexionChange(estado => {
   const ind   = $('indicador-offline');
   const texto = $('texto-conexion');
-  ind.className = estado; // 'online' | 'offline' | 'checking'
-  texto.textContent = { online:'En línea', offline:'Sin conexión', checking:'Verificando…' }[estado];
+  ind.className = estado;
+  texto.textContent = {
+    online:   'En línea',
+    offline:  'Sin conexión',
+    checking: 'Verificando…',
+  }[estado];
 });
 
 /* ══════════════════════════════════════════════════════════
    3. MODULE REGISTRY
-   Cada entrada sigue el contrato definido en el análisis.
-   Para AGREGAR un módulo:   importarlo aquí + añadirlo al array.
-   Para DESHABILITAR:        habilitado: false
-   Para REORDENAR el menú:   cambiar el campo `orden`
+   ────────────────────────────────────────────────────────
+   REGLA:
+   · Módulo listo    → import real + entrada sin comentar
+   · Módulo pendiente → import comentado + objeto placeholder
    ════════════════════════════════════════════════════════ */
 
 // ── Importar módulos disponibles ──────────────────────────
-// import SaacModule     from './modules/saac/module.js';
+import SaacModule       from './modules/saac/module.js';
 // import MemoramaModule from './modules/memorama/module.js';
 // import MusicaModule   from './modules/musica/module.js';
 // import LibrosModule   from './modules/libros/module.js';
 // import VideosModule   from './modules/videos/module.js';
 
-// ── Registro (descomenta a medida que se construyen) ──────
+// ── Registro ──────────────────────────────────────────────
 const MODULE_REGISTRY = [
-  SaacModule,
-  // MemoramaModule,
-  // MusicaModule,
-  // LibrosModule,
-  // VideosModule,
 
-  // ── MÓDULO DE PLACEHOLDER — borrar cuando existan módulos reales
-  {
-    id: 'saac', label: 'Comunicador', emoji: '💬',
-    desc: 'Tablero SAAC', color: '#4A90E2', orden: 1,
-    habilitado: true, requierePin: false,
-    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo SAAC en construcción…</p>'; },
-    destroy: () => {},
-    onEnter: () => {},
-    onLeave: () => {},
-    cache: [],
-  },
+  // ── Módulos listos ──────────────────────────────────────
+  SaacModule,
+
+  // ── Placeholders — borrar cada uno al construir el módulo real
+  // MemoramaModule,
   {
     id: 'memorama', label: 'Memorama', emoji: '🃏',
     desc: 'Juego de memoria', color: '#7B61FF', orden: 2,
     habilitado: true, requierePin: false,
     init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Memorama en construcción…</p>'; },
-    destroy: () => {},
-    onEnter: () => {},
-    onLeave: () => {},
-    cache: [],
+    destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
   },
+  // MusicaModule,
   {
     id: 'musica', label: 'Música', emoji: '🎵',
     desc: 'Reproductor', color: '#F5A623', orden: 3,
     habilitado: true, requierePin: false,
     init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Música en construcción…</p>'; },
-    destroy: () => {},
-    onEnter: () => {},
-    onLeave: () => {},
-    cache: [],
+    destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
+  },
+  // LibrosModule,
+  {
+    id: 'libros', label: 'Libros', emoji: '📚',
+    desc: 'Visor PDF', color: '#10B981', orden: 4,
+    habilitado: true, requierePin: false,
+    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Libros en construcción…</p>'; },
+    destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
+  },
+  // VideosModule,
+  {
+    id: 'videos', label: 'Videos', emoji: '🎬',
+    desc: 'Reproductor de video', color: '#EF4444', orden: 5,
+    habilitado: true, requierePin: false,
+    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Videos en construcción…</p>'; },
+    destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
   },
   {
     id: 'ajustes', label: 'Ajustes', emoji: '⚙️',
     desc: 'Configuración', color: '#6B7A99', orden: 99,
     habilitado: true, requierePin: true,
     init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Ajustes en construcción…</p>'; },
-    destroy: () => {},
-    onEnter: () => {},
-    onLeave: () => {},
-    cache: [],
+    destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
   },
+
 ].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
 
 /* ── 4. RENDERIZAR MENÚ ──────────────────────────────────── */
@@ -348,11 +350,11 @@ const menu = $('menu-principal');
 
 MODULE_REGISTRY.forEach(mod => {
   const tile = document.createElement('button');
-  tile.className          = 'module-tile';
+  tile.className = 'module-tile';
   tile.setAttribute('aria-label', mod.label);
-  tile.dataset.id         = mod.id;
+  tile.dataset.id = mod.id;
   if (mod.requierePin) tile.dataset.requierePin = '1';
-  tile.style.borderColor  = `${mod.color}33`;
+  tile.style.borderColor = `${mod.color}33`;
 
   tile.innerHTML = `
     <span class="tile-emoji">${mod.emoji}</span>
@@ -371,25 +373,21 @@ MODULE_REGISTRY.forEach(mod => {
 let _moduloActivo = null;
 
 async function navegarA(mod) {
-  // Ocultar menú
-  $('menu-principal').style.display  = 'none';
+  $('menu-principal').style.display = 'none';
   $('modulo-header').classList.add('visible');
   $('modulo-contenido').classList.add('visible');
   $('modulo-titulo').textContent = `${mod.emoji} ${mod.label}`;
-
-  // Limpiar acciones anteriores
   $('modulo-acciones').innerHTML = '';
 
-  // Desmontar módulo previo
   if (_moduloActivo && _moduloActivo.id !== mod.id) {
     try { _moduloActivo.onLeave?.(); _moduloActivo.destroy?.(); } catch (_) {}
   }
 
   _moduloActivo = mod;
 
-  // Montar nuevo módulo
   const contenedor = $('modulo-contenido');
   contenedor.innerHTML = '';
+
   try {
     await mod.init(contenedor);
     mod.onEnter?.();
@@ -415,18 +413,17 @@ function volverAlMenu() {
 $('btn-volver').addEventListener('click', volverAlMenu);
 
 /* ── 6. ACCESO CON PIN ───────────────────────────────────── */
-let _pinTarget     = null;
-let _pinRespuesta  = 0;
+let _pinTarget    = null;
+let _pinRespuesta = 0;
 
 function abrirPin(mod) {
   _pinTarget = mod;
   const a = Math.floor(Math.random() * 9) + 1;
   const b = Math.floor(Math.random() * 9) + 1;
   _pinRespuesta = a + b;
-
-  $('pin-hint').textContent    = `Resuelve: ${a} + ${b} = ?`;
-  $('input-pin').value         = '';
-  $('pin-error').textContent   = '';
+  $('pin-hint').textContent  = `Resuelve: ${a} + ${b} = ?`;
+  $('input-pin').value       = '';
+  $('pin-error').textContent = '';
   $('modal-pin').classList.add('visible');
   setTimeout(() => $('input-pin').focus(), 100);
 }
@@ -454,13 +451,19 @@ $('input-pin').addEventListener('keydown', e => {
   if (e.key === 'Enter') $('btn-pin-ok').click();
 });
 
-// Cerrar al tocar el fondo del overlay
 $('modal-pin').addEventListener('click', e => {
   if (e.target === $('modal-pin')) cerrarPin();
 });
 
-/* ── 7. EXPONER API global (para módulos que la necesiten) ──
-   Los módulos pueden llamar window.DotirApp.volverAlMenu(), etc. */
+/* ── 7. Atajo desde URL (?modulo=saac) ───────────────────── */
+const params    = new URLSearchParams(location.search);
+const moduloUrl = params.get('modulo');
+if (moduloUrl) {
+  const mod = MODULE_REGISTRY.find(m => m.id === moduloUrl);
+  if (mod) navegarA(mod);
+}
+
+/* ── 8. API global para los módulos ──────────────────────── */
 window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
 
 </script>
