@@ -8,43 +8,35 @@
   <meta name="apple-mobile-web-app-capable"            content="yes">
   <meta name="apple-mobile-web-app-status-bar-style"   content="black-translucent">
   <meta name="apple-mobile-web-app-title"              content="Dótir">
-  <meta name="theme-color"                             content="#1A1A2E">
+  <meta name="theme-color"                             content="#7C3AED">
   <title>Dótir 2</title>
 
-  <link id="manifest-link"  rel="manifest"         href="manifest.json">
-  <link id="apple-icon"     rel="apple-touch-icon" href="assets/img/icon-192.png">
-  <link id="favicon"        rel="icon" type="image/png" href="assets/img/icon-192.png">
+  <link rel="manifest"         href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/img/icon-192.png">
+  <link rel="icon" type="image/png" href="assets/img/icon-192.png">
+
+  <!-- Nunito: fuente redondeada y amigable para niñas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap">
 
   <style>
     /* ══════════════════════════════════════════════
        DESIGN SYSTEM — tokens globales
-       Paleta oscura consistente con el Memorama,
-       neutra para no competir con los pictogramas SAAC.
        ══════════════════════════════════════════════ */
     :root {
-      /* ── Paleta alegre para niña de 3 años ──────────────────
-         Inspirada en DJ Emmy (violeta-rosa-índigo) pero
-         llevada a tonos más suaves, saturados y amigables.
-         Fondo cálido en lugar de azul frío.              */
-
-      /* Fondo del menú — amarillo muy suave, como papel de color */
       --d-bg:          #FFF8F0;
       --d-surface:     #FFFFFF;
-      --d-text:        #2D1B4E;   /* púrpura oscuro, más cálido que negro */
+      --d-text:        #2D1B4E;
       --d-muted:       #9B7EC8;
       --d-border:      rgba(155,126,200,0.15);
-
-      /* Acento principal — violeta medio (herencia DJ Emmy) */
       --d-primary:     #A855F7;
       --d-primary-dk:  #7C3AED;
 
-      /* Navbar — gradiente violeta→rosa como DJ Emmy, más suave */
-      --d-nav-bg:      linear-gradient(135deg, #7C3AED 0%, #C026D3 60%, #EC4899 100%);
-      --d-nav-h:       48px;      /* un poco más alta = más fácil de tocar */
-      --d-nav-text:    rgba(255,255,255,0.70);
+      --d-nav-bg:      linear-gradient(135deg,#7C3AED 0%,#C026D3 60%,#EC4899 100%);
+      --d-nav-h:       48px;
       --d-nav-icon:    #FFFFFF;
 
-      /* Categorías SAAC — más saturadas y alegres */
       --cat-social:    #FFD6E7;  --cat-social-t:    #9D174D;
       --cat-emociones: #FDE68A;  --cat-emociones-t: #92400E;
       --cat-medical:   #FCA5A5;  --cat-medical-t:   #7F1D1D;
@@ -54,17 +46,14 @@
       --cat-juego:     #FBCFE8;  --cat-juego-t:     #831843;
       --cat-favs:      #FEF08A;  --cat-favs-t:      #713F12;
 
-      /* Radios — más redondeados = más amigable */
       --r-sm:   12px;
       --r-md:   18px;
       --r-lg:   24px;
       --r-xl:   32px;
 
-      /* Sombras — más coloridas, menos grises */
       --s-card: 0 4px 20px rgba(168,85,247,0.14);
       --s-deep: 0 8px 32px rgba(124,58,237,0.22);
 
-      /* Safe areas */
       --safe-top:    env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -73,16 +62,12 @@
 
     html, body {
       height: 100%; width: 100%; overflow: hidden;
-      /* Fuente redondeada y amigable — igual que DJ Emmy usa system-ui */
-      font-family: 'Nunito', 'Varela Round', system-ui, sans-serif;
+      font-family: 'Nunito', system-ui, sans-serif;
       background: var(--d-bg);
       color: var(--d-text);
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
-
-    /* Importar Nunito desde Google Fonts (redondeada, muy legible para niñas) */
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
 
     #app {
       position: fixed; inset: 0;
@@ -104,7 +89,6 @@
       padding: 14px 20px 10px;
       background: var(--d-nav-bg);
       flex-shrink: 0;
-      /* Borde inferior redondeado — toque amigable */
       border-radius: 0 0 20px 20px;
       box-shadow: 0 4px 20px rgba(124,58,237,0.25);
     }
@@ -115,29 +99,27 @@
       letter-spacing: -0.5px; color: #fff;
     }
     .menu-logo .version {
-      font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,.35);
+      font-size: 0.62rem; font-weight: 700;
+      color: rgba(255,255,255,.4);
       text-transform: uppercase; letter-spacing: .1em;
     }
 
-    /* Indicador de conexión */
     #indicador-offline {
       display: flex; align-items: center; gap: 6px;
       padding: 5px 12px; border-radius: 20px;
-      font-size: 0.72rem; font-weight: 700; border: 1.5px solid;
-      transition: all 0.3s ease;
+      font-size: 0.72rem; font-weight: 700;
+      border: 1.5px solid; transition: all 0.3s ease;
     }
     #indicador-offline.online   { background:#dcfce7; border-color:#86efac; color:#166534; }
     #indicador-offline.offline  { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
     #indicador-offline.checking { background:#fef9c3; border-color:#fde047; color:#713f12; }
     #dot-conexion {
       width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-      transition: background 0.3s;
     }
     .online  #dot-conexion  { background: #22c55e; }
     .offline #dot-conexion  { background: #ef4444; }
     .checking #dot-conexion { background: #eab308; }
 
-    /* Grid de tiles */
     #menu-grid {
       flex: 1; overflow-y: auto; overflow-x: hidden;
       padding: 20px;
@@ -146,28 +128,33 @@
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 16px;
       align-content: start;
+      background:
+        radial-gradient(circle, rgba(168,85,247,0.07) 1px, transparent 1px),
+        radial-gradient(circle, rgba(236,72,153,0.05) 1px, transparent 1px);
+      background-size: 28px 28px, 14px 14px;
+      background-position: 0 0, 14px 14px;
     }
 
     .module-tile {
       background: var(--d-surface);
-      border-radius: var(--r-lg);
+      border-radius: var(--r-xl);
       box-shadow: var(--s-card);
       padding: 26px 14px 20px;
       display: flex; flex-direction: column;
       align-items: center; gap: 12px;
       cursor: pointer; position: relative;
-      border: 2.5px solid transparent;
+      border: 3px solid transparent;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .module-tile:active { transform: scale(0.95); box-shadow: none; }
-    .module-tile .tile-emoji  { font-size: 3rem; line-height: 1; }
+    .module-tile:active { transform: scale(0.93); box-shadow: none; }
+    .module-tile .tile-emoji  { font-size: 3.2rem; line-height: 1; }
     .module-tile .tile-label  {
-      font-size: 0.88rem; font-weight: 800;
+      font-size: 0.95rem; font-weight: 900;
       text-align: center; color: var(--d-text); line-height: 1.2;
     }
     .module-tile .tile-desc   {
       font-size: 0.72rem; color: var(--d-muted);
-      text-align: center; font-weight: 500;
+      text-align: center; font-weight: 700;
     }
     .module-tile[data-requiere-pin]::after {
       content: '🔒'; font-size: 0.7rem;
@@ -175,11 +162,7 @@
     }
 
     /* ══════════════════════════════════════════════
-       VISTA MÓDULO
-       Estructura:
-         #vista-modulo
-           ├── #modulo-nav   ← barra fija compartida (44px)
-           └── #modulo-contenido ← 100% del resto
+       VISTA MÓDULO — pantalla completa
        ══════════════════════════════════════════════ */
     #vista-modulo {
       display: none;
@@ -191,14 +174,11 @@
     }
     #vista-modulo.activa { display: flex; }
 
-    /* Barra de navegación del módulo */
     #modulo-nav {
       display: flex; align-items: center;
-      height: var(--d-nav-h);
-      flex-shrink: 0;
+      height: var(--d-nav-h); flex-shrink: 0;
       background: var(--d-nav-bg);
-      padding: 0 10px;
-      gap: 8px;
+      padding: 0 10px; gap: 8px;
       border-radius: 0 0 16px 16px;
       box-shadow: 0 4px 16px rgba(124,58,237,0.22);
     }
@@ -206,11 +186,9 @@
     #btn-volver {
       display: flex; align-items: center; justify-content: center;
       width: 36px; height: 36px; flex-shrink: 0;
-      border-radius: var(--r-md);
-      border: none;
+      border-radius: var(--r-md); border: none;
       background: rgba(255,255,255,0.18);
-      color: white;
-      font-size: 1.1rem;
+      color: white; font-size: 1.1rem;
       cursor: pointer;
       transition: background 0.15s, transform 0.12s;
     }
@@ -221,14 +199,6 @@
       display: flex; align-items: center; gap: 6px;
     }
 
-    /* Estilo base para botones de acción que los módulos inyecten en #modulo-acciones */
-    /* Los módulos pueden usar la clase .d-nav-btn para mantener consistencia */
-    :root {
-      --d-nav-btn-bg:      rgba(255,255,255,0.10);
-      --d-nav-btn-bg-act:  rgba(255,255,255,0.22);
-    }
-
-    /* Contenedor del módulo — ocupa todo el espacio restante */
     #modulo-contenido {
       flex: 1; min-height: 0;
       display: flex; flex-direction: column;
@@ -236,71 +206,73 @@
     }
 
     /* ══════════════════════════════════════════════
+       CLASES COMPARTIDAS (usadas por módulos)
+       ══════════════════════════════════════════════ */
+    .d-nav-btn {
+      display: flex; align-items: center; justify-content: center;
+      height: 32px; padding: 0 13px; border-radius: var(--r-md);
+      border: none; background: rgba(255,255,255,0.18);
+      color: white; font-size: 0.8rem; font-weight: 800;
+      cursor: pointer; gap: 5px; white-space: nowrap;
+      transition: background 0.15s, transform 0.12s;
+    }
+    .d-nav-btn:active { background: rgba(255,255,255,0.32); transform: scale(0.93); }
+    .d-nav-btn.activo { background: rgba(255,255,255,0.28); }
+
+    .d-lang-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: var(--r-sm);
+      border: 2px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.12);
+      color: white; font-size: 1rem;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .d-lang-btn.activo { border-color: white; background: rgba(255,255,255,0.28); }
+
+    /* ══════════════════════════════════════════════
        MODAL PIN
        ══════════════════════════════════════════════ */
     #modal-pin {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(124,58,237,0.45);
       display: none; align-items: center; justify-content: center;
-      z-index: 9000; backdrop-filter: blur(6px);
+      z-index: 9000; backdrop-filter: blur(8px);
     }
     #modal-pin.visible { display: flex; }
 
     .pin-box {
       background: white; border-radius: var(--r-xl);
-      padding: 28px; width: 88%; max-width: 340px;
+      padding: 32px; width: 88%; max-width: 340px;
       text-align: center; box-shadow: var(--s-deep);
+      border: 3px solid rgba(168,85,247,0.2);
     }
-    .pin-box h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
-    .pin-box p  { font-size: 0.8rem; color: var(--d-muted); margin-bottom: 16px; }
+    .pin-box h3 {
+      font-size: 1.15rem; font-weight: 900;
+      margin-bottom: 6px; color: var(--d-text);
+    }
+    .pin-box p { font-size: 0.85rem; color: var(--d-muted); margin-bottom: 16px; font-weight: 700; }
 
     #input-pin {
       width: 100%; padding: 14px;
-      text-align: center; font-size: 1.6rem; font-weight: 700;
-      border: 2px solid #e2e8f0; border-radius: var(--r-md);
-      outline: none; margin-bottom: 14px;
+      text-align: center; font-size: 1.8rem; font-weight: 900;
+      border: 3px solid rgba(168,85,247,0.25); border-radius: var(--r-md);
+      outline: none; margin-bottom: 14px; color: var(--d-text);
+      font-family: inherit;
     }
     #input-pin:focus { border-color: var(--d-primary); }
 
     .pin-btns { display: flex; gap: 10px; }
     .pin-btns button {
-      flex: 1; padding: 12px; border-radius: var(--r-sm);
-      border: none; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+      flex: 1; padding: 13px; border-radius: var(--r-md);
+      border: none; font-weight: 800; font-size: 0.95rem;
+      cursor: pointer; font-family: inherit;
     }
     #btn-pin-ok     { background: var(--d-primary); color: white; }
-    #btn-pin-cancel { background: var(--d-bg); color: var(--d-text); }
+    #btn-pin-cancel { background: var(--d-bg); color: var(--d-muted); }
     #pin-error {
-      color: #ef4444; font-size: 0.78rem;
-      font-weight: 600; margin-top: 8px; min-height: 1em;
+      color: #EC4899; font-size: 0.8rem;
+      font-weight: 700; margin-top: 8px; min-height: 1em;
     }
-
-    /* ══════════════════════════════════════════════
-       UTILIDADES COMPARTIDAS
-       Clases disponibles para los módulos
-       ══════════════════════════════════════════════ */
-
-    /* Botón de acción en la navbar — para que los módulos mantengan consistencia */
-    .d-nav-btn {
-      display: flex; align-items: center; justify-content: center;
-      height: 32px; padding: 0 12px; border-radius: var(--r-sm);
-      border: none; background: rgba(255,255,255,0.10);
-      color: white; font-size: 0.78rem; font-weight: 700;
-      cursor: pointer; gap: 5px; white-space: nowrap;
-      transition: background 0.15s, transform 0.12s;
-    }
-    .d-nav-btn:active { background: rgba(255,255,255,0.22); transform: scale(0.94); }
-    .d-nav-btn.activo { background: rgba(255,255,255,0.22); }
-
-    /* Chip de idioma */
-    .d-lang-btn {
-      display: flex; align-items: center; justify-content: center;
-      width: 32px; height: 32px; border-radius: var(--r-sm);
-      border: 2px solid rgba(255,255,255,0.18);
-      background: rgba(255,255,255,0.08);
-      color: white; font-size: 1rem;
-      cursor: pointer; transition: all 0.15s;
-    }
-    .d-lang-btn.activo { border-color: white; background: rgba(255,255,255,0.22); }
   </style>
 </head>
 <body>
@@ -309,7 +281,6 @@
 
   <!-- ══ VISTA MENÚ ══════════════════════════════ -->
   <div id="vista-menu">
-
     <header id="menu-header">
       <div class="menu-logo">
         <h1>Dótir</h1>
@@ -320,24 +291,16 @@
         <span id="texto-conexion">Verificando…</span>
       </div>
     </header>
-
     <nav id="menu-grid" aria-label="Módulos de la aplicación"></nav>
-
   </div>
 
   <!-- ══ VISTA MÓDULO ════════════════════════════ -->
   <div id="vista-modulo">
-
-    <!-- Barra de navegación compartida -->
     <div id="modulo-nav">
       <button id="btn-volver" aria-label="Volver al menú">🏠</button>
-      <!-- Los módulos pueden inyectar controles en #modulo-acciones -->
       <div id="modulo-acciones"></div>
     </div>
-
-    <!-- Contenido del módulo activo -->
     <main id="modulo-contenido" aria-live="polite"></main>
-
   </div>
 
 </div>
@@ -364,10 +327,10 @@ import { toast, animarEntrada          } from './core/ui.js';
 
 const $ = id => document.getElementById(id);
 
-/* 1. Service Worker */
+/* ── 1. Service Worker ───────────────────────── */
 registrarSW();
 
-/* 2. Indicador de conexión */
+/* ── 2. Indicador de conexión ────────────────── */
 onConexionChange(estado => {
   $('indicador-offline').className = estado;
   $('texto-conexion').textContent = {
@@ -391,9 +354,7 @@ import AjustesModule  from './modules/ajustes/module.js';
 const _ph = nombre =>
   `<div style="display:flex;align-items:center;justify-content:center;
     height:100%;background:#1a1a2e;color:rgba(255,255,255,.3);
-    font-size:1rem;font-weight:600;">
-    Módulo ${nombre} en construcción…
-  </div>`;
+    font-size:1rem;font-weight:600;">Módulo ${nombre} en construcción…</div>`;
 
 const MODULE_REGISTRY = [
 
@@ -402,16 +363,26 @@ const MODULE_REGISTRY = [
   AjustesModule,
 
   // MusicaModule,
-  { id:'musica',  label:'Música',  emoji:'🎵', desc:'Reproductor',       color:'#F5A623', orden:3,  habilitado:true, requierePin:false, init:async c=>{c.innerHTML=_ph('Música')},   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
+  { id:'musica',  label:'Música',  emoji:'🎵', desc:'Reproductor',
+    color:'#F5A623', orden:3, habilitado:true, requierePin:false,
+    init:async c=>{c.innerHTML=_ph('Música')},
+    destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
+
   // LibrosModule,
-  { id:'libros',  label:'Libros',  emoji:'📚', desc:'Visor PDF',          color:'#10B981', orden:4,  habilitado:true, requierePin:false, init:async c=>{c.innerHTML=_ph('Libros')},   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
+  { id:'libros',  label:'Libros',  emoji:'📚', desc:'Visor PDF',
+    color:'#10B981', orden:4, habilitado:true, requierePin:false,
+    init:async c=>{c.innerHTML=_ph('Libros')},
+    destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
+
   // VideosModule,
-  { id:'videos',  label:'Videos',  emoji:'🎬', desc:'Reproductor video',  color:'#EF4444', orden:5,  habilitado:true, requierePin:false, init:async c=>{c.innerHTML=_ph('Videos')},   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
-  // AjustesModule ya está arriba en módulos listos
+  { id:'videos',  label:'Videos',  emoji:'🎬', desc:'Reproductor video',
+    color:'#EF4444', orden:5, habilitado:true, requierePin:false,
+    init:async c=>{c.innerHTML=_ph('Videos')},
+    destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
 
 ].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
 
-/* 4. Renderizar menú */
+/* ── 4. Renderizar menú ──────────────────────── */
 MODULE_REGISTRY.forEach(mod => {
   const tile = document.createElement('button');
   tile.className = 'module-tile';
@@ -431,37 +402,31 @@ MODULE_REGISTRY.forEach(mod => {
 });
 
 /* ══════════════════════════════════════════════
-   5. NAVEGACIÓN con soporte de pausa/resume
+   5. NAVEGACIÓN con soporte pause / resume
    ══════════════════════════════════════════════
-   Contrato extendido del módulo:
+   Contrato del módulo:
    · init(container)  — montar por primera vez
    · destroy()        — desmontar definitivamente
-   · onEnter()        — foco / reanudar timers
-   · onLeave()        — quitar foco / pausar timers
-   · pause()          — NUEVO: salir al menú sin destruir
-   · resume()         — NUEVO: volver sin reinicializar
-
-   Si el módulo no declara pause/resume, se hace
-   destroy/init como antes (compatibilidad total).
+   · onEnter()        — al recibir foco
+   · onLeave()        — al perder foco
+   · pause()          — salir al menú sin destruir (opcional)
+   · resume(container)— volver sin reinicializar  (opcional)
    ══════════════════════════════════════════════ */
-let _moduloActivo   = null;  // módulo en pantalla
-let _moduloPausado  = null;  // módulo en segundo plano (pausado)
+let _moduloActivo  = null;
+let _moduloPausado = null;
 
 async function navegarA(mod) {
   $('vista-menu').style.display = 'none';
   $('vista-modulo').classList.add('activa');
 
-  // ── Si ya hay un módulo activo diferente → pausar o destruir ──
+  // Módulo diferente al actual → pausar o destruir el actual
   if (_moduloActivo && _moduloActivo.id !== mod.id) {
     try { _moduloActivo.onLeave?.(); } catch (_) {}
-
     if (_moduloActivo.pause) {
-      // Módulo soporta pausa: ocultar DOM sin destruir
       try { _moduloActivo.pause(); } catch (_) {}
       $('modulo-contenido').style.display = 'none';
       _moduloPausado = _moduloActivo;
     } else {
-      // Sin pausa: destruir normalmente
       try { _moduloActivo.destroy?.(); } catch (_) {}
       $('modulo-contenido').innerHTML = '';
       if (_moduloPausado?.id === _moduloActivo.id) _moduloPausado = null;
@@ -469,7 +434,7 @@ async function navegarA(mod) {
     _moduloActivo = null;
   }
 
-  // ── Si el módulo pedido ya está pausado → resumir ──
+  // El módulo pedido ya está pausado → resumir
   if (_moduloPausado?.id === mod.id && mod.resume) {
     _moduloActivo = mod;
     $('modulo-contenido').style.display = '';
@@ -484,7 +449,7 @@ async function navegarA(mod) {
     return;
   }
 
-  // ── Módulo diferente al pausado → destruir pausado si existe ──
+  // Módulo diferente al pausado → destruir el pausado
   if (_moduloPausado && _moduloPausado.id !== mod.id) {
     try { _moduloPausado.destroy?.(); } catch (_) {}
     _moduloPausado = null;
@@ -492,11 +457,10 @@ async function navegarA(mod) {
     $('modulo-contenido').style.display = '';
   }
 
-  // ── Inicializar módulo fresco ──────────────────────────────
+  // Inicializar módulo fresco
   _moduloActivo = mod;
   $('modulo-contenido').style.display = '';
   $('modulo-acciones').innerHTML = '';
-
   try {
     await mod.init($('modulo-contenido'));
     mod.onEnter?.();
@@ -504,16 +468,15 @@ async function navegarA(mod) {
   } catch (e) {
     console.error(`[App] Error en módulo "${mod.id}":`, e);
     $('modulo-contenido').innerHTML =
-      `<div style="padding:2rem;color:#ef4444;font-weight:600;">Error al cargar el módulo.</div>`;
+      `<div style="padding:2rem;color:#ef4444;font-weight:600;">
+        Error al cargar el módulo.</div>`;
   }
 }
 
 function volverAlMenu() {
   if (_moduloActivo) {
     try { _moduloActivo.onLeave?.(); } catch (_) {}
-
     if (_moduloActivo.pause) {
-      // Pausar: conservar DOM, ocultar vista
       try { _moduloActivo.pause(); } catch (_) {}
       $('modulo-contenido').style.display = 'none';
       _moduloPausado = _moduloActivo;
@@ -523,7 +486,6 @@ function volverAlMenu() {
     }
     _moduloActivo = null;
   }
-
   $('vista-modulo').classList.remove('activa');
   $('modulo-acciones').innerHTML = '';
   $('vista-menu').style.display = '';
@@ -531,7 +493,7 @@ function volverAlMenu() {
 
 $('btn-volver').addEventListener('click', volverAlMenu);
 
-/* 6. PIN */
+/* ── 6. PIN ──────────────────────────────────── */
 let _pinTarget = null, _pinRespuesta = 0;
 
 function abrirPin(mod) {
@@ -567,14 +529,14 @@ $('modal-pin').addEventListener('click', e => {
   if (e.target === $('modal-pin')) cerrarPin();
 });
 
-/* 7. Atajo por URL */
+/* ── 7. Atajo por URL (?modulo=saac) ─────────── */
 const moduloUrl = new URLSearchParams(location.search).get('modulo');
 if (moduloUrl) {
   const mod = MODULE_REGISTRY.find(m => m.id === moduloUrl);
   if (mod) navegarA(mod);
 }
 
-/* 8. API global para módulos */
+/* ── 8. API global para módulos ──────────────── */
 window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
 
 </script>
