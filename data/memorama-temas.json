@@ -3,18 +3,18 @@
     "id": "frutas",
     "titulo": "Frutas",
     "icono": "frutas-icono.png",
-    "archivo": "memorama-frutas.json"
+    "archivo": "data/memorama-frutas.json"
   },
   {
     "id": "transportes",
     "titulo": "Transportes",
     "icono": "transportes-icono.png",
-    "archivo": "memorama-transportes.json"
+    "archivo": "data/memorama-transportes.json"
   },
   {
     "id": "vegetales",
     "titulo": "Vegetales",
     "icono": "vegetales-icono.png",
-    "archivo": "memorama-vegetales.json"
+    "archivo": "data/memorama-vegetales.json"
   }
 ]
