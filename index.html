@@ -325,7 +325,7 @@ onConexionChange(estado => {
 
 import SaacModule     from './modules/saac/module.js';
 import MemoramaModule from './modules/memorama/module.js';
-import MusicaModule from './modules/musica/module.js';
+import MusicaModule   from './modules/musica/module.js';
 import AjustesModule  from './modules/ajustes/module.js';
 
 const _ph = n =>
@@ -334,8 +334,8 @@ const _ph = n =>
 const MODULE_REGISTRY = [
  SaacModule,
  MemoramaModule,
- AjustesModule,
  MusicaModule,
+ AjustesModule,
  { id:'libros', label:'Libros', emoji:'📚', desc:'Visor PDF',
    color:'#10B981', orden:4, habilitado:true, requierePin:false,
    init:async c=>{c.innerHTML=_ph('Libros')},
@@ -363,8 +363,8 @@ MODULE_REGISTRY.forEach(mod => {
  $('menu-grid').appendChild(tile);
 });
 
-let _moduloActivo  = null;
-let _moduloPausado = null;
+let _moduloActivo    = null;
+const _modulosPausados = {};
 
 async function navegarA(mod) {
  $('vista-menu').style.display = 'none';
@@ -375,16 +375,15 @@ async function navegarA(mod) {
    if (_moduloActivo.pause) {
      try { _moduloActivo.pause(); } catch (_) {}
      $('modulo-contenido').style.display = 'none';
-     _moduloPausado = _moduloActivo;
+     _modulosPausados[_moduloActivo.id] = _moduloActivo;
    } else {
      try { _moduloActivo.destroy?.(); } catch (_) {}
      $('modulo-contenido').innerHTML = '';
-     if (_moduloPausado && _moduloPausado.id === _moduloActivo.id) _moduloPausado = null;
    }
    _moduloActivo = null;
  }
 
- if (_moduloPausado && _moduloPausado.id === mod.id && mod.resume) {
+ if (_modulosPausados[mod.id] && mod.resume) {
    _moduloActivo = mod;
    $('modulo-contenido').style.display = '';
    $('modulo-acciones').innerHTML = '';
@@ -398,9 +397,9 @@ async function navegarA(mod) {
    return;
  }
 
- if (_moduloPausado && _moduloPausado.id !== mod.id) {
-   try { _moduloPausado.destroy?.(); } catch (_) {}
-   _moduloPausado = null;
+ if (!mod.resume && _modulosPausados[mod.id]) {
+   try { _modulosPausados[mod.id].destroy?.(); } catch (_) {}
+   delete _modulosPausados[mod.id];
    $('modulo-contenido').innerHTML = '';
    $('modulo-contenido').style.display = '';
  }
@@ -426,7 +425,7 @@ function volverAlMenu() {
    if (_moduloActivo.pause) {
      try { _moduloActivo.pause(); } catch (_) {}
      $('modulo-contenido').style.display = 'none';
-     _moduloPausado = _moduloActivo;
+     _modulosPausados[_moduloActivo.id] = _moduloActivo;
    } else {
      try { _moduloActivo.destroy?.(); } catch (_) {}
      $('modulo-contenido').innerHTML = '';
