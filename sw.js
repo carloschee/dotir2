@@ -1,9 +1,8 @@
 /* ============================================================
-Dótir 2 — sw.js
-Network-first para JS/HTML/CSS → cambios en repo visibles
-siempre en la siguiente carga, sin borrar caché manualmente.
-Cache-first solo para video (streaming con Range support).
-Network-first con fallback para JSON.
+Dótir 2 — sw.js  (dotir2-v4)
+Network-first para JS/HTML/CSS → cambios en repo siempre
+visibles en la siguiente carga sin borrar caché.
+Cache-first solo para video. Network-first para JSON.
 ============================================================ */
 
 const CACHE = ‘dotir2-v4’;
@@ -73,9 +72,9 @@ c || new Response(’[]’, { headers: { ‘Content-Type’: ‘application/json
 return;
 }
 
-// ── Todo lo demás (JS, HTML, CSS, imágenes): network-first ───
-// Siempre intenta la red primero → cambios en repo visibles
-// inmediatamente. Si no hay red, usa caché como respaldo.
+// ── Todo lo demás: network-first ─────────────────────────────
+// Siempre va a la red → cambios en el repo se ven de inmediato.
+// Si no hay red, usa la caché como respaldo.
 e.respondWith(
 fetch(request)
 .then(resp => {
