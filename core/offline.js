@@ -1,166 +1,21 @@
 /* ============================================================
    Dótir 2 — core/offline.js
-   SW generado como Blob con URLs absolutas precalculadas,
-   exactamente igual a como lo hace DJ Emmy para GitHub Pages.
+   Registro del SW como archivo (no Blob — GitHub Pages
+   bloquea SW desde blob: URLs).
    ============================================================ */
 
-// ── Base URL del origen (calculada una vez al cargar) ─────────
-const BASE = (() => {
-  const href = window.location.href;
-  // Quitar query string y hash, conservar el path hasta el último /
-  return href.split('?')[0].split('#')[0].replace(/\/[^/]*$/, '/');
-})();
+const SW_URL = './sw.js';
 
-const abs = path => new URL(path, BASE).href;
-
-// ── Shell: recursos mínimos para que la app arranque ──────────
-const SHELL = [
-  abs('./'),
-  abs('./index.html'),
-  abs('./manifest.json'),
-  abs('./core/tts.js'),
-  abs('./core/offline.js'),
-  abs('./core/ui.js'),
-  abs('./core/audio.js'),
-  abs('./modules/saac/module.js'),
-  abs('./modules/saac/saac.js'),
-  abs('./modules/memorama/module.js'),
-  abs('./modules/memorama/memorama.js'),
-  abs('./modules/ajustes/module.js'),
-  abs('./modules/ajustes/ajustes.js'),
-  abs('./data/saac.json'),
-  abs('./data/memorama-temas.json'),
-  abs('./data/memorama-frutas.json'),
-  abs('./data/memorama-transportes.json'),
-  abs('./data/memorama-vegetales.json'),
-];
-
-// ── Generar código del SW con URLs absolutas inyectadas ───────
-const _swCode = () => `
-const CACHE   = 'dotir2-v4';
-const SHELL   = ${JSON.stringify(SHELL)};
-
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c =>
-      Promise.all(SHELL.map(u => c.add(u).catch(() => {})))
-    ).then(() => self.skipWaiting())
-  );
-});
-
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys()
-      .then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
-  );
-});
-
-const isVideo = u => /\\.mp4(\\?|$)/i.test(u);
-const isJson  = u => /\\.json(\\?|$)/i.test(u);
-
-self.addEventListener('fetch', e => {
-  const { request } = e;
-  const url = request.url;
-  if (request.method !== 'GET') return;
-
-  if (isVideo(url)) {
-    e.respondWith(caches.open(CACHE).then(async cache => {
-      const cached = await cache.match(request);
-      if (!cached) {
-        const resp = await fetch(request);
-        if (resp.ok) cache.put(request, resp.clone());
-        return resp;
-      }
-      const range = request.headers.get('Range');
-      if (!range) return cached;
-      const blob  = await cached.blob();
-      const m     = /bytes=(\\d*)-(\\d*)/.exec(range);
-      const start = m[1] ? +m[1] : 0;
-      const end   = m[2] ? +m[2] : blob.size - 1;
-      return new Response(blob.slice(start, end + 1), {
-        status: 206, statusText: 'Partial Content',
-        headers: {
-          'Content-Type':   cached.headers.get('Content-Type') || 'video/mp4',
-          'Content-Range':  \`bytes \${start}-\${end}/\${blob.size}\`,
-          'Content-Length': String(end - start + 1),
-          'Accept-Ranges':  'bytes',
-        },
-      });
-    }).catch(() => fetch(request)));
-    return;
-  }
-
-  if (isJson(url)) {
-    e.respondWith(
-      fetch(request)
-        .then(resp => {
-          if (resp.ok) caches.open(CACHE).then(c => c.put(request, resp.clone()));
-          return resp;
-        })
-        .catch(() => caches.match(request).then(c =>
-          c || new Response('[]', { headers: { 'Content-Type': 'application/json' } })
-        ))
-    );
-    return;
-  }
-
-  e.respondWith(
-    caches.match(request).then(cached => {
-      const net = fetch(request).then(resp => {
-        if (resp.ok) caches.open(CACHE).then(c => c.put(request, resp.clone()));
-        return resp;
-      });
-      return cached || net;
-    }).catch(() => new Response('Sin conexión', { status: 503 }))
-  );
-});
-
-self.addEventListener('message', async e => {
-  if (e.data?.tipo === 'precache') {
-    const cache = await caches.open(CACHE);
-    let ok = 0;
-    for (const url of (e.data.urls || [])) {
-      try { const r = await fetch(url); if (r.ok) { await cache.put(url, r); ok++; } } catch (_) {}
-    }
-    e.source?.postMessage({ tipo: 'precache-done', total: (e.data.urls || []).length, ok });
-    return;
-  }
-  if (e.data?.tipo === 'check') {
-    const c = await caches.match(e.data.url);
-    e.source?.postMessage({ tipo: 'check-result', url: e.data.url, cached: !!c });
-    return;
-  }
-  if (e.data?.tipo === 'clear') {
-    await caches.delete(CACHE);
-    e.source?.postMessage({ tipo: 'clear-done' });
-  }
-});
-`;
-
-// ── Registro del SW ───────────────────────────────────────────
+// ── Registro ──────────────────────────────────────────────────
 export async function registrarSW() {
-  if (!('serviceWorker' in navigator)) {
-    console.warn('[Offline] SW no soportado.');
-    return null;
-  }
+  if (!('serviceWorker' in navigator)) return null;
   try {
-    // Desregistrar SW anteriores (archivo sw.js si quedó alguno)
-    const regs = await navigator.serviceWorker.getRegistrations();
-    for (const r of regs) {
-      // Solo desregistrar si es un SW de archivo (no blob)
-      if (r.active?.scriptURL?.endsWith('sw.js')) await r.unregister();
-    }
-
-    const blob  = new Blob([_swCode()], { type: 'application/javascript' });
-    const swUrl = URL.createObjectURL(blob);
-    const reg   = await navigator.serviceWorker.register(swUrl, { scope: './' });
-
+    const reg = await navigator.serviceWorker.register(SW_URL, { scope: './' });
     if (navigator.storage?.persist) navigator.storage.persist();
-    console.info('[Offline] SW Blob registrado OK');
+    console.info('[Offline] SW registrado:', reg.scope);
     return reg;
   } catch (e) {
-    console.error('[Offline] Error al registrar SW:', e);
+    console.error('[Offline] Error SW:', e);
     return null;
   }
 }
@@ -173,12 +28,9 @@ async function _swMsg(msg) {
   if (reg?.active) reg.active.postMessage(msg);
 }
 
-// ── Precaché de recursos (bajo demanda desde Ajustes) ─────────
+// ── Precaché bajo demanda ─────────────────────────────────────
 export async function precachear(urls, { onProgress } = {}) {
   if (!urls?.length) return { ok: 0, total: 0 };
-  // Convertir a absolutas por si alguna vino relativa
-  const absUrls = urls.map(u => u.startsWith('http') ? u : abs(u));
-
   return new Promise(resolve => {
     let done = false;
     const handler = e => {
@@ -191,17 +43,15 @@ export async function precachear(urls, { onProgress } = {}) {
     setTimeout(() => {
       if (done) return;
       navigator.serviceWorker.removeEventListener('message', handler);
-      resolve({ ok: 0, total: absUrls.length });
+      resolve({ ok: 0, total: urls.length });
     }, 30_000);
-
-    _swMsg({ tipo: 'precache', urls: absUrls });
-
+    _swMsg({ tipo: 'precache', urls });
     if (onProgress) {
       let n = 0;
       const tick = setInterval(() => {
-        if (n >= absUrls.length || done) { clearInterval(tick); return; }
-        n = Math.min(n + Math.ceil(absUrls.length / 20), absUrls.length);
-        onProgress(n, absUrls.length);
+        if (n >= urls.length || done) { clearInterval(tick); return; }
+        n = Math.min(n + Math.ceil(urls.length / 20), urls.length);
+        onProgress(n, urls.length);
       }, 300);
     }
   });
@@ -209,15 +59,14 @@ export async function precachear(urls, { onProgress } = {}) {
 
 export async function estaEnCache(url) {
   return new Promise(resolve => {
-    const u = url.startsWith('http') ? url : abs(url);
     const handler = e => {
-      if (e.data?.tipo === 'check-result' && e.data.url === u) {
+      if (e.data?.tipo === 'check-result' && e.data.url === url) {
         navigator.serviceWorker.removeEventListener('message', handler);
         resolve(e.data.cached);
       }
     };
     navigator.serviceWorker.addEventListener('message', handler);
-    _swMsg({ tipo: 'check', url: u });
+    _swMsg({ tipo: 'check', url });
     setTimeout(() => resolve(false), 3000);
   });
 }
@@ -254,7 +103,7 @@ function _emitir(e) {
 async function _verificar() {
   if (!navigator.onLine) { _emitir('offline'); return; }
   try {
-    const res = await fetch(abs('./manifest.json'), {
+    const res = await fetch('./manifest.json', {
       method: 'HEAD', cache: 'no-store',
       signal: AbortSignal.timeout(4000),
     });
