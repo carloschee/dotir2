@@ -1,12 +1,10 @@
 /* ============================================================
-Dótir 2 — core/offline.js
-Registro del SW como archivo (no Blob — GitHub Pages
-bloquea SW desde blob: URLs).
+Dotir 2 - core/offline.js
+Registro del SW y utilidades de cache y conexion
 ============================================================ */
 
 const SW_URL = ‘./sw.js’;
 
-// ── Registro ──────────────────────────────────────────────────
 export async function registrarSW() {
 if (!(‘serviceWorker’ in navigator)) return null;
 try {
@@ -20,7 +18,6 @@ return null;
 }
 }
 
-// ── Comunicación con el SW ────────────────────────────────────
 const _swReady = () => navigator.serviceWorker?.ready ?? Promise.resolve(null);
 
 async function _swMsg(msg) {
@@ -28,7 +25,6 @@ const reg = await _swReady();
 if (reg?.active) reg.active.postMessage(msg);
 }
 
-// ── Precaché bajo demanda ─────────────────────────────────────
 export async function precachear(urls, { onProgress } = {}) {
 if (!urls?.length) return { ok: 0, total: 0 };
 return new Promise(resolve => {
@@ -44,7 +40,7 @@ setTimeout(() => {
 if (done) return;
 navigator.serviceWorker.removeEventListener(‘message’, handler);
 resolve({ ok: 0, total: urls.length });
-}, 30_000);
+}, 30000);
 _swMsg({ tipo: ‘precache’, urls });
 if (onProgress) {
 let n = 0;
@@ -85,8 +81,7 @@ setTimeout(resolve, 3000);
 });
 }
 
-// ── Indicador de conexión ─────────────────────────────────────
-let _estado    = ‘checking’;
+let _estado = ‘checking’;
 let _listeners = [];
 
 export function onConexionChange(fn) {
@@ -104,14 +99,17 @@ async function _verificar() {
 if (!navigator.onLine) { _emitir(‘offline’); return; }
 try {
 const res = await fetch(’./manifest.json’, {
-method: ‘HEAD’, cache: ‘no-store’,
+method: ‘HEAD’,
+cache: ‘no-store’,
 signal: AbortSignal.timeout(4000),
 });
 _emitir(res.ok ? ‘online’ : ‘offline’);
-} catch { _emitir(‘offline’); }
+} catch {
+_emitir(‘offline’);
+}
 }
 
-window.addEventListener(‘online’,  () => _verificar());
+window.addEventListener(‘online’, () => _verificar());
 window.addEventListener(‘offline’, () => _emitir(‘offline’));
 _verificar();
 setInterval(_verificar, 4 * 60 * 1000);
