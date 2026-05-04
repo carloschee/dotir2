@@ -484,24 +484,47 @@ function _renderHistorial() {
   lista.innerHTML = '';
 
   if (!_historial.length) {
-    lista.innerHTML = '<p style="color:#94a3b8;font-size:0.85rem;padding:8px 0;">Aún no hay frases guardadas.</p>';
+    lista.innerHTML = '<p style="color:#94a3b8;font-size:0.85rem;padding:8px 0;">Aun no hay frases guardadas.</p>';
     return;
   }
 
-  _historial.forEach(texto => {
+  _historial.forEach((texto, i) => {
     const item = document.createElement('div');
     item.className = 'historial-item';
-    item.innerHTML = `
-      <span class="h-texto">${texto}</span>
-      <button class="h-btn" title="Repetir">🔊</button>
-    `;
-    item.querySelector('.h-btn').addEventListener('click', e => {
+    item.innerHTML =
+      '<span class="h-texto">' + texto + '</span>' +
+      '<button class="h-btn" title="Repetir" style="background:#22c55e;">&#128266;</button>' +
+      '<button class="h-btn" title="Eliminar" style="background:#ef4444;">&#10005;</button>';
+
+    item.querySelectorAll('.h-btn')[0].addEventListener('click', e => {
       e.stopPropagation();
       TTS.speak(texto, { lang: 'es-MX', pitch: 1.1, rate: 0.85 });
     });
+
+    item.querySelectorAll('.h-btn')[1].addEventListener('click', e => {
+      e.stopPropagation();
+      _historial.splice(i, 1);
+      _guardarHistorial();
+      _renderHistorial();
+    });
+
     lista.appendChild(item);
   });
+
+  const btnBorrarTodo = document.createElement('button');
+  btnBorrarTodo.textContent = 'Borrar todo';
+  btnBorrarTodo.style.cssText =
+    'margin-top:12px;width:100%;padding:10px;border-radius:12px;border:none;' +
+    'background:#fee2e2;color:#991b1b;font-weight:800;font-size:0.85rem;cursor:pointer;';
+  btnBorrarTodo.addEventListener('click', () => {
+    _historial = [];
+    _guardarHistorial();
+    _renderHistorial();
+  });
+
+  lista.appendChild(btnBorrarTodo);
 }
+
 
 // ── API para ajustes externos (tamaño de pictograma) ──────────
 export function setTamano(t) {
