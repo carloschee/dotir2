@@ -161,32 +161,24 @@ function _marcarCintillo(idx) {
 }
 
 function _mostrarBtnStop() {
-  let btn = document.getElementById('mus-btn-global');
-  if (!btn) {
-    btn = document.createElement('button');
-    btn.id = 'mus-btn-global';
-    btn.className = 'd-nav-btn';
-    btn.title = 'Detener musica';
-    btn.innerHTML = '&#9646;&#9646; Detener';
-    btn.style.cssText = 'background:rgba(239,68,68,0.7);display:flex;';
-    btn.addEventListener('click', () => {
-      AudioManager.stop();
-      btn.style.display = 'none';
-      if (_container) {
-        const titulo = _q('#mus-titulo');
-        if (titulo) titulo.textContent = 'Toca una cancion para reproducir';
-        _marcarCintillo(-1);
-      }
-    });
-    document.getElementById('app').appendChild(btn);
-    btn.style.cssText +=
-      'position:fixed;top:calc(var(--safe-top) + 6px);right:10px;z-index:200;' +
-      'height:32px;padding:0 12px;border-radius:12px;border:none;' +
-      'color:white;font-size:0.78rem;font-weight:800;cursor:pointer;' +
-      'background:rgba(239,68,68,0.85);backdrop-filter:blur(8px);' +
-      'box-shadow:0 2px 12px rgba(239,68,68,0.4);';
-  }
-  btn.style.display = 'flex';
+ const acc = document.getElementById('modulo-acciones');
+ if (!acc) return;
+ if (document.getElementById('mus-btn-stop')) return;
+ const btn = document.createElement('button');
+ btn.id        = 'mus-btn-stop';
+ btn.className = 'd-nav-btn';
+ btn.innerHTML = '&#9646;&#9646; Detener';
+ btn.style.background = 'rgba(239,68,68,0.75)';
+ btn.addEventListener('click', () => {
+   AudioManager.stop();
+   btn.remove();
+   if (_container) {
+     const titulo = _q('#mus-titulo');
+     if (titulo) titulo.textContent = 'Toca una cancion para reproducir';
+     _marcarCintillo(-1);
+   }
+ });
+ acc.appendChild(btn);
 }
 
 function _iniciarAnimacion() {
