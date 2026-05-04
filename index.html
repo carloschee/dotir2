@@ -501,8 +501,11 @@ function cerrarPin() {
 
 $('btn-pin-ok').addEventListener('click', () => {
   if (parseInt($('input-pin').value, 10) === _pinRespuesta) {
-    cerrarPin(); navegarA(_pinTarget);
+    const mod = _pinTarget;
+    cerrarPin();
+    navegarA(mod);
   } else {
+
     $('pin-error').textContent = 'Respuesta incorrecta, intenta de nuevo.';
     $('input-pin').value = ''; $('input-pin').focus();
   }
