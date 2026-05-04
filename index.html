@@ -143,8 +143,8 @@
       text-align: center; color: var(--d-text); line-height: 1.2;
     }
     .module-tile .tile-desc   {
-      font-size: 0.72rem; color: var(--d-muted);
-      text-align: center; font-weight: 700;
+      font-size: 0.78rem; color: #5B3E9B;
+      text-align: center; font-weight: 800;
     }
     .module-tile[data-requiere-pin]::after {
       content: '🔒'; font-size: 0.7rem;
@@ -231,56 +231,37 @@
       border: 3px solid rgba(168,85,247,0.2);
     }
     .pin-box h3 {
-      font-size: 1.15rem; font-weight: 900;
-      margin-bottom: 6px; color: var(--d-text);
+      font-size: 1.3rem; font-weight: 900;
+      margin-bottom: 8px; color: var(--d-text);
     }
     .pin-box p {
-      font-size: 0.85rem; color: var(--d-muted);
-      margin-bottom: 16px; font-weight: 700;
+      font-size: 1rem; color: #2D1B4E;
+      margin-bottom: 16px; font-weight: 800;
     }
     #input-pin {
-      width: 100%; padding: 14px;
-      text-align: center; font-size: 1.8rem; font-weight: 900;
+      width: 100%; padding: 16px;
+      text-align: center; font-size: 2.6rem; font-weight: 900;
       border: 3px solid rgba(168,85,247,0.25); border-radius: var(--r-md);
-      outline: none; margin-bottom: 14px; color: var(--d-text);
+      outline: none; margin-bottom: 14px; color: #2D1B4E;
       font-family: inherit;
     }
     #input-pin:focus { border-color: var(--d-primary); }
     .pin-btns { display: flex; gap: 10px; }
     .pin-btns button {
-      flex: 1; padding: 13px; border-radius: var(--r-md);
-      border: none; font-weight: 800; font-size: 0.95rem;
+      flex: 1; padding: 15px; border-radius: var(--r-md);
+      border: none; font-weight: 900; font-size: 1.1rem;
       cursor: pointer; font-family: inherit;
     }
     #btn-pin-ok     { background: var(--d-primary); color: white; }
-    #btn-pin-cancel { background: var(--d-bg); color: var(--d-muted); }
+    #btn-pin-cancel { background: var(--d-bg); color: #2D1B4E; }
     #pin-error {
-      color: #EC4899; font-size: 0.8rem;
-      font-weight: 700; margin-top: 8px; min-height: 1em;
+      color: #C2185B; font-size: 0.95rem;
+      font-weight: 800; margin-top: 8px; min-height: 1em;
     }
   </style>
 
 </head>
 <body>
-<!-- tmp -->
-  <script>
-window.addEventListener('error', e => {
-  document.body.innerHTML += 
-    `<pre style="background:red;color:white;padding:10px;font-size:12px;
-     position:fixed;top:0;left:0;right:0;z-index:99999;overflow:auto;">
-     ERROR: ${e.message}\n${e.filename}\nLínea: ${e.lineno}
-     </pre>`;
-});
-window.addEventListener('unhandledrejection', e => {
-  document.body.innerHTML += 
-    `<pre style="background:orange;color:black;padding:10px;font-size:12px;
-     position:fixed;top:0;left:0;right:0;z-index:99999;overflow:auto;">
-     PROMISE: ${e.reason}
-     </pre>`;
-});
-</script>
-
-<!-- finaliza tmp -->
 
 <div id="app">
 
@@ -501,11 +482,8 @@ function cerrarPin() {
 
 $('btn-pin-ok').addEventListener('click', () => {
   if (parseInt($('input-pin').value, 10) === _pinRespuesta) {
-    const mod = _pinTarget;
-    cerrarPin();
-    navegarA(mod);
+    cerrarPin(); navegarA(_pinTarget);
   } else {
-
     $('pin-error').textContent = 'Respuesta incorrecta, intenta de nuevo.';
     $('input-pin').value = ''; $('input-pin').focus();
   }
