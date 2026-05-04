@@ -85,19 +85,19 @@ function _renderShell() {
   _container.innerHTML = `
     <style>
       /* ── SAAC layout ──────────────────────────────── */
+      /* No declara font-family ni colores base — hereda del design system */
       #saac-wrap {
         display: flex; flex-direction: column;
         height: 100%; overflow: hidden;
-        background: #F0F4FA;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--d-bg, #F0F4FA);
       }
 
-      /* Barra de frase */
+      /* Barra de frase — va justo debajo de la navbar del shell */
       #saac-frase-bar {
         display: flex; align-items: center; gap: 8px;
         padding: 8px 12px;
-        background: white;
-        border-bottom: 1px solid #e2e8f0;
+        background: var(--d-surface, white);
+        border-bottom: 1px solid var(--d-border, rgba(0,0,0,0.08));
         flex-shrink: 0; min-height: 88px;
       }
       #saac-frase-scroll {

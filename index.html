@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable"            content="yes">
   <meta name="apple-mobile-web-app-status-bar-style"   content="black-translucent">
   <meta name="apple-mobile-web-app-title"              content="Dótir">
-  <meta name="theme-color"                             content="#4A90E2">
+  <meta name="theme-color"                             content="#1A1A2E">
   <title>Dótir 2</title>
 
   <link id="manifest-link"  rel="manifest"         href="manifest.json">
@@ -16,83 +16,110 @@
   <link id="favicon"        rel="icon" type="image/png" href="assets/img/icon-192.png">
 
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    /* ══════════════════════════════════════════════
+       DESIGN SYSTEM — tokens globales
+       Paleta oscura consistente con el Memorama,
+       neutra para no competir con los pictogramas SAAC.
+       ══════════════════════════════════════════════ */
     :root {
-      --color-primary:   #4A90E2;
-      --color-secondary: #7B61FF;
-      --color-accent:    #F5A623;
-      --color-bg:        #F0F4FA;
-      --color-surface:   #FFFFFF;
-      --color-text:      #1A1A2E;
-      --color-muted:     #6B7A99;
-      --radius-card:     20px;
-      --shadow-card:     0 4px 20px rgba(74,144,226,0.13);
-      --shadow-deep:     0 8px 32px rgba(0,0,0,0.18);
-      --safe-bottom:     env(safe-area-inset-bottom, 0px);
-      --safe-top:        env(safe-area-inset-top, 0px);
+      /* Colores base */
+      --d-bg:          #F0F4FA;   /* fondo del menú */
+      --d-surface:     #FFFFFF;
+      --d-text:        #1A1A2E;
+      --d-muted:       #6B7A99;
+      --d-border:      rgba(0,0,0,0.08);
+
+      /* Acento principal */
+      --d-primary:     #4A90E2;
+      --d-primary-dk:  #2F6FBF;
+
+      /* Navbar del módulo */
+      --d-nav-bg:      #1A1A2E;   /* casi negro, alto contraste */
+      --d-nav-h:       44px;      /* altura fija de la barra */
+      --d-nav-text:    rgba(255,255,255,0.55);
+      --d-nav-icon:    #FFFFFF;
+
+      /* Categorías SAAC (se usan también en el SAAC module) */
+      --cat-social:    #FFCCBC;  --cat-social-t:    #BF360C;
+      --cat-emociones: #F8BBD9;  --cat-emociones-t: #880E4F;
+      --cat-medical:   #FFCDD2;  --cat-medical-t:   #B71C1C;
+      --cat-action:    #C5E1A5;  --cat-action-t:    #33691E;
+      --cat-place:     #D1D8E0;  --cat-place-t:     #37474F;
+      --cat-noun:      #BBDEFB;  --cat-noun-t:      #0D47A1;
+      --cat-juego:     #E1BEE7;  --cat-juego-t:     #4A148C;
+      --cat-favs:      #FFF3CD;  --cat-favs-t:      #856404;
+
+      /* Radios */
+      --r-sm:   10px;
+      --r-md:   16px;
+      --r-lg:   22px;
+      --r-xl:   28px;
+
+      /* Sombras */
+      --s-card: 0 4px 20px rgba(74,144,226,0.12);
+      --s-deep: 0 8px 32px rgba(0,0,0,0.18);
+
+      /* Safe areas */
+      --safe-top:    env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     html, body {
-      height: 100%; width: 100%;
-      overflow: hidden;
+      height: 100%; width: 100%; overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--color-bg);
-      color: var(--color-text);
+      background: var(--d-bg);
+      color: var(--d-text);
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
 
-    /* ══════════════════════════════════════════════
-       APP SHELL — dos estados: menú / módulo
-       ══════════════════════════════════════════════ */
     #app {
       position: fixed; inset: 0;
-      display: flex; flex-direction: column;
       padding-top: var(--safe-top);
+      display: flex; flex-direction: column;
     }
 
-    /* ── ESTADO: MENÚ ────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       VISTA MENÚ
+       ══════════════════════════════════════════════ */
     #vista-menu {
       display: flex; flex-direction: column;
       height: 100%; width: 100%;
     }
 
-    /* Header solo visible en el menú */
     #menu-header {
       display: flex; align-items: center;
       justify-content: space-between;
       padding: 14px 20px 10px;
-      background: var(--color-surface);
-      border-bottom: 1px solid rgba(0,0,0,0.07);
+      background: var(--d-nav-bg);
       flex-shrink: 0;
     }
 
-    .menu-logo {
-      display: flex; align-items: baseline; gap: 6px;
-    }
+    .menu-logo { display: flex; align-items: baseline; gap: 7px; }
     .menu-logo h1 {
       font-size: 1.6rem; font-weight: 900;
-      letter-spacing: -0.5px; color: var(--color-primary);
+      letter-spacing: -0.5px; color: #fff;
     }
     .menu-logo .version {
-      font-size: 0.65rem; font-weight: 700;
-      color: var(--color-muted); text-transform: uppercase;
-      letter-spacing: .08em;
+      font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,.35);
+      text-transform: uppercase; letter-spacing: .1em;
     }
 
     /* Indicador de conexión */
     #indicador-offline {
       display: flex; align-items: center; gap: 6px;
       padding: 5px 12px; border-radius: 20px;
-      font-size: 0.72rem; font-weight: 700;
-      border: 1.5px solid; transition: all 0.3s ease;
+      font-size: 0.72rem; font-weight: 700; border: 1.5px solid;
+      transition: all 0.3s ease;
     }
     #indicador-offline.online   { background:#dcfce7; border-color:#86efac; color:#166534; }
     #indicador-offline.offline  { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
     #indicador-offline.checking { background:#fef9c3; border-color:#fde047; color:#713f12; }
     #dot-conexion {
       width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      transition: background 0.3s;
     }
     .online  #dot-conexion  { background: #22c55e; }
     .offline #dot-conexion  { background: #ef4444; }
@@ -110,9 +137,9 @@
     }
 
     .module-tile {
-      background: var(--color-surface);
-      border-radius: var(--radius-card);
-      box-shadow: var(--shadow-card);
+      background: var(--d-surface);
+      border-radius: var(--r-lg);
+      box-shadow: var(--s-card);
       padding: 26px 14px 20px;
       display: flex; flex-direction: column;
       align-items: center; gap: 12px;
@@ -120,17 +147,14 @@
       border: 2.5px solid transparent;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .module-tile:active {
-      transform: scale(0.95);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    .module-tile:active { transform: scale(0.95); box-shadow: none; }
+    .module-tile .tile-emoji  { font-size: 3rem; line-height: 1; }
+    .module-tile .tile-label  {
+      font-size: 0.88rem; font-weight: 800;
+      text-align: center; color: var(--d-text); line-height: 1.2;
     }
-    .module-tile .tile-emoji { font-size: 3rem; line-height: 1; }
-    .module-tile .tile-label {
-      font-size: 0.9rem; font-weight: 800;
-      text-align: center; color: var(--color-text); line-height: 1.2;
-    }
-    .module-tile .tile-desc {
-      font-size: 0.72rem; color: var(--color-muted);
+    .module-tile .tile-desc   {
+      font-size: 0.72rem; color: var(--d-muted);
       text-align: center; font-weight: 500;
     }
     .module-tile[data-requiere-pin]::after {
@@ -138,129 +162,175 @@
       position: absolute; top: 10px; right: 12px;
     }
 
-    /* ── ESTADO: MÓDULO ──────────────────────────── */
-    /* El módulo ocupa TODO: 100vw × 100vh (menos safe area top) */
+    /* ══════════════════════════════════════════════
+       VISTA MÓDULO
+       Estructura:
+         #vista-modulo
+           ├── #modulo-nav   ← barra fija compartida (44px)
+           └── #modulo-contenido ← 100% del resto
+       ══════════════════════════════════════════════ */
     #vista-modulo {
-      display: none;           /* oculto hasta navegarA() */
-      position: fixed;
-      inset: 0;
+      display: none;
+      position: fixed; inset: 0;
       padding-top: var(--safe-top);
       padding-bottom: var(--safe-bottom);
+      flex-direction: column;
       z-index: 10;
     }
-    #vista-modulo.activa { display: flex; flex-direction: column; }
+    #vista-modulo.activa { display: flex; }
 
-    /* Contenedor del módulo — 100% del espacio disponible */
+    /* Barra de navegación del módulo */
+    #modulo-nav {
+      display: flex; align-items: center;
+      height: var(--d-nav-h);
+      flex-shrink: 0;
+      background: var(--d-nav-bg);
+      padding: 0 8px;
+      gap: 8px;
+    }
+
+    /* Botón casa — esquina izquierda, siempre */
+    #btn-volver {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; flex-shrink: 0;
+      border-radius: var(--r-sm);
+      border: none;
+      background: rgba(255,255,255,0.10);
+      color: var(--d-nav-icon);
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.12s;
+    }
+    #btn-volver:active { background: rgba(255,255,255,0.22); transform: scale(0.92); }
+
+    /* Slot para acciones del módulo (botones contextuales a la derecha) */
+    #modulo-acciones {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* Estilo base para botones de acción que los módulos inyecten en #modulo-acciones */
+    /* Los módulos pueden usar la clase .d-nav-btn para mantener consistencia */
+    :root {
+      --d-nav-btn-bg:      rgba(255,255,255,0.10);
+      --d-nav-btn-bg-act:  rgba(255,255,255,0.22);
+    }
+
+    /* Contenedor del módulo — ocupa todo el espacio restante */
     #modulo-contenido {
       flex: 1; min-height: 0;
       display: flex; flex-direction: column;
       overflow: hidden;
     }
 
-    /* Botón flotante de volver — esquina superior izquierda */
-    #btn-volver {
-      position: fixed;
-      top: calc(var(--safe-top) + 10px);
-      left: 12px;
-      z-index: 100;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(0,0,0,0.28);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      color: white;
-      font-size: 1rem;
-      display: none;               /* visible solo en módulo */
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-    }
-    #btn-volver.visible {
-      display: flex;
-    }
-    #btn-volver:active {
-      transform: scale(0.9);
-      background: rgba(0,0,0,0.50);
-    }
-
-    /* ── MODAL DE PIN ────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       MODAL PIN
+       ══════════════════════════════════════════════ */
     #modal-pin {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.55);
+      background: rgba(0,0,0,0.6);
       display: none; align-items: center; justify-content: center;
-      z-index: 9000; backdrop-filter: blur(4px);
+      z-index: 9000; backdrop-filter: blur(6px);
     }
     #modal-pin.visible { display: flex; }
 
     .pin-box {
-      background: white; border-radius: 24px;
+      background: white; border-radius: var(--r-xl);
       padding: 28px; width: 88%; max-width: 340px;
-      text-align: center; box-shadow: var(--shadow-deep);
+      text-align: center; box-shadow: var(--s-deep);
     }
     .pin-box h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
-    .pin-box p  { font-size: 0.8rem; color: var(--color-muted); margin-bottom: 16px; }
+    .pin-box p  { font-size: 0.8rem; color: var(--d-muted); margin-bottom: 16px; }
 
     #input-pin {
       width: 100%; padding: 14px;
       text-align: center; font-size: 1.6rem; font-weight: 700;
-      border: 2px solid #e2e8f0; border-radius: 14px;
+      border: 2px solid #e2e8f0; border-radius: var(--r-md);
       outline: none; margin-bottom: 14px;
     }
-    #input-pin:focus { border-color: var(--color-primary); }
+    #input-pin:focus { border-color: var(--d-primary); }
 
     .pin-btns { display: flex; gap: 10px; }
     .pin-btns button {
-      flex: 1; padding: 12px; border-radius: 12px;
+      flex: 1; padding: 12px; border-radius: var(--r-sm);
       border: none; font-weight: 700; font-size: 0.9rem; cursor: pointer;
     }
-    #btn-pin-ok     { background: var(--color-primary); color: white; }
-    #btn-pin-cancel { background: var(--color-bg); color: var(--color-text); }
+    #btn-pin-ok     { background: var(--d-primary); color: white; }
+    #btn-pin-cancel { background: var(--d-bg); color: var(--d-text); }
     #pin-error {
       color: #ef4444; font-size: 0.78rem;
       font-weight: 600; margin-top: 8px; min-height: 1em;
     }
+
+    /* ══════════════════════════════════════════════
+       UTILIDADES COMPARTIDAS
+       Clases disponibles para los módulos
+       ══════════════════════════════════════════════ */
+
+    /* Botón de acción en la navbar — para que los módulos mantengan consistencia */
+    .d-nav-btn {
+      display: flex; align-items: center; justify-content: center;
+      height: 32px; padding: 0 12px; border-radius: var(--r-sm);
+      border: none; background: rgba(255,255,255,0.10);
+      color: white; font-size: 0.78rem; font-weight: 700;
+      cursor: pointer; gap: 5px; white-space: nowrap;
+      transition: background 0.15s, transform 0.12s;
+    }
+    .d-nav-btn:active { background: rgba(255,255,255,0.22); transform: scale(0.94); }
+    .d-nav-btn.activo { background: rgba(255,255,255,0.22); }
+
+    /* Chip de idioma */
+    .d-lang-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: var(--r-sm);
+      border: 2px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: white; font-size: 1rem;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .d-lang-btn.activo { border-color: white; background: rgba(255,255,255,0.22); }
   </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════
-     VISTA MENÚ
-     ══════════════════════════════════════════════ -->
-<div id="vista-menu">
+<div id="app">
 
-  <header id="menu-header">
-    <div class="menu-logo">
-      <h1>Dótir</h1>
-      <span class="version">v2.0</span>
-    </div>
-    <div id="indicador-offline" class="checking">
-      <span id="dot-conexion"></span>
-      <span id="texto-conexion">Verificando…</span>
-    </div>
-  </header>
+  <!-- ══ VISTA MENÚ ══════════════════════════════ -->
+  <div id="vista-menu">
 
-  <nav id="menu-grid" aria-label="Módulos de la aplicación">
-    <!-- Generado dinámicamente -->
-  </nav>
+    <header id="menu-header">
+      <div class="menu-logo">
+        <h1>Dótir</h1>
+        <span class="version">v2.0</span>
+      </div>
+      <div id="indicador-offline" class="checking">
+        <span id="dot-conexion"></span>
+        <span id="texto-conexion">Verificando…</span>
+      </div>
+    </header>
+
+    <nav id="menu-grid" aria-label="Módulos de la aplicación"></nav>
+
+  </div>
+
+  <!-- ══ VISTA MÓDULO ════════════════════════════ -->
+  <div id="vista-modulo">
+
+    <!-- Barra de navegación compartida -->
+    <div id="modulo-nav">
+      <button id="btn-volver" aria-label="Volver al menú">🏠</button>
+      <!-- Los módulos pueden inyectar controles en #modulo-acciones -->
+      <div id="modulo-acciones"></div>
+    </div>
+
+    <!-- Contenido del módulo activo -->
+    <main id="modulo-contenido" aria-live="polite"></main>
+
+  </div>
 
 </div>
 
-<!-- ══════════════════════════════════════════════
-     VISTA MÓDULO — pantalla completa
-     ══════════════════════════════════════════════ -->
-<div id="vista-modulo">
-  <main id="modulo-contenido" aria-live="polite"></main>
-</div>
-
-<!-- Botón flotante de volver (fuera de ambas vistas, siempre en el DOM) -->
-<button id="btn-volver" aria-label="Volver al menú">←</button>
-
-<!-- ══════════════════════════════════════════════
-     MODAL PIN
-     ══════════════════════════════════════════════ -->
+<!-- ══ MODAL PIN ════════════════════════════════ -->
 <div id="modal-pin" role="dialog" aria-modal="true">
   <div class="pin-box">
     <h3>Acceso Protegido</h3>
@@ -275,19 +345,17 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     LÓGICA
-     ══════════════════════════════════════════════ -->
+<!-- ══ LÓGICA ═══════════════════════════════════ -->
 <script type="module">
 import { registrarSW, onConexionChange } from './core/offline.js';
 import { toast, animarEntrada          } from './core/ui.js';
 
 const $ = id => document.getElementById(id);
 
-/* ── 1. SERVICE WORKER ───────────────────────── */
+/* 1. Service Worker */
 registrarSW();
 
-/* ── 2. INDICADOR DE CONEXIÓN ────────────────── */
+/* 2. Indicador de conexión */
 onConexionChange(estado => {
   $('indicador-offline').className = estado;
   $('texto-conexion').textContent = {
@@ -299,64 +367,37 @@ onConexionChange(estado => {
    3. MODULE REGISTRY
    REGLA:
    · Módulo listo     → import real + entrada sin comentar
-   · Módulo pendiente → import comentado + objeto placeholder
+   · Módulo pendiente → import comentado + placeholder
    ══════════════════════════════════════════════ */
 import SaacModule     from './modules/saac/module.js';
 import MemoramaModule from './modules/memorama/module.js';
-// import MusicaModule   from './modules/musica/module.js';
-// import LibrosModule   from './modules/libros/module.js';
-// import VideosModule   from './modules/videos/module.js';
+// import MusicaModule  from './modules/musica/module.js';
+// import LibrosModule  from './modules/libros/module.js';
+// import VideosModule  from './modules/videos/module.js';
+
+const _ph = nombre =>
+  `<div style="display:flex;align-items:center;justify-content:center;
+    height:100%;background:#1a1a2e;color:rgba(255,255,255,.3);
+    font-size:1rem;font-weight:600;">
+    Módulo ${nombre} en construcción…
+  </div>`;
 
 const MODULE_REGISTRY = [
 
-  // ── Módulos listos ────────────────────────────
   SaacModule,
   MemoramaModule,
 
-  // ── Placeholders ─────────────────────────────
   // MusicaModule,
-  {
-    id: 'musica', label: 'Música', emoji: '🎵',
-    desc: 'Reproductor', color: '#F5A623', orden: 3,
-    habilitado: true, requierePin: false,
-    init: async c => { c.innerHTML = _placeholder('Música'); },
-    destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
-  },
+  { id:'musica',  label:'Música',  emoji:'🎵', desc:'Reproductor',       color:'#F5A623', orden:3,  habilitado:true, requierePin:false, init:async c=>{c.innerHTML=_ph('Música')},   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
   // LibrosModule,
-  {
-    id: 'libros', label: 'Libros', emoji: '📚',
-    desc: 'Visor PDF', color: '#10B981', orden: 4,
-    habilitado: true, requierePin: false,
-    init: async c => { c.innerHTML = _placeholder('Libros'); },
-    destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
-  },
+  { id:'libros',  label:'Libros',  emoji:'📚', desc:'Visor PDF',          color:'#10B981', orden:4,  habilitado:true, requierePin:false, init:async c=>{c.innerHTML=_ph('Libros')},   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
   // VideosModule,
-  {
-    id: 'videos', label: 'Videos', emoji: '🎬',
-    desc: 'Reproductor de video', color: '#EF4444', orden: 5,
-    habilitado: true, requierePin: false,
-    init: async c => { c.innerHTML = _placeholder('Videos'); },
-    destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
-  },
-  {
-    id: 'ajustes', label: 'Ajustes', emoji: '⚙️',
-    desc: 'Configuración', color: '#6B7A99', orden: 99,
-    habilitado: true, requierePin: true,
-    init: async c => { c.innerHTML = _placeholder('Ajustes'); },
-    destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
-  },
+  { id:'videos',  label:'Videos',  emoji:'🎬', desc:'Reproductor video',  color:'#EF4444', orden:5,  habilitado:true, requierePin:false, init:async c=>{c.innerHTML=_ph('Videos')},   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
+  { id:'ajustes', label:'Ajustes', emoji:'⚙️', desc:'Configuración',      color:'#6B7A99', orden:99, habilitado:true, requierePin:true,  init:async c=>{c.innerHTML=_ph('Ajustes')},  destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
 
 ].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
 
-const _placeholder = nombre =>
-  `<div style="display:flex;align-items:center;justify-content:center;
-               height:100%;color:#999;font-size:1rem;font-weight:600;">
-     Módulo ${nombre} en construcción…
-   </div>`;
-
-/* ── 4. RENDERIZAR MENÚ ──────────────────────── */
-const menuGrid = $('menu-grid');
-
+/* 4. Renderizar menú */
 MODULE_REGISTRY.forEach(mod => {
   const tile = document.createElement('button');
   tile.className = 'module-tile';
@@ -364,49 +405,40 @@ MODULE_REGISTRY.forEach(mod => {
   tile.dataset.id = mod.id;
   if (mod.requierePin) tile.dataset.requierePin = '1';
   tile.style.borderColor = `${mod.color}33`;
-
   tile.innerHTML = `
     <span class="tile-emoji">${mod.emoji}</span>
     <span class="tile-label">${mod.label}</span>
     ${mod.desc ? `<span class="tile-desc">${mod.desc}</span>` : ''}
   `;
-
   tile.addEventListener('click', () =>
     mod.requierePin ? abrirPin(mod) : navegarA(mod)
   );
-
-  menuGrid.appendChild(tile);
+  $('menu-grid').appendChild(tile);
 });
 
-/* ── 5. NAVEGACIÓN ───────────────────────────── */
+/* 5. Navegación */
 let _moduloActivo = null;
 
 async function navegarA(mod) {
-  // Ocultar menú, mostrar módulo a pantalla completa
-  $('vista-menu').style.display  = 'none';
+  $('vista-menu').style.display = 'none';
   $('vista-modulo').classList.add('activa');
-  $('btn-volver').classList.add('visible');
+  $('modulo-acciones').innerHTML = '';
 
-  // Desmontar módulo previo si había otro
   if (_moduloActivo && _moduloActivo.id !== mod.id) {
     try { _moduloActivo.onLeave?.(); _moduloActivo.destroy?.(); } catch (_) {}
   }
-
   _moduloActivo = mod;
 
   const contenedor = $('modulo-contenido');
   contenedor.innerHTML = '';
-
   try {
     await mod.init(contenedor);
     mod.onEnter?.();
     animarEntrada(contenedor);
   } catch (e) {
-    console.error(`[App] Error al iniciar módulo "${mod.id}":`, e);
-    contenedor.innerHTML = `
-      <div style="padding:2rem;color:#ef4444;font-weight:600;">
-        Error al cargar el módulo. Vuelve e inténtalo de nuevo.
-      </div>`;
+    console.error(`[App] Error en módulo "${mod.id}":`, e);
+    contenedor.innerHTML = `<div style="padding:2rem;color:#ef4444;font-weight:600;">
+      Error al cargar el módulo.</div>`;
   }
 }
 
@@ -416,14 +448,14 @@ function volverAlMenu() {
     _moduloActivo = null;
   }
   $('vista-modulo').classList.remove('activa');
-  $('btn-volver').classList.remove('visible');
+  $('modulo-acciones').innerHTML = '';
   $('modulo-contenido').innerHTML = '';
   $('vista-menu').style.display = '';
 }
 
 $('btn-volver').addEventListener('click', volverAlMenu);
 
-/* ── 6. PIN ──────────────────────────────────── */
+/* 6. PIN */
 let _pinTarget = null, _pinRespuesta = 0;
 
 function abrirPin(mod) {
@@ -452,17 +484,21 @@ $('btn-pin-ok').addEventListener('click', () => {
   }
 });
 $('btn-pin-cancel').addEventListener('click', cerrarPin);
-$('input-pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('btn-pin-ok').click(); });
-$('modal-pin').addEventListener('click', e => { if (e.target === $('modal-pin')) cerrarPin(); });
+$('input-pin').addEventListener('keydown', e => {
+  if (e.key === 'Enter') $('btn-pin-ok').click();
+});
+$('modal-pin').addEventListener('click', e => {
+  if (e.target === $('modal-pin')) cerrarPin();
+});
 
-/* ── 7. ATAJO POR URL (?modulo=saac) ─────────── */
+/* 7. Atajo por URL */
 const moduloUrl = new URLSearchParams(location.search).get('modulo');
 if (moduloUrl) {
   const mod = MODULE_REGISTRY.find(m => m.id === moduloUrl);
   if (mod) navegarA(mod);
 }
 
-/* ── 8. API GLOBAL ───────────────────────────── */
+/* 8. API global para módulos */
 window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
 
 </script>

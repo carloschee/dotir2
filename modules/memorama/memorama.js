@@ -131,19 +131,88 @@ export async function init(container) {
   _container = container;
   await _cargarTemas();
   _renderShell();
+  _renderNavAcciones();   // inyecta controles en la navbar del shell
   _mostrarModalTemas();
 }
 
 export function destroy() {
   _detenerTimer();
-  _cartas    = [];
-  _volteadas = [];
+  _cartas     = [];
+  _volteadas  = [];
   _temaActivo = null;
   _container  = null;
+  // Limpiar acciones inyectadas en la navbar del shell
+  const acc = document.getElementById('modulo-acciones');
+  if (acc) acc.innerHTML = '';
 }
 
 export function onEnter() {}
 export function onLeave() { TTS.stop(); _detenerTimer(); }
+
+// ── Inyectar controles en la navbar del shell ─────────────────
+// Los módulos exponen sus controles en #modulo-acciones para
+// mantener el lenguaje visual unificado de la navbar.
+function _renderNavAcciones() {
+  const acc = document.getElementById('modulo-acciones');
+  if (!acc) return;
+  acc.innerHTML = '';
+
+  // Stats compactos
+  const stats = document.createElement('div');
+  stats.id = 'mem-stats-nav';
+  stats.style.cssText = 'display:flex;gap:10px;align-items:center;';
+  stats.innerHTML = `
+    <span class="mem-stat-nav" id="nav-stat-pares"   title="Pares">🃏 <strong>0</strong></span>
+    <span class="mem-stat-nav" id="nav-stat-intentos" title="Intentos">🔁 <strong>0</strong></span>
+    <span class="mem-stat-nav" id="nav-stat-tiempo"   title="Tiempo">⏱ <strong>0:00</strong></span>
+  `;
+
+  // Selector de idiomas
+  const langsWrap = document.createElement('div');
+  langsWrap.style.cssText = 'display:flex;gap:4px;';
+  IDIOMAS.forEach(({ id, bandera }) => {
+    const btn = document.createElement('button');
+    btn.className = `d-lang-btn${_idiomasActivos.has(id) ? ' activo' : ''}`;
+    btn.textContent = bandera;
+    btn.dataset.lang = id;
+    btn.addEventListener('click', () => {
+      if (_idiomasActivos.has(id) && _idiomasActivos.size <= 1) return;
+      _idiomasActivos.has(id) ? _idiomasActivos.delete(id) : _idiomasActivos.add(id);
+      localStorage.setItem(LS_IDIOMAS, JSON.stringify([..._idiomasActivos]));
+      btn.classList.toggle('activo', _idiomasActivos.has(id));
+    });
+    langsWrap.appendChild(btn);
+  });
+
+  // Botón nuevo juego
+  const btnNuevo = document.createElement('button');
+  btnNuevo.className = 'd-nav-btn';
+  btnNuevo.textContent = '🔄';
+  btnNuevo.title = 'Nueva partida';
+  btnNuevo.addEventListener('click', () => { if (_temaActivo) _iniciarJuego(); });
+
+  // Botón elegir tema
+  const btnTema = document.createElement('button');
+  btnTema.className = 'd-nav-btn';
+  btnTema.textContent = '🎴 Tema';
+  btnTema.addEventListener('click', _mostrarModalTemas);
+
+  acc.append(stats, langsWrap, btnNuevo, btnTema);
+
+  // Inyectar CSS de stats en el head (una sola vez)
+  if (!document.getElementById('mem-nav-style')) {
+    const s = document.createElement('style');
+    s.id = 'mem-nav-style';
+    s.textContent = `
+      .mem-stat-nav {
+        display:flex; align-items:center; gap:4px;
+        color:rgba(255,255,255,0.55); font-size:0.72rem; font-weight:700;
+      }
+      .mem-stat-nav strong { color:white; font-size:0.85rem; }
+    `;
+    document.head.appendChild(s);
+  }
+}
 
 // ── Shell HTML ────────────────────────────────────────────────
 function _renderShell() {
@@ -153,48 +222,6 @@ function _renderShell() {
         display: flex; flex-direction: column;
         height: 100%; overflow: hidden;
         background: #1a1a2e; position: relative;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      }
-
-      /* ── Barra superior ── */
-      #mem-topbar {
-        display: flex; align-items: center; gap: 8px;
-        padding: 8px 12px; flex-shrink: 0;
-        background: rgba(0,0,0,0.25);
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-      }
-      #mem-tema-info { flex:1; display:flex; align-items:center; gap:6px; }
-      #mem-tema-emoji { font-size:1.4rem; }
-      #mem-tema-nombre { color:rgba(255,255,255,0.7); font-weight:700; font-size:0.8rem; }
-
-      #mem-stats { display:flex; gap:12px; }
-      .mem-stat {
-        display:flex; flex-direction:column; align-items:center;
-        color:rgba(255,255,255,0.6); font-size:0.62rem; font-weight:700;
-        text-transform:uppercase; letter-spacing:.05em; line-height:1;
-      }
-      .mem-stat strong { font-size:1rem; color:white; }
-
-      /* Controles */
-      #mem-controles { display:flex; gap:6px; }
-      .mem-ctrl-btn {
-        border:none; border-radius:10px;
-        background:rgba(255,255,255,0.12); color:white;
-        padding:6px 10px; font-size:0.75rem; font-weight:700;
-        cursor:pointer; transition:background .15s; white-space:nowrap;
-      }
-      .mem-ctrl-btn:active { background:rgba(255,255,255,0.22); }
-
-      /* Selector de idioma */
-      #mem-idiomas { display:flex; gap:4px; }
-      .mem-lang-btn {
-        border:2px solid rgba(255,255,255,0.2);
-        border-radius:8px; background:rgba(255,255,255,0.08);
-        color:white; font-size:1rem; width:34px; height:30px;
-        cursor:pointer; transition:all .15s;
-      }
-      .mem-lang-btn.activo {
-        border-color:white; background:rgba(255,255,255,0.22);
       }
 
       /* ── Grid de cartas ── */
@@ -374,25 +401,7 @@ function _renderShell() {
 
     <div id="mem-wrap">
 
-      <!-- Barra superior -->
-      <div id="mem-topbar">
-        <div id="mem-tema-info">
-          <span id="mem-tema-emoji">🎴</span>
-          <span id="mem-tema-nombre">Elige un tema</span>
-        </div>
-        <div id="mem-stats">
-          <div class="mem-stat"><strong id="mem-stat-pares">0</strong>Pares</div>
-          <div class="mem-stat"><strong id="mem-stat-intentos">0</strong>Intentos</div>
-          <div class="mem-stat"><strong id="mem-stat-tiempo">0:00</strong>Tiempo</div>
-        </div>
-        <div id="mem-idiomas"></div>
-        <div id="mem-controles">
-          <button class="mem-ctrl-btn" id="btn-mem-tema">🎴 Tema</button>
-          <button class="mem-ctrl-btn" id="btn-mem-nuevo">🔄</button>
-        </div>
-      </div>
-
-      <!-- Grid -->
+      <!-- Grid — ocupa todo el espacio disponible bajo la navbar del shell -->
       <div id="mem-grid-wrap">
         <div id="mem-grid"></div>
       </div>
@@ -437,23 +446,8 @@ function _renderShell() {
     </div>
   `;
 
-  // ── Eventos ────────────────────────────────────────────────
-  _renderIdiomas();
+  // ── Eventos del shell (ya no hay topbar interna) ──────────
   _renderListaTemas();
-
-  _q('#btn-mem-tema').addEventListener('click', _mostrarModalTemas);
-  _q('#btn-mem-nuevo').addEventListener('click', () => { if (_temaActivo) _iniciarJuego(); });
-
-  // Dificultad
-  _q('#mem-dif-btns').addEventListener('click', e => {
-    const btn = e.target.closest('[data-dif]');
-    if (!btn) return;
-    _dificultad = btn.dataset.dif;
-    localStorage.setItem(LS_DIFICULTAD, _dificultad);
-    _q('#mem-dif-btns').querySelectorAll('.mem-dif-btn').forEach(b =>
-      b.classList.toggle('activo', b.dataset.dif === _dificultad)
-    );
-  });
 }
 
 // ── Helpers DOM ───────────────────────────────────────────────
