@@ -16,7 +16,6 @@
   <link id="favicon"        rel="icon" type="image/png" href="assets/img/icon-192.png">
 
   <style>
-    /* ── Reset & tokens ─────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -28,7 +27,6 @@
       --color-text:      #1A1A2E;
       --color-muted:     #6B7A99;
       --radius-card:     20px;
-      --radius-btn:      14px;
       --shadow-card:     0 4px 20px rgba(74,144,226,0.13);
       --shadow-deep:     0 8px 32px rgba(0,0,0,0.18);
       --safe-bottom:     env(safe-area-inset-bottom, 0px);
@@ -45,65 +43,69 @@
       user-select: none;
     }
 
+    /* ══════════════════════════════════════════════
+       APP SHELL — dos estados: menú / módulo
+       ══════════════════════════════════════════════ */
     #app {
+      position: fixed; inset: 0;
       display: flex; flex-direction: column;
-      height: 100%; width: 100%;
       padding-top: var(--safe-top);
-      overflow: hidden;
     }
 
-    /* ── Header ─────────────────────────────────────────── */
-    #app-header {
+    /* ── ESTADO: MENÚ ────────────────────────────── */
+    #vista-menu {
+      display: flex; flex-direction: column;
+      height: 100%; width: 100%;
+    }
+
+    /* Header solo visible en el menú */
+    #menu-header {
       display: flex; align-items: center;
       justify-content: space-between;
-      padding: 12px 16px 8px;
+      padding: 14px 20px 10px;
       background: var(--color-surface);
       border-bottom: 1px solid rgba(0,0,0,0.07);
       flex-shrink: 0;
-      gap: 10px;
     }
 
-    #app-header h1 {
-      font-size: 1.5rem; font-weight: 900;
-      letter-spacing: -0.5px;
-      color: var(--color-primary);
+    .menu-logo {
+      display: flex; align-items: baseline; gap: 6px;
     }
-
-    #app-header .version {
+    .menu-logo h1 {
+      font-size: 1.6rem; font-weight: 900;
+      letter-spacing: -0.5px; color: var(--color-primary);
+    }
+    .menu-logo .version {
       font-size: 0.65rem; font-weight: 700;
-      color: var(--color-muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      color: var(--color-muted); text-transform: uppercase;
+      letter-spacing: .08em;
     }
 
-    /* Indicador offline */
+    /* Indicador de conexión */
     #indicador-offline {
       display: flex; align-items: center; gap: 6px;
       padding: 5px 12px; border-radius: 20px;
       font-size: 0.72rem; font-weight: 700;
-      border: 1.5px solid;
-      transition: all 0.3s ease;
+      border: 1.5px solid; transition: all 0.3s ease;
     }
     #indicador-offline.online   { background:#dcfce7; border-color:#86efac; color:#166534; }
     #indicador-offline.offline  { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
     #indicador-offline.checking { background:#fef9c3; border-color:#fde047; color:#713f12; }
-
     #dot-conexion {
-      width: 8px; height: 8px; border-radius: 50%;
-      flex-shrink: 0; transition: background 0.3s;
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
     }
     .online  #dot-conexion  { background: #22c55e; }
     .offline #dot-conexion  { background: #ef4444; }
     .checking #dot-conexion { background: #eab308; }
 
-    /* ── Menú principal ──────────────────────────────────── */
-    #menu-principal {
+    /* Grid de tiles */
+    #menu-grid {
       flex: 1; overflow-y: auto; overflow-x: hidden;
-      padding: 20px 16px;
+      padding: 20px;
       padding-bottom: calc(20px + var(--safe-bottom));
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
       align-content: start;
     }
 
@@ -111,68 +113,80 @@
       background: var(--color-surface);
       border-radius: var(--radius-card);
       box-shadow: var(--shadow-card);
-      padding: 22px 14px 18px;
+      padding: 26px 14px 20px;
       display: flex; flex-direction: column;
-      align-items: center; gap: 10px;
-      cursor: pointer;
+      align-items: center; gap: 12px;
+      cursor: pointer; position: relative;
       border: 2.5px solid transparent;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
-      -webkit-tap-highlight-color: transparent;
     }
     .module-tile:active {
-      transform: scale(0.96);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      transform: scale(0.95);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
     }
-    .module-tile .tile-emoji { font-size: 2.6rem; line-height: 1; }
+    .module-tile .tile-emoji { font-size: 3rem; line-height: 1; }
     .module-tile .tile-label {
-      font-size: 0.82rem; font-weight: 800;
-      text-align: center; color: var(--color-text);
-      line-height: 1.2;
+      font-size: 0.9rem; font-weight: 800;
+      text-align: center; color: var(--color-text); line-height: 1.2;
     }
     .module-tile .tile-desc {
-      font-size: 0.7rem; color: var(--color-muted);
+      font-size: 0.72rem; color: var(--color-muted);
       text-align: center; font-weight: 500;
     }
     .module-tile[data-requiere-pin]::after {
-      content: '🔒';
-      font-size: 0.7rem; position: absolute; top: 8px; right: 10px;
-    }
-    .module-tile { position: relative; }
-
-    /* ── Vista de módulo ─────────────────────────────────── */
-    #modulo-header {
-      display: none; align-items: center; gap: 10px;
-      padding: 10px 14px;
-      background: var(--color-surface);
-      border-bottom: 1px solid rgba(0,0,0,0.07);
-      flex-shrink: 0;
-    }
-    #modulo-header.visible { display: flex; }
-
-    #btn-volver {
-      width: 38px; height: 38px; border-radius: 12px;
-      border: none; background: var(--color-bg);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; cursor: pointer;
-      flex-shrink: 0;
-      transition: background 0.15s;
-    }
-    #btn-volver:active { background: #dde4f0; }
-
-    #modulo-titulo {
-      font-size: 1rem; font-weight: 800;
-      flex: 1; white-space: nowrap; overflow: hidden;
-      text-overflow: ellipsis;
+      content: '🔒'; font-size: 0.7rem;
+      position: absolute; top: 10px; right: 12px;
     }
 
+    /* ── ESTADO: MÓDULO ──────────────────────────── */
+    /* El módulo ocupa TODO: 100vw × 100vh (menos safe area top) */
+    #vista-modulo {
+      display: none;           /* oculto hasta navegarA() */
+      position: fixed;
+      inset: 0;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+      z-index: 10;
+    }
+    #vista-modulo.activa { display: flex; flex-direction: column; }
+
+    /* Contenedor del módulo — 100% del espacio disponible */
     #modulo-contenido {
       flex: 1; min-height: 0;
-      display: none; flex-direction: column;
+      display: flex; flex-direction: column;
       overflow: hidden;
     }
-    #modulo-contenido.visible { display: flex; }
 
-    /* ── PIN modal ───────────────────────────────────────── */
+    /* Botón flotante de volver — esquina superior izquierda */
+    #btn-volver {
+      position: fixed;
+      top: calc(var(--safe-top) + 10px);
+      left: 12px;
+      z-index: 100;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.28);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: white;
+      font-size: 1rem;
+      display: none;               /* visible solo en módulo */
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    }
+    #btn-volver.visible {
+      display: flex;
+    }
+    #btn-volver:active {
+      transform: scale(0.9);
+      background: rgba(0,0,0,0.50);
+    }
+
+    /* ── MODAL DE PIN ────────────────────────────── */
     #modal-pin {
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.55);
@@ -199,9 +213,8 @@
 
     .pin-btns { display: flex; gap: 10px; }
     .pin-btns button {
-      flex: 1; padding: 12px;
-      border-radius: 12px; border: none;
-      font-weight: 700; font-size: 0.9rem; cursor: pointer;
+      flex: 1; padding: 12px; border-radius: 12px;
+      border: none; font-weight: 700; font-size: 0.9rem; cursor: pointer;
     }
     #btn-pin-ok     { background: var(--color-primary); color: white; }
     #btn-pin-cancel { background: var(--color-bg); color: var(--color-text); }
@@ -213,11 +226,13 @@
 </head>
 <body>
 
-<div id="app">
+<!-- ══════════════════════════════════════════════
+     VISTA MENÚ
+     ══════════════════════════════════════════════ -->
+<div id="vista-menu">
 
-  <!-- ── Header ────────────────────────────────────────────── -->
-  <header id="app-header">
-    <div>
+  <header id="menu-header">
+    <div class="menu-logo">
       <h1>Dótir</h1>
       <span class="version">v2.0</span>
     </div>
@@ -227,27 +242,28 @@
     </div>
   </header>
 
-  <!-- ── Menú principal (tiles de módulos) ─────────────────── -->
-  <nav id="menu-principal" aria-label="Módulos de la aplicación">
-    <!-- Generado dinámicamente por el registry -->
+  <nav id="menu-grid" aria-label="Módulos de la aplicación">
+    <!-- Generado dinámicamente -->
   </nav>
 
-  <!-- ── Header del módulo activo ──────────────────────────── -->
-  <div id="modulo-header">
-    <button id="btn-volver" aria-label="Volver al menú">←</button>
-    <span id="modulo-titulo"></span>
-    <div id="modulo-acciones"></div>
-  </div>
+</div>
 
-  <!-- ── Contenedor del módulo activo ──────────────────────── -->
+<!-- ══════════════════════════════════════════════
+     VISTA MÓDULO — pantalla completa
+     ══════════════════════════════════════════════ -->
+<div id="vista-modulo">
   <main id="modulo-contenido" aria-live="polite"></main>
+</div>
 
-</div><!-- /app -->
+<!-- Botón flotante de volver (fuera de ambas vistas, siempre en el DOM) -->
+<button id="btn-volver" aria-label="Volver al menú">←</button>
 
-<!-- ── Modal de PIN ───────────────────────────────────────── -->
-<div id="modal-pin" role="dialog" aria-modal="true" aria-labelledby="pin-titulo">
+<!-- ══════════════════════════════════════════════
+     MODAL PIN
+     ══════════════════════════════════════════════ -->
+<div id="modal-pin" role="dialog" aria-modal="true">
   <div class="pin-box">
-    <h3 id="pin-titulo">Acceso Protegido</h3>
+    <h3>Acceso Protegido</h3>
     <p id="pin-hint"></p>
     <input type="number" id="input-pin" placeholder="···"
            inputmode="numeric" autocomplete="off">
@@ -259,57 +275,51 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     NÚCLEO
-     ════════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════
+     LÓGICA
+     ══════════════════════════════════════════════ -->
 <script type="module">
 import { registrarSW, onConexionChange } from './core/offline.js';
-import { toast, animarEntrada, $        } from './core/ui.js';
+import { toast, animarEntrada          } from './core/ui.js';
 
-/* ── 1. SERVICE WORKER ───────────────────────────────────── */
+const $ = id => document.getElementById(id);
+
+/* ── 1. SERVICE WORKER ───────────────────────── */
 registrarSW();
 
-/* ── 2. INDICADOR DE CONEXIÓN ────────────────────────────── */
+/* ── 2. INDICADOR DE CONEXIÓN ────────────────── */
 onConexionChange(estado => {
-  const ind   = $('indicador-offline');
-  const texto = $('texto-conexion');
-  ind.className = estado;
-  texto.textContent = {
-    online:   'En línea',
-    offline:  'Sin conexión',
-    checking: 'Verificando…',
+  $('indicador-offline').className = estado;
+  $('texto-conexion').textContent = {
+    online: 'En línea', offline: 'Sin conexión', checking: 'Verificando…'
   }[estado];
 });
 
-/* ══════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════
    3. MODULE REGISTRY
-   ────────────────────────────────────────────────────────
    REGLA:
-   · Módulo listo    → import real + entrada sin comentar
+   · Módulo listo     → import real + entrada sin comentar
    · Módulo pendiente → import comentado + objeto placeholder
-   ════════════════════════════════════════════════════════ */
-
-// ── Importar módulos disponibles ──────────────────────────
+   ══════════════════════════════════════════════ */
 import SaacModule     from './modules/saac/module.js';
 import MemoramaModule from './modules/memorama/module.js';
 // import MusicaModule   from './modules/musica/module.js';
 // import LibrosModule   from './modules/libros/module.js';
 // import VideosModule   from './modules/videos/module.js';
 
-// ── Registro ──────────────────────────────────────────────
 const MODULE_REGISTRY = [
 
-  // ── Módulos listos ──────────────────────────────────────
+  // ── Módulos listos ────────────────────────────
   SaacModule,
   MemoramaModule,
 
-  // ── Placeholders — borrar cada uno al construir el módulo real
+  // ── Placeholders ─────────────────────────────
   // MusicaModule,
   {
     id: 'musica', label: 'Música', emoji: '🎵',
     desc: 'Reproductor', color: '#F5A623', orden: 3,
     habilitado: true, requierePin: false,
-    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Música en construcción…</p>'; },
+    init: async c => { c.innerHTML = _placeholder('Música'); },
     destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
   },
   // LibrosModule,
@@ -317,7 +327,7 @@ const MODULE_REGISTRY = [
     id: 'libros', label: 'Libros', emoji: '📚',
     desc: 'Visor PDF', color: '#10B981', orden: 4,
     habilitado: true, requierePin: false,
-    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Libros en construcción…</p>'; },
+    init: async c => { c.innerHTML = _placeholder('Libros'); },
     destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
   },
   // VideosModule,
@@ -325,21 +335,27 @@ const MODULE_REGISTRY = [
     id: 'videos', label: 'Videos', emoji: '🎬',
     desc: 'Reproductor de video', color: '#EF4444', orden: 5,
     habilitado: true, requierePin: false,
-    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Videos en construcción…</p>'; },
+    init: async c => { c.innerHTML = _placeholder('Videos'); },
     destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
   },
   {
     id: 'ajustes', label: 'Ajustes', emoji: '⚙️',
     desc: 'Configuración', color: '#6B7A99', orden: 99,
     habilitado: true, requierePin: true,
-    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Ajustes en construcción…</p>'; },
+    init: async c => { c.innerHTML = _placeholder('Ajustes'); },
     destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
   },
 
 ].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
 
-/* ── 4. RENDERIZAR MENÚ ──────────────────────────────────── */
-const menu = $('menu-principal');
+const _placeholder = nombre =>
+  `<div style="display:flex;align-items:center;justify-content:center;
+               height:100%;color:#999;font-size:1rem;font-weight:600;">
+     Módulo ${nombre} en construcción…
+   </div>`;
+
+/* ── 4. RENDERIZAR MENÚ ──────────────────────── */
+const menuGrid = $('menu-grid');
 
 MODULE_REGISTRY.forEach(mod => {
   const tile = document.createElement('button');
@@ -359,19 +375,19 @@ MODULE_REGISTRY.forEach(mod => {
     mod.requierePin ? abrirPin(mod) : navegarA(mod)
   );
 
-  menu.appendChild(tile);
+  menuGrid.appendChild(tile);
 });
 
-/* ── 5. NAVEGACIÓN ───────────────────────────────────────── */
+/* ── 5. NAVEGACIÓN ───────────────────────────── */
 let _moduloActivo = null;
 
 async function navegarA(mod) {
-  $('menu-principal').style.display = 'none';
-  $('modulo-header').classList.add('visible');
-  $('modulo-contenido').classList.add('visible');
-  $('modulo-titulo').textContent = `${mod.emoji} ${mod.label}`;
-  $('modulo-acciones').innerHTML = '';
+  // Ocultar menú, mostrar módulo a pantalla completa
+  $('vista-menu').style.display  = 'none';
+  $('vista-modulo').classList.add('activa');
+  $('btn-volver').classList.add('visible');
 
+  // Desmontar módulo previo si había otro
   if (_moduloActivo && _moduloActivo.id !== mod.id) {
     try { _moduloActivo.onLeave?.(); _moduloActivo.destroy?.(); } catch (_) {}
   }
@@ -387,8 +403,10 @@ async function navegarA(mod) {
     animarEntrada(contenedor);
   } catch (e) {
     console.error(`[App] Error al iniciar módulo "${mod.id}":`, e);
-    contenedor.innerHTML = `<p style="padding:2rem;color:#ef4444;">
-      Error al cargar el módulo. Recarga la página.</p>`;
+    contenedor.innerHTML = `
+      <div style="padding:2rem;color:#ef4444;font-weight:600;">
+        Error al cargar el módulo. Vuelve e inténtalo de nuevo.
+      </div>`;
   }
 }
 
@@ -397,17 +415,16 @@ function volverAlMenu() {
     try { _moduloActivo.onLeave?.(); _moduloActivo.destroy?.(); } catch (_) {}
     _moduloActivo = null;
   }
-  $('modulo-header').classList.remove('visible');
-  $('modulo-contenido').classList.remove('visible');
+  $('vista-modulo').classList.remove('activa');
+  $('btn-volver').classList.remove('visible');
   $('modulo-contenido').innerHTML = '';
-  $('menu-principal').style.display = '';
+  $('vista-menu').style.display = '';
 }
 
 $('btn-volver').addEventListener('click', volverAlMenu);
 
-/* ── 6. ACCESO CON PIN ───────────────────────────────────── */
-let _pinTarget    = null;
-let _pinRespuesta = 0;
+/* ── 6. PIN ──────────────────────────────────── */
+let _pinTarget = null, _pinRespuesta = 0;
 
 function abrirPin(mod) {
   _pinTarget = mod;
@@ -427,36 +444,25 @@ function cerrarPin() {
 }
 
 $('btn-pin-ok').addEventListener('click', () => {
-  const val = parseInt($('input-pin').value, 10);
-  if (val === _pinRespuesta) {
-    cerrarPin();
-    navegarA(_pinTarget);
+  if (parseInt($('input-pin').value, 10) === _pinRespuesta) {
+    cerrarPin(); navegarA(_pinTarget);
   } else {
     $('pin-error').textContent = 'Respuesta incorrecta, intenta de nuevo.';
-    $('input-pin').value = '';
-    $('input-pin').focus();
+    $('input-pin').value = ''; $('input-pin').focus();
   }
 });
-
 $('btn-pin-cancel').addEventListener('click', cerrarPin);
+$('input-pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('btn-pin-ok').click(); });
+$('modal-pin').addEventListener('click', e => { if (e.target === $('modal-pin')) cerrarPin(); });
 
-$('input-pin').addEventListener('keydown', e => {
-  if (e.key === 'Enter') $('btn-pin-ok').click();
-});
-
-$('modal-pin').addEventListener('click', e => {
-  if (e.target === $('modal-pin')) cerrarPin();
-});
-
-/* ── 7. Atajo desde URL (?modulo=saac) ───────────────────── */
-const params    = new URLSearchParams(location.search);
-const moduloUrl = params.get('modulo');
+/* ── 7. ATAJO POR URL (?modulo=saac) ─────────── */
+const moduloUrl = new URLSearchParams(location.search).get('modulo');
 if (moduloUrl) {
   const mod = MODULE_REGISTRY.find(m => m.id === moduloUrl);
   if (mod) navegarA(mod);
 }
 
-/* ── 8. API global para los módulos ──────────────────────── */
+/* ── 8. API GLOBAL ───────────────────────────── */
 window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
 
 </script>
