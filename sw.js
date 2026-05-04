@@ -7,7 +7,7 @@
    · Audio (.mp3)         → cache-first
    ============================================================ */
 
-const CACHE_NAME = 'dotir2-v1';
+const CACHE_NAME = 'dotir2-v2';
 
 // Recursos del shell que se precargan al instalar
 const SHELL_URLS = [

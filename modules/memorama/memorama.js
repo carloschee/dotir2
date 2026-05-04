@@ -1,9 +1,10 @@
 /* ============================================================
    Dótir 2 — modules/memorama/memorama.js
    · 12 pares fijos → 24 cartas en grid 8×3
-   · Cartas encontradas desaparecen (como DJ Emmy)
-   · Stack inferior: cuadrado con imagen, TTS al tocar
-   · Grid ocupa TODO el espacio disponible (sin franja blanca)
+   · Cartas encontradas desaparecen con animación
+   · Stack inferior estilo DJ Emmy: cuadrado imagen + TTS al tocar
+   · Persistente entre visitas al menú (pause / resume)
+   · Controles en navbar del shell (design system unificado)
    ============================================================ */
 
 import { TTS            } from '../../core/tts.js';
@@ -123,19 +124,17 @@ export function destroy() {
   document.getElementById('mem-nav-style')?.remove();
 }
 
-/** Pausar: conservar todo el estado, solo ocultar acciones de nav */
+/** Pausar: la vista ya se oculta desde el shell.
+ *  Solo limpiamos los controles de la navbar. */
 export function pause() {
-  // La vista ya se oculta desde el shell (display:none en #modulo-contenido)
-  // Solo necesitamos limpiar las acciones de la navbar
   document.getElementById('modulo-acciones')?.replaceChildren();
 }
 
-/** Resumir: el DOM ya existe, solo re-inyectar controles en la navbar */
+/** Resumir: el DOM ya existe, solo re-inyectar controles. */
 export async function resume(container) {
-  // container es el mismo #modulo-contenido, ya tiene el HTML del juego
   _container = container;
-  _renderNavAcciones();  // re-inyectar botones en la navbar
-  _renderListaTemas();   // re-poblar lista por si acaso
+  _renderNavAcciones();
+  _renderListaTemas();
 }
 
 export function onEnter() {}
@@ -158,6 +157,7 @@ function _renderNavAcciones() {
     document.head.appendChild(s);
   }
 
+  // Selectores de idioma
   const langsWrap = document.createElement('div');
   langsWrap.style.cssText = 'display:flex;gap:4px;';
   IDIOMAS.forEach(({ id, bandera }) => {
@@ -196,7 +196,6 @@ function _renderShell() {
         background: #1a1a2e; position: relative;
       }
 
-      /* ── Grid ocupa TODO el espacio menos el stack ──────── */
       #mem-grid-wrap {
         flex: 1; min-height: 0;
         padding: 6px 8px 0;
@@ -210,19 +209,14 @@ function _renderShell() {
         gap: 5px;
       }
 
-      /* ── Celda y carta ──────────────────────────────────── */
       .mem-celda { perspective: 700px; min-height: 0; }
-
       .mem-carta {
         width: 100%; height: 100%; position: relative;
         cursor: pointer; transform-style: preserve-3d;
         transition: transform .45s cubic-bezier(.4,.2,.2,1);
-        /* Transición de desaparición al encontrar el par */
         will-change: transform, opacity;
       }
       .mem-carta.volteada  { transform: rotateY(180deg); }
-
-      /* Desaparecer: escalar a 0 con un pequeño rebote hacia arriba */
       .mem-carta.encontrada {
         animation: mem-desaparecer 0.5s cubic-bezier(.55,.06,.68,.19) forwards;
         pointer-events: none;
@@ -263,11 +257,10 @@ function _renderShell() {
       }
       .mem-celda { animation: mem-pop .32s cubic-bezier(.34,1.56,.64,1) both; }
 
-      /* ── Stack de pares (estilo DJ Emmy) ────────────────── */
+      /* Stack de pares */
       #mem-stack-wrap {
-        flex-shrink: 0;
-        height: 72px;                /* altura fija — sin texto, solo cuadrados */
-        padding: 5px 8px 5px;
+        flex-shrink: 0; height: 72px;
+        padding: 5px 8px;
         background: rgba(0,0,0,0.30);
         border-top: 1px solid rgba(255,255,255,0.08);
         display: flex; align-items: center; gap: 5px;
@@ -277,15 +270,10 @@ function _renderShell() {
       }
       #mem-stack-wrap::-webkit-scrollbar { display: none; }
 
-      /* Cuadrado de par encontrado — solo imagen, nombre al tocar */
       .mem-par-tile {
-        flex-shrink: 0;
-        width: 58px; height: 58px;
-        border-radius: 10px;
-        overflow: hidden;
-        background: white;
-        cursor: pointer;
-        position: relative;
+        flex-shrink: 0; width: 58px; height: 58px;
+        border-radius: 10px; overflow: hidden;
+        background: white; cursor: pointer; position: relative;
         box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         transition: transform .12s ease;
         animation: mem-pop .3s cubic-bezier(.34,1.56,.64,1) both;
@@ -295,7 +283,6 @@ function _renderShell() {
         width: 100%; height: 100%; object-fit: contain;
         padding: 4px; pointer-events: none;
       }
-      /* Overlay de nombre al tocar (pseudo tooltip) */
       .mem-par-tile::after {
         content: attr(data-nombre);
         position: absolute; inset: 0;
@@ -305,11 +292,10 @@ function _renderShell() {
         text-align: center; padding: 3px;
         opacity: 0; transition: opacity .15s ease;
         border-radius: 10px;
-        display: flex;
       }
       .mem-par-tile.mostrar-nombre::after { opacity: 1; }
 
-      /* ── Modal de temas ─────────────────────────────────── */
+      /* Modal de temas */
       #mem-modal {
         position: absolute; inset: 0; z-index: 40;
         background: rgba(10,10,30,0.88);
@@ -338,7 +324,7 @@ function _renderShell() {
       .mem-tema-btn .mt-titulo { font-weight: 800; font-size: .9rem; }
       .mem-tema-btn .mt-items  { font-size: .7rem; color: rgba(255,255,255,.4); }
 
-      /* ── Intro animada ──────────────────────────────────── */
+      /* Intro */
       #mem-intro {
         position: absolute; inset: 0; z-index: 30;
         display: flex; flex-direction: column;
@@ -346,14 +332,8 @@ function _renderShell() {
         background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
       }
       #mem-intro.oculto { display: none; }
-      #mem-intro-titulo {
-        color: white; font-size: 1.6rem; font-weight: 900;
-        text-shadow: 0 2px 12px rgba(0,0,0,.5);
-      }
-      #mem-intro-elementos {
-        display: flex; flex-wrap: wrap; justify-content: center;
-        gap: 10px; max-width: 380px; padding: 0 16px;
-      }
+      #mem-intro-titulo { color: white; font-size: 1.6rem; font-weight: 900; text-shadow: 0 2px 12px rgba(0,0,0,.5); }
+      #mem-intro-elementos { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 380px; padding: 0 16px; }
       @keyframes mem-flotar {
         0%,100% { transform: translateY(0) rotate(0deg); }
         33%      { transform: translateY(-12px) rotate(3deg); }
@@ -361,7 +341,7 @@ function _renderShell() {
       }
       .mem-flotar { animation: mem-flotar 2.4s ease-in-out infinite; }
 
-      /* ── Victoria ───────────────────────────────────────── */
+      /* Victoria */
       #mem-victoria {
         position: absolute; inset: 0; z-index: 50;
         display: flex; flex-direction: column;
@@ -374,47 +354,33 @@ function _renderShell() {
         transition: transform .5s cubic-bezier(.175,.885,.32,1.275), opacity .5s;
         transform: scale(0); opacity: 0;
       }
-      #mem-victoria-label {
-        color: white; font-size: 1.3rem; font-weight: 900;
-        text-shadow: 0 2px 12px rgba(0,0,0,.6);
-      }
+      #mem-victoria-label { color: white; font-size: 1.3rem; font-weight: 900; text-shadow: 0 2px 12px rgba(0,0,0,.6); }
     </style>
 
     <div id="mem-wrap">
-
-      <!-- Tablero de cartas -->
-      <div id="mem-grid-wrap">
-        <div id="mem-grid"></div>
-      </div>
-
-      <!-- Stack de pares encontrados -->
+      <div id="mem-grid-wrap"><div id="mem-grid"></div></div>
       <div id="mem-stack-wrap"></div>
 
-      <!-- Intro animada -->
       <div id="mem-intro" class="oculto">
         <p id="mem-intro-titulo"></p>
         <div id="mem-intro-elementos"></div>
       </div>
 
-      <!-- Victoria -->
       <div id="mem-victoria" class="oculto">
         <span id="mem-trofeo">🏆</span>
         <p id="mem-victoria-label">¡Muy bien!</p>
       </div>
 
-      <!-- Modal de temas -->
       <div id="mem-modal">
         <div id="mem-modal-box">
           <h2>🎴 Elige un tema</h2>
           <div id="mem-lista-temas"></div>
         </div>
       </div>
-
     </div>
   `;
 }
 
-// ── Modal de temas ────────────────────────────────────────────
 function _mostrarModalTemas() { _q('#mem-modal')?.classList.remove('oculto'); }
 function _cerrarModal()       { _q('#mem-modal')?.classList.add('oculto'); }
 
@@ -422,12 +388,10 @@ function _renderListaTemas() {
   const lista = _q('#mem-lista-temas');
   if (!lista) return;
   lista.innerHTML = '';
-
   if (!_temas.length) {
     lista.innerHTML = '<p style="color:rgba(255,255,255,.4);text-align:center;font-size:.85rem;">No se encontraron temas.</p>';
     return;
   }
-
   _temas.forEach(meta => {
     const btn = document.createElement('button');
     btn.className = 'mem-tema-btn';
@@ -444,12 +408,11 @@ function _renderListaTemas() {
   });
 }
 
-// ── Activar tema ──────────────────────────────────────────────
 async function _activarTema(meta) {
   try {
     const datos = await _cargarTema(meta);
     _temaActivo = datos;
-    _itemMap    = {};
+    _itemMap = {};
     datos.items.forEach(item => { _itemMap[item.id] = item; });
     TTS.speak(datos.titulo, { lang: 'es-MX', pitch: 1.2, rate: .95 });
     _mostrarIntro();
@@ -459,13 +422,11 @@ async function _activarTema(meta) {
   }
 }
 
-// ── Intro animada ─────────────────────────────────────────────
 function _mostrarIntro() {
   if (!_temaActivo) return;
   _q('#mem-intro-titulo').textContent = _temaActivo.titulo;
   const el = _q('#mem-intro-elementos');
   el.innerHTML = '';
-
   _temaActivo.items.forEach((item, i) => {
     const url = _imgUrl(item);
     if (!url) return;
@@ -480,46 +441,36 @@ function _mostrarIntro() {
     div.appendChild(img);
     el.appendChild(div);
   });
-
   _q('#mem-intro').classList.remove('oculto');
   setTimeout(() => { _q('#mem-intro').classList.add('oculto'); _iniciarJuego(); }, 2200);
 }
 
-// ── Iniciar juego ─────────────────────────────────────────────
 function _iniciarJuego() {
   if (!_temaActivo) return;
   _cartas = []; _volteadas = [];
   _bloqueado = false; _parejas = 0;
 
-  const items = [..._temaActivo.items]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, MAX_PARES);
-
+  const items = [..._temaActivo.items].sort(() => Math.random() - 0.5).slice(0, MAX_PARES);
   _cartas = [...items, ...items]
     .sort(() => Math.random() - 0.5)
     .map((item, idx) => ({ idx, itemId: item.id, volteada: false, encontrada: false }));
 
   _renderGrid();
-
-  // Limpiar stack y victoria
   _q('#mem-stack-wrap').innerHTML = '';
   const vict = _q('#mem-victoria'), trofeo = _q('#mem-trofeo');
   vict.classList.add('oculto'); vict.style.opacity = '';
   trofeo.style.transform = 'scale(0)'; trofeo.style.opacity = '0';
 }
 
-// ── Render del tablero ────────────────────────────────────────
 function _renderGrid() {
   const grid = _q('#mem-grid');
   grid.innerHTML = '';
   const dorso = _dorso(_temaActivo?.id);
-
   _cartas.forEach((carta, i) => {
     const item   = _itemMap[carta.itemId];
     const url    = _imgUrl(item);
     const nombre = item ? _nombre(item, 'es-MX') : String(carta.itemId);
-
-    const celda = document.createElement('div');
+    const celda  = document.createElement('div');
     celda.className = 'mem-celda';
     celda.style.animationDelay = `${i * 0.025}s`;
     celda.innerHTML = `
@@ -536,115 +487,79 @@ function _renderGrid() {
   });
 }
 
-// ── Voltear carta ─────────────────────────────────────────────
 function _voltear(idx) {
   const carta = _cartas[idx];
   if (_bloqueado || carta.volteada || carta.encontrada) return;
-
   carta.volteada = true;
   _q(`[data-idx="${idx}"]`).classList.add('volteada');
   _volteadas.push(idx);
   if (_volteadas.length < 2) return;
-
   _bloqueado = true;
   const [a, b] = _volteadas;
-
   if (_cartas[a].itemId === _cartas[b].itemId) {
-    // ── Par encontrado ────────────────────────────────────────
     const item    = _itemMap[_cartas[a].itemId];
     const idioma  = _idiomaAl();
     const langObj = IDIOMAS.find(l => l.id === idioma);
-
-    // TTS con pequeño delay para dar tiempo a ver el par
     TTS.speak(_nombre(item, idioma), { lang: langObj?.lang || 'es-MX', pitch: 1.2, rate: .9, delay: 250 });
-
-    // Marcar como encontradas y lanzar animación de desaparición
     setTimeout(() => {
       _cartas[a].encontrada = _cartas[b].encontrada = true;
       _q(`[data-idx="${a}"]`).classList.add('encontrada');
       _q(`[data-idx="${b}"]`).classList.add('encontrada');
       _parejas++;
-      _volteadas = [];
-      _bloqueado = false;
-
-      // Añadir al stack
+      _volteadas = []; _bloqueado = false;
       _agregarStack(_cartas[a].itemId, idioma);
-
       if (_parejas === MAX_PARES) setTimeout(_victoria, 500);
-    }, 300); // breve pausa para apreciar el par antes de que desaparezca
-
+    }, 300);
   } else {
-    // ── No coinciden ──────────────────────────────────────────
     setTimeout(() => {
       _q(`[data-idx="${a}"]`).classList.remove('volteada');
       _q(`[data-idx="${b}"]`).classList.remove('volteada');
       _cartas[a].volteada = _cartas[b].volteada = false;
-      _volteadas = [];
-      _bloqueado = false;
+      _volteadas = []; _bloqueado = false;
     }, 900);
   }
 }
 
-// ── Stack de pares (estilo DJ Emmy) ──────────────────────────
 function _agregarStack(itemId, idioma) {
   const item   = _itemMap[itemId];
   const nombre = _nombre(item, idioma);
   const url    = _imgUrl(item);
   const stack  = _q('#mem-stack-wrap');
-
-  const tile = document.createElement('div');
-  tile.className    = 'mem-par-tile';
+  const tile   = document.createElement('div');
+  tile.className = 'mem-par-tile';
   tile.dataset.nombre = nombre;
-
   if (url) {
     const img = document.createElement('img');
     img.src = url; img.alt = nombre;
-    img.onerror = () => { tile.textContent = nombre; };
     tile.appendChild(img);
   } else {
     tile.textContent = nombre;
     tile.style.cssText += ';display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:#1a1a2e;text-align:center;padding:4px;';
   }
-
-  // Al tocar: mostrar nombre + TTS en idioma aleatorio
   tile.addEventListener('click', () => {
-    const idiomaClick  = _idiomaAl();
-    const nombreClick  = _nombre(item, idiomaClick);
-    const langObj      = IDIOMAS.find(l => l.id === idiomaClick);
-    tile.dataset.nombre = nombreClick;
-
+    const id2  = _idiomaAl();
+    const nom2 = _nombre(item, id2);
+    const lo   = IDIOMAS.find(l => l.id === id2);
+    tile.dataset.nombre = nom2;
     tile.classList.add('mostrar-nombre');
-    TTS.speak(nombreClick, { lang: langObj?.lang || 'es-MX', pitch: 1.2, rate: .9 });
+    TTS.speak(nom2, { lang: lo?.lang || 'es-MX', pitch: 1.2, rate: .9 });
     setTimeout(() => tile.classList.remove('mostrar-nombre'), 1400);
   });
-
   stack.appendChild(tile);
-
-  // Auto-scroll al último tile
   requestAnimationFrame(() => { stack.scrollLeft = stack.scrollWidth; });
 }
 
-// ── Victoria ──────────────────────────────────────────────────
 function _victoria() {
   lanzarConfeti({ container: _q('#mem-wrap') });
   TTS.speak('¡Muy bien!', { lang: 'es-MX', pitch: 1.3, rate: .9 });
-
-  const vict   = _q('#mem-victoria');
-  const trofeo = _q('#mem-trofeo');
-  vict.classList.remove('oculto');
-  vict.style.opacity = '1';
-  requestAnimationFrame(() => {
-    trofeo.style.transform = 'scale(1)';
-    trofeo.style.opacity   = '1';
-  });
-
+  const vict = _q('#mem-victoria'), trofeo = _q('#mem-trofeo');
+  vict.classList.remove('oculto'); vict.style.opacity = '1';
+  requestAnimationFrame(() => { trofeo.style.transform = 'scale(1)'; trofeo.style.opacity = '1'; });
   setTimeout(() => {
     vict.style.opacity = '0';
     setTimeout(() => {
-      vict.classList.add('oculto');
-      vict.style.opacity = '';
-      trofeo.style.transform = 'scale(0)';
-      trofeo.style.opacity   = '0';
+      vict.classList.add('oculto'); vict.style.opacity = '';
+      trofeo.style.transform = 'scale(0)'; trofeo.style.opacity = '0';
       _mostrarModalTemas();
     }, 600);
   }, 3000);
