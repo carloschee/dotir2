@@ -328,7 +328,10 @@ onConexionChange(estado => {
   }[estado];
 });
 
-/* 3. MODULE REGISTRY */
+/* 3. MODULE REGISTRY
+   REGLA:
+   · Módulo listo     → import real + entrada sin comentar
+   · Módulo pendiente → import comentado + placeholder     */
 import SaacModule     from './modules/saac/module.js';
 import MemoramaModule from './modules/memorama/module.js';
 import AjustesModule  from './modules/ajustes/module.js';
@@ -336,24 +339,24 @@ import AjustesModule  from './modules/ajustes/module.js';
 // import LibrosModule  from './modules/libros/module.js';
 // import VideosModule  from './modules/videos/module.js';
 
-const _ph = nombre =>
+const _ph = n =>
   `<div style="display:flex;align-items:center;justify-content:center;
     height:100%;background:#1a1a2e;color:rgba(255,255,255,.3);
-    font-size:1rem;font-weight:600;">Módulo ${nombre} en construcción…</div>`;
+    font-size:1rem;font-weight:600;">Módulo ${n} en construcción…</div>`;
 
 const MODULE_REGISTRY = [
   SaacModule,
   MemoramaModule,
   AjustesModule,
-  { id:'musica',  label:'Música',  emoji:'🎵', desc:'Reproductor',
+  { id:'musica', label:'Música', emoji:'🎵', desc:'Reproductor',
     color:'#F5A623', orden:3, habilitado:true, requierePin:false,
     init:async c=>{c.innerHTML=_ph('Música')},
     destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
-  { id:'libros',  label:'Libros',  emoji:'📚', desc:'Visor PDF',
+  { id:'libros', label:'Libros', emoji:'📚', desc:'Visor PDF',
     color:'#10B981', orden:4, habilitado:true, requierePin:false,
     init:async c=>{c.innerHTML=_ph('Libros')},
     destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
-  { id:'videos',  label:'Videos',  emoji:'🎬', desc:'Reproductor video',
+  { id:'videos', label:'Videos', emoji:'🎬', desc:'Reproductor video',
     color:'#EF4444', orden:5, habilitado:true, requierePin:false,
     init:async c=>{c.innerHTML=_ph('Videos')},
     destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
@@ -493,7 +496,7 @@ $('modal-pin').addEventListener('click', e => {
   if (e.target === $('modal-pin')) cerrarPin();
 });
 
-/* 7. Atajo por URL */
+/* 7. Atajo por URL (?modulo=saac) */
 const moduloUrl = new URLSearchParams(location.search).get('modulo');
 if (moduloUrl) {
   const mod = MODULE_REGISTRY.find(m => m.id === moduloUrl);
