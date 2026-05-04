@@ -1,10 +1,9 @@
 /* ============================================================
    Dótir 2 — modules/memorama/memorama.js
-   · 12 pares fijos → 24 cartas en grid 8 columnas × 3 filas
-   · Cartas siempre visibles completas en el iPad (aspect-ratio 3/4)
-   · Sin estadísticas, sin selector de dificultad
-   · TTS multiidioma, confeti de victoria
-   · Controles en la navbar del shell (design system unificado)
+   · 12 pares fijos → 24 cartas en grid 8×3
+   · Cartas encontradas desaparecen (como DJ Emmy)
+   · Stack inferior: cuadrado con imagen, TTS al tocar
+   · Grid ocupa TODO el espacio disponible (sin franja blanca)
    ============================================================ */
 
 import { TTS            } from '../../core/tts.js';
@@ -13,7 +12,7 @@ import { fetchTimeout    } from '../../core/offline.js';
 
 const TEMAS_URL = './data/memorama-temas.json';
 const PICS_BASE = './';
-const MAX_PARES = 12;   // fijo → 24 cartas → 8 cols × 3 filas
+const MAX_PARES = 12;
 const COLS      = 8;
 const FILAS     = 3;
 
@@ -81,10 +80,12 @@ let _idiomasActivos = new Set(
 );
 
 // ── Helpers ───────────────────────────────────────────────────
-const _q      = sel => _container?.querySelector(sel);
+const _q        = sel => _container?.querySelector(sel);
 const _idiomaAl = () => { const a = [..._idiomasActivos]; return a[Math.floor(Math.random() * a.length)]; };
 const _nombre   = (item, idioma) => item[idioma] || item['es-MX'] || String(item.id);
 const _dorso    = id => DORSOS[id] || DORSOS.default;
+const _imgUrl   = item => (_temaActivo?.carpeta_img && item?.imagen)
+  ? `${PICS_BASE}${_temaActivo.carpeta_img}${item.imagen}` : null;
 
 // ── Carga de datos ────────────────────────────────────────────
 async function _cargarTemas() {
@@ -94,14 +95,14 @@ async function _cargarTemas() {
     if (!res.ok) throw new Error(`memorama-temas.json: ${res.status}`);
     _temas = await res.json();
   } catch (e) {
-    console.error('[Memorama] Error al cargar temas:', e);
+    console.error('[Memorama]', e);
     _temas = [];
   }
 }
 
 async function _cargarTema(meta) {
   const res = await fetchTimeout(`./${meta.archivo}`, 6000);
-  if (!res.ok) throw new Error(`${meta.archivo}: ${res.status}`);
+  if (!res.ok) throw new Error(meta.archivo);
   return res.json();
 }
 
@@ -118,8 +119,7 @@ export async function init(container) {
 export function destroy() {
   _cartas = []; _volteadas = [];
   _temaActivo = null; _container = null;
-  const acc = document.getElementById('modulo-acciones');
-  if (acc) acc.innerHTML = '';
+  document.getElementById('modulo-acciones')?.replaceChildren();
   document.getElementById('mem-nav-style')?.remove();
 }
 
@@ -135,18 +135,20 @@ function _renderNavAcciones() {
   if (!document.getElementById('mem-nav-style')) {
     const s = document.createElement('style');
     s.id = 'mem-nav-style';
-    s.textContent = `.mem-stat-nav { display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.55);font-size:.72rem;font-weight:700; } .mem-stat-nav strong{color:white;font-size:.85rem;}`;
+    s.textContent = `
+      .mem-stat-nav { display:flex;align-items:center;gap:4px;
+        color:rgba(255,255,255,0.7);font-size:.72rem;font-weight:700; }
+      .mem-stat-nav strong { color:white;font-size:.85rem; }
+    `;
     document.head.appendChild(s);
   }
 
-  // Selectores de idioma
   const langsWrap = document.createElement('div');
   langsWrap.style.cssText = 'display:flex;gap:4px;';
   IDIOMAS.forEach(({ id, bandera }) => {
     const btn = document.createElement('button');
     btn.className = `d-lang-btn${_idiomasActivos.has(id) ? ' activo' : ''}`;
-    btn.textContent = bandera;
-    btn.title = id;
+    btn.textContent = bandera; btn.title = id;
     btn.addEventListener('click', () => {
       if (_idiomasActivos.has(id) && _idiomasActivos.size <= 1) return;
       _idiomasActivos.has(id) ? _idiomasActivos.delete(id) : _idiomasActivos.add(id);
@@ -156,14 +158,11 @@ function _renderNavAcciones() {
     langsWrap.appendChild(btn);
   });
 
-  // Botón nuevo juego
   const btnNuevo = document.createElement('button');
   btnNuevo.className = 'd-nav-btn';
-  btnNuevo.title = 'Nueva partida';
-  btnNuevo.textContent = '🔄';
+  btnNuevo.title = 'Nueva partida'; btnNuevo.textContent = '🔄';
   btnNuevo.addEventListener('click', () => { if (_temaActivo) _iniciarJuego(); });
 
-  // Botón elegir tema
   const btnTema = document.createElement('button');
   btnTema.className = 'd-nav-btn';
   btnTema.textContent = '🎴 Tema';
@@ -182,101 +181,120 @@ function _renderShell() {
         background: #1a1a2e; position: relative;
       }
 
-      /* ── Grid
-         El tablero debe caber exactamente en el espacio disponible:
-         alto total - navbar shell (44px) - pila inferior (~48px) - padding (16px)
-         Usamos CSS puro con grid-template-rows para que las 3 filas
-         dividan el espacio disponible sin scroll.
-      ────────────────────────────────────────────── */
+      /* ── Grid ocupa TODO el espacio menos el stack ──────── */
       #mem-grid-wrap {
         flex: 1; min-height: 0;
-        padding: 8px;
-        display: flex; align-items: stretch;
+        padding: 6px 8px 0;
+        display: flex;
       }
       #mem-grid {
         width: 100%;
         display: grid;
         grid-template-columns: repeat(${COLS}, 1fr);
         grid-template-rows: repeat(${FILAS}, 1fr);
-        gap: 6px;
+        gap: 5px;
       }
 
-      /* Carta — aspect-ratio garantiza la proporción,
-         pero dentro del grid de filas fijas, la altura
-         la dicta el grid y la imagen se adapta. */
-      .mem-celda {
-        perspective: 600px;
-        min-height: 0; /* crucial para que el grid comprima correctamente */
-      }
+      /* ── Celda y carta ──────────────────────────────────── */
+      .mem-celda { perspective: 700px; min-height: 0; }
+
       .mem-carta {
-        width: 100%; height: 100%;
-        position: relative; cursor: pointer;
-        transform-style: preserve-3d;
-        transition: transform .5s cubic-bezier(.4,.2,.2,1);
+        width: 100%; height: 100%; position: relative;
+        cursor: pointer; transform-style: preserve-3d;
+        transition: transform .45s cubic-bezier(.4,.2,.2,1);
+        /* Transición de desaparición al encontrar el par */
+        will-change: transform, opacity;
       }
-      .mem-carta.volteada   { transform: rotateY(180deg); }
-      .mem-carta.encontrada { cursor: default; opacity: .72; }
+      .mem-carta.volteada  { transform: rotateY(180deg); }
+
+      /* Desaparecer: escalar a 0 con un pequeño rebote hacia arriba */
+      .mem-carta.encontrada {
+        animation: mem-desaparecer 0.5s cubic-bezier(.55,.06,.68,.19) forwards;
+        pointer-events: none;
+      }
+      @keyframes mem-desaparecer {
+        0%   { opacity:1; transform: rotateY(180deg) scale(1); }
+        40%  { opacity:1; transform: rotateY(180deg) scale(1.08) translateY(-6px); }
+        100% { opacity:0; transform: rotateY(180deg) scale(0); }
+      }
 
       .mem-cara {
-        position: absolute; inset: 0; border-radius: 8px;
+        position: absolute; inset: 0; border-radius: 9px;
         backface-visibility: hidden; -webkit-backface-visibility: hidden;
-        overflow: hidden;
-        display: flex; align-items: center; justify-content: center;
+        overflow: hidden; display: flex; align-items: center; justify-content: center;
       }
       .mem-dorso {
-        border: 2px solid rgba(255,255,255,0.38);
+        border: 2px solid rgba(255,255,255,0.42);
         box-shadow: 0 3px 10px rgba(0,0,0,0.35);
       }
       .mem-frente {
-        transform: rotateY(180deg);
-        background: white;
-        flex-direction: column; gap: 3px; padding: 4px;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.22);
+        transform: rotateY(180deg); background: white;
+        flex-direction: column; gap: 2px; padding: 4px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.22);
       }
       .mem-frente img {
-        /* imagen ocupa ~70% del alto de la carta, sin desbordarse */
         width: 100%; flex: 1; min-height: 0;
         object-fit: contain; pointer-events: none;
       }
       .mem-label {
-        font-size: clamp(.5rem, 1vw, .72rem);
-        font-weight: 800; text-align: center;
-        color: #1a1a2e; line-height: 1; pointer-events: none;
-        flex-shrink: 0;
+        font-size: clamp(.48rem, .85vw, .7rem); font-weight: 800;
+        text-align: center; color: #1a1a2e; line-height: 1;
+        flex-shrink: 0; pointer-events: none;
       }
 
       @keyframes mem-pop {
-        from { opacity:0; transform:scale(.75); }
-        to   { opacity:1; transform:scale(1); }
+        from { opacity:0; transform: scale(.7) translateY(8px); }
+        to   { opacity:1; transform: scale(1) translateY(0); }
       }
       .mem-celda { animation: mem-pop .32s cubic-bezier(.34,1.56,.64,1) both; }
 
-      /* ── Pila de pares encontrados ── */
-      #mem-pila-wrap {
+      /* ── Stack de pares (estilo DJ Emmy) ────────────────── */
+      #mem-stack-wrap {
         flex-shrink: 0;
-        padding: 5px 8px 6px;
-        background: rgba(0,0,0,0.22);
+        height: 72px;                /* altura fija — sin texto, solo cuadrados */
+        padding: 5px 8px 5px;
+        background: rgba(0,0,0,0.30);
         border-top: 1px solid rgba(255,255,255,0.08);
-        min-height: 42px; max-height: 52px;
-        display: flex; align-items: center; gap: 6px;
+        display: flex; align-items: center; gap: 5px;
         overflow-x: auto; overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
       }
-      #mem-pila-label {
-        font-size: .58rem; font-weight: 800;
-        color: rgba(255,255,255,.35); text-transform: uppercase;
-        letter-spacing: .07em; white-space: nowrap; flex-shrink: 0;
-      }
-      #mem-pila { display: flex; gap: 4px; align-items: center; }
-      .mem-par-chip {
-        background: rgba(255,255,255,0.12); border-radius: 16px;
-        padding: 3px 9px; font-size: .68rem; font-weight: 700;
-        color: white; display: flex; align-items: center; gap: 4px;
-        white-space: nowrap; flex-shrink: 0;
-        animation: mem-pop .28s ease both;
-      }
-      .mem-par-chip img { width:16px; height:16px; object-fit:contain; }
+      #mem-stack-wrap::-webkit-scrollbar { display: none; }
 
-      /* ── Modal de temas ── */
+      /* Cuadrado de par encontrado — solo imagen, nombre al tocar */
+      .mem-par-tile {
+        flex-shrink: 0;
+        width: 58px; height: 58px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: white;
+        cursor: pointer;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        transition: transform .12s ease;
+        animation: mem-pop .3s cubic-bezier(.34,1.56,.64,1) both;
+      }
+      .mem-par-tile:active { transform: scale(0.88); }
+      .mem-par-tile img {
+        width: 100%; height: 100%; object-fit: contain;
+        padding: 4px; pointer-events: none;
+      }
+      /* Overlay de nombre al tocar (pseudo tooltip) */
+      .mem-par-tile::after {
+        content: attr(data-nombre);
+        position: absolute; inset: 0;
+        background: rgba(124,58,237,0.88);
+        color: white; font-size: .62rem; font-weight: 800;
+        display: flex; align-items: center; justify-content: center;
+        text-align: center; padding: 3px;
+        opacity: 0; transition: opacity .15s ease;
+        border-radius: 10px;
+        display: flex;
+      }
+      .mem-par-tile.mostrar-nombre::after { opacity: 1; }
+
+      /* ── Modal de temas ─────────────────────────────────── */
       #mem-modal {
         position: absolute; inset: 0; z-index: 40;
         background: rgba(10,10,30,0.88);
@@ -292,9 +310,7 @@ function _renderShell() {
         display: flex; flex-direction: column; gap: 12px;
         max-height: 80vh; overflow-y: auto;
       }
-      #mem-modal-box h2 {
-        color: white; font-size: 1.1rem; font-weight: 900; text-align: center;
-      }
+      #mem-modal-box h2 { color: white; font-size: 1.1rem; font-weight: 900; text-align: center; }
       .mem-tema-btn {
         width: 100%; display: flex; align-items: center; gap: 12px;
         padding: 12px 14px; border-radius: 16px;
@@ -302,12 +318,12 @@ function _renderShell() {
         background: rgba(255,255,255,0.06); color: white;
         cursor: pointer; text-align: left; transition: background .15s;
       }
-      .mem-tema-btn:active { background: rgba(255,255,255,0.14); }
+      .mem-tema-btn:active { background: rgba(255,255,255,0.16); }
       .mem-tema-btn .mt-emoji  { font-size: 1.8rem; }
       .mem-tema-btn .mt-titulo { font-weight: 800; font-size: .9rem; }
       .mem-tema-btn .mt-items  { font-size: .7rem; color: rgba(255,255,255,.4); }
 
-      /* ── Intro animada ── */
+      /* ── Intro animada ──────────────────────────────────── */
       #mem-intro {
         position: absolute; inset: 0; z-index: 30;
         display: flex; flex-direction: column;
@@ -320,9 +336,8 @@ function _renderShell() {
         text-shadow: 0 2px 12px rgba(0,0,0,.5);
       }
       #mem-intro-elementos {
-        display: flex; flex-wrap: wrap;
-        justify-content: center; gap: 10px;
-        max-width: 380px; padding: 0 16px;
+        display: flex; flex-wrap: wrap; justify-content: center;
+        gap: 10px; max-width: 380px; padding: 0 16px;
       }
       @keyframes mem-flotar {
         0%,100% { transform: translateY(0) rotate(0deg); }
@@ -331,7 +346,7 @@ function _renderShell() {
       }
       .mem-flotar { animation: mem-flotar 2.4s ease-in-out infinite; }
 
-      /* ── Victoria ── */
+      /* ── Victoria ───────────────────────────────────────── */
       #mem-victoria {
         position: absolute; inset: 0; z-index: 50;
         display: flex; flex-direction: column;
@@ -345,25 +360,22 @@ function _renderShell() {
         transform: scale(0); opacity: 0;
       }
       #mem-victoria-label {
-        color: white; font-size: 1.2rem; font-weight: 900;
+        color: white; font-size: 1.3rem; font-weight: 900;
         text-shadow: 0 2px 12px rgba(0,0,0,.6);
       }
     </style>
 
     <div id="mem-wrap">
 
-      <!-- Tablero -->
+      <!-- Tablero de cartas -->
       <div id="mem-grid-wrap">
         <div id="mem-grid"></div>
       </div>
 
-      <!-- Pila de pares -->
-      <div id="mem-pila-wrap">
-        <span id="mem-pila-label">Pares</span>
-        <div id="mem-pila"></div>
-      </div>
+      <!-- Stack de pares encontrados -->
+      <div id="mem-stack-wrap"></div>
 
-      <!-- Intro -->
+      <!-- Intro animada -->
       <div id="mem-intro" class="oculto">
         <p id="mem-intro-titulo"></p>
         <div id="mem-intro-elementos"></div>
@@ -402,21 +414,17 @@ function _renderListaTemas() {
   }
 
   _temas.forEach(meta => {
-    const emoji = TEMA_EMOJIS[meta.id] || '🎴';
-    const btn   = document.createElement('button');
+    const btn = document.createElement('button');
     btn.className = 'mem-tema-btn';
     btn.innerHTML = `
-      <span class="mt-emoji">${emoji}</span>
+      <span class="mt-emoji">${TEMA_EMOJIS[meta.id] || '🎴'}</span>
       <div style="flex:1">
         <div class="mt-titulo">${meta.titulo}</div>
         <div class="mt-items">${meta.items ?? ''} elementos</div>
       </div>
       <span style="color:rgba(255,255,255,.3);font-size:1.2rem">›</span>
     `;
-    btn.addEventListener('click', async () => {
-      _cerrarModal();
-      await _activarTema(meta);
-    });
+    btn.addEventListener('click', async () => { _cerrarModal(); await _activarTema(meta); });
     lista.appendChild(btn);
   });
 }
@@ -431,7 +439,7 @@ async function _activarTema(meta) {
     TTS.speak(datos.titulo, { lang: 'es-MX', pitch: 1.2, rate: .95 });
     _mostrarIntro();
   } catch (e) {
-    console.error('[Memorama] Error:', e);
+    console.error('[Memorama]', e);
     toast('Error al cargar el tema', { emoji: '❌' });
   }
 }
@@ -444,15 +452,14 @@ function _mostrarIntro() {
   el.innerHTML = '';
 
   _temaActivo.items.forEach((item, i) => {
-    const imgUrl = _temaActivo.carpeta_img
-      ? `${PICS_BASE}${_temaActivo.carpeta_img}${item.imagen}` : null;
-    if (!imgUrl) return;
+    const url = _imgUrl(item);
+    if (!url) return;
     const div = document.createElement('div');
     div.className = 'mem-flotar';
     div.style.animationDelay    = `${(i % 8) * 0.18}s`;
     div.style.animationDuration = `${2.2 + (i % 4) * 0.3}s`;
     const img = document.createElement('img');
-    img.src = imgUrl; img.alt = item['es-MX'] || '';
+    img.src = url; img.alt = item['es-MX'] || '';
     img.style.cssText = 'width:54px;height:54px;object-fit:contain;border-radius:8px;';
     img.onerror = () => div.remove();
     div.appendChild(img);
@@ -479,14 +486,11 @@ function _iniciarJuego() {
 
   _renderGrid();
 
-  // Limpiar pila y ocultar victoria
-  _q('#mem-pila').innerHTML = '';
-  const vict   = _q('#mem-victoria');
-  const trofeo = _q('#mem-trofeo');
-  vict.classList.add('oculto');
-  vict.style.opacity = '';
-  trofeo.style.transform = 'scale(0)';
-  trofeo.style.opacity   = '0';
+  // Limpiar stack y victoria
+  _q('#mem-stack-wrap').innerHTML = '';
+  const vict = _q('#mem-victoria'), trofeo = _q('#mem-trofeo');
+  vict.classList.add('oculto'); vict.style.opacity = '';
+  trofeo.style.transform = 'scale(0)'; trofeo.style.opacity = '0';
 }
 
 // ── Render del tablero ────────────────────────────────────────
@@ -497,8 +501,7 @@ function _renderGrid() {
 
   _cartas.forEach((carta, i) => {
     const item   = _itemMap[carta.itemId];
-    const imgUrl = (_temaActivo.carpeta_img && item?.imagen)
-      ? `${PICS_BASE}${_temaActivo.carpeta_img}${item.imagen}` : null;
+    const url    = _imgUrl(item);
     const nombre = item ? _nombre(item, 'es-MX') : String(carta.itemId);
 
     const celda = document.createElement('div');
@@ -508,9 +511,7 @@ function _renderGrid() {
       <div class="mem-carta" data-idx="${i}">
         <div class="mem-cara mem-dorso" style="background:${dorso.bg}">${dorso.svg}</div>
         <div class="mem-cara mem-frente">
-          ${imgUrl
-            ? `<img src="${imgUrl}" alt="${nombre}" onerror="this.style.opacity='.15'">`
-            : `<span style="font-size:1.6rem">${nombre}</span>`}
+          ${url ? `<img src="${url}" alt="${nombre}" onerror="this.style.opacity='.15'">` : `<span style="font-size:1.4rem">${nombre}</span>`}
           <span class="mem-label">${nombre}</span>
         </div>
       </div>
@@ -534,22 +535,31 @@ function _voltear(idx) {
   const [a, b] = _volteadas;
 
   if (_cartas[a].itemId === _cartas[b].itemId) {
-    _cartas[a].encontrada = _cartas[b].encontrada = true;
-    _q(`[data-idx="${a}"]`).classList.add('encontrada');
-    _q(`[data-idx="${b}"]`).classList.add('encontrada');
-    _parejas++;
-    _volteadas = [];
-    _bloqueado = false;
-
-    // TTS en idioma aleatorio
+    // ── Par encontrado ────────────────────────────────────────
     const item    = _itemMap[_cartas[a].itemId];
     const idioma  = _idiomaAl();
     const langObj = IDIOMAS.find(l => l.id === idioma);
-    TTS.speak(_nombre(item, idioma), { lang: langObj?.lang || 'es-MX', pitch: 1.2, rate: .9, delay: 150 });
-    _agregarPila(_cartas[a].itemId);
 
-    if (_parejas === MAX_PARES) setTimeout(_victoria, 600);
+    // TTS con pequeño delay para dar tiempo a ver el par
+    TTS.speak(_nombre(item, idioma), { lang: langObj?.lang || 'es-MX', pitch: 1.2, rate: .9, delay: 250 });
+
+    // Marcar como encontradas y lanzar animación de desaparición
+    setTimeout(() => {
+      _cartas[a].encontrada = _cartas[b].encontrada = true;
+      _q(`[data-idx="${a}"]`).classList.add('encontrada');
+      _q(`[data-idx="${b}"]`).classList.add('encontrada');
+      _parejas++;
+      _volteadas = [];
+      _bloqueado = false;
+
+      // Añadir al stack
+      _agregarStack(_cartas[a].itemId, idioma);
+
+      if (_parejas === MAX_PARES) setTimeout(_victoria, 500);
+    }, 300); // breve pausa para apreciar el par antes de que desaparezca
+
   } else {
+    // ── No coinciden ──────────────────────────────────────────
     setTimeout(() => {
       _q(`[data-idx="${a}"]`).classList.remove('volteada');
       _q(`[data-idx="${b}"]`).classList.remove('volteada');
@@ -560,19 +570,43 @@ function _voltear(idx) {
   }
 }
 
-// ── Pila de pares ─────────────────────────────────────────────
-function _agregarPila(itemId) {
+// ── Stack de pares (estilo DJ Emmy) ──────────────────────────
+function _agregarStack(itemId, idioma) {
   const item   = _itemMap[itemId];
-  const idioma = _idiomaAl();
   const nombre = _nombre(item, idioma);
-  const imgUrl = (_temaActivo.carpeta_img && item?.imagen)
-    ? `${PICS_BASE}${_temaActivo.carpeta_img}${item.imagen}` : null;
+  const url    = _imgUrl(item);
+  const stack  = _q('#mem-stack-wrap');
 
-  const chip = document.createElement('div');
-  chip.className = 'mem-par-chip';
-  chip.innerHTML = imgUrl
-    ? `<img src="${imgUrl}" alt="${nombre}">${nombre}` : nombre;
-  _q('#mem-pila').appendChild(chip);
+  const tile = document.createElement('div');
+  tile.className    = 'mem-par-tile';
+  tile.dataset.nombre = nombre;
+
+  if (url) {
+    const img = document.createElement('img');
+    img.src = url; img.alt = nombre;
+    img.onerror = () => { tile.textContent = nombre; };
+    tile.appendChild(img);
+  } else {
+    tile.textContent = nombre;
+    tile.style.cssText += ';display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:#1a1a2e;text-align:center;padding:4px;';
+  }
+
+  // Al tocar: mostrar nombre + TTS en idioma aleatorio
+  tile.addEventListener('click', () => {
+    const idiomaClick  = _idiomaAl();
+    const nombreClick  = _nombre(item, idiomaClick);
+    const langObj      = IDIOMAS.find(l => l.id === idiomaClick);
+    tile.dataset.nombre = nombreClick;
+
+    tile.classList.add('mostrar-nombre');
+    TTS.speak(nombreClick, { lang: langObj?.lang || 'es-MX', pitch: 1.2, rate: .9 });
+    setTimeout(() => tile.classList.remove('mostrar-nombre'), 1400);
+  });
+
+  stack.appendChild(tile);
+
+  // Auto-scroll al último tile
+  requestAnimationFrame(() => { stack.scrollLeft = stack.scrollWidth; });
 }
 
 // ── Victoria ──────────────────────────────────────────────────
