@@ -115,5 +115,6 @@ _verificar();
 setInterval(_verificar, 4 * 60 * 1000);
 
 export function fetchTimeout(url, ms = 8000, opts = {}) {
-return fetch(url, { …opts, signal: AbortSignal.timeout(ms) });
+  return fetch(url, { ...opts, signal: AbortSignal.timeout(ms) });
 }
+
