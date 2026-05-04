@@ -290,8 +290,8 @@ onConexionChange(estado => {
    ════════════════════════════════════════════════════════ */
 
 // ── Importar módulos disponibles ──────────────────────────
-import SaacModule       from './modules/saac/module.js';
-// import MemoramaModule from './modules/memorama/module.js';
+import SaacModule     from './modules/saac/module.js';
+import MemoramaModule from './modules/memorama/module.js';
 // import MusicaModule   from './modules/musica/module.js';
 // import LibrosModule   from './modules/libros/module.js';
 // import VideosModule   from './modules/videos/module.js';
@@ -301,16 +301,9 @@ const MODULE_REGISTRY = [
 
   // ── Módulos listos ──────────────────────────────────────
   SaacModule,
+  MemoramaModule,
 
   // ── Placeholders — borrar cada uno al construir el módulo real
-  // MemoramaModule,
-  {
-    id: 'memorama', label: 'Memorama', emoji: '🃏',
-    desc: 'Juego de memoria', color: '#7B61FF', orden: 2,
-    habilitado: true, requierePin: false,
-    init: async c => { c.innerHTML = '<p style="padding:2rem;color:#999;">Módulo Memorama en construcción…</p>'; },
-    destroy: () => {}, onEnter: () => {}, onLeave: () => {}, cache: [],
-  },
   // MusicaModule,
   {
     id: 'musica', label: 'Música', emoji: '🎵',

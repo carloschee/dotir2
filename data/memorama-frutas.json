@@ -1,0 +1,192 @@
+{
+  "id": "frutas",
+  "titulo": "Frutas",
+  "icono": "frutas-icono.png",
+  "carpeta_img": "memorama/frutas/img/",
+  "items": [
+    {
+      "id": 101,
+      "imagen": "carambola.png",
+      "es-MX": "carambola",
+      "en-US": "starfruit",
+      "fr-FR": "carambole",
+      "zh-CN": "杨桃"
+    },
+    {
+      "id": 102,
+      "imagen": "cerezas.png",
+      "es-MX": "cerezas",
+      "en-US": "cherries",
+      "fr-FR": "cerises",
+      "zh-CN": "樱桃"
+    },
+    {
+      "id": 103,
+      "imagen": "ciruela.png",
+      "es-MX": "ciruela",
+      "en-US": "plum",
+      "fr-FR": "prune",
+      "zh-CN": "李子"
+    },
+    {
+      "id": 104,
+      "imagen": "coco.png",
+      "es-MX": "coco",
+      "en-US": "coconut",
+      "fr-FR": "noix de coco",
+      "zh-CN": "椰子"
+    },
+    {
+      "id": 105,
+      "imagen": "durazno.png",
+      "es-MX": "durazno",
+      "en-US": "peach",
+      "fr-FR": "pêche",
+      "zh-CN": "桃子"
+    },
+    {
+      "id": 106,
+      "imagen": "fresa.png",
+      "es-MX": "fresa",
+      "en-US": "strawberry",
+      "fr-FR": "fraise",
+      "zh-CN": "草莓"
+    },
+    {
+      "id": 107,
+      "imagen": "granada.png",
+      "es-MX": "granada",
+      "en-US": "pomegranate",
+      "fr-FR": "grenade",
+      "zh-CN": "石榴"
+    },
+    {
+      "id": 108,
+      "imagen": "guanabana.png",
+      "es-MX": "guanábana",
+      "en-US": "soursop",
+      "fr-FR": "corossol",
+      "zh-CN": "刺果番荔枝"
+    },
+    {
+      "id": 109,
+      "imagen": "guayaba.png",
+      "es-MX": "guayaba",
+      "en-US": "guava",
+      "fr-FR": "goyave",
+      "zh-CN": "番石榴"
+    },
+    {
+      "id": 110,
+      "imagen": "higo.png",
+      "es-MX": "higo",
+      "en-US": "fig",
+      "fr-FR": "figue",
+      "zh-CN": "无花果"
+    },
+    {
+      "id": 111,
+      "imagen": "kiwi.png",
+      "es-MX": "kiwi",
+      "en-US": "kiwi",
+      "fr-FR": "kiwi",
+      "zh-CN": "奇异果"
+    },
+    {
+      "id": 112,
+      "imagen": "limon.png",
+      "es-MX": "limón",
+      "en-US": "lemon",
+      "fr-FR": "citron",
+      "zh-CN": "柠檬"
+    },
+    {
+      "id": 113,
+      "imagen": "mamey.png",
+      "es-MX": "mamey",
+      "en-US": "mamey",
+      "fr-FR": "mamey",
+      "zh-CN": "人参果"
+    },
+    {
+      "id": 114,
+      "imagen": "mango.png",
+      "es-MX": "mango",
+      "en-US": "mango",
+      "fr-FR": "mangue",
+      "zh-CN": "芒果"
+    },
+    {
+      "id": 115,
+      "imagen": "manzana.png",
+      "es-MX": "manzana",
+      "en-US": "apple",
+      "fr-FR": "pomme",
+      "zh-CN": "苹果"
+    },
+    {
+      "id": 116,
+      "imagen": "melon.png",
+      "es-MX": "melón",
+      "en-US": "melon",
+      "fr-FR": "melon",
+      "zh-CN": "甜瓜"
+    },
+    {
+      "id": 117,
+      "imagen": "naranja.png",
+      "es-MX": "naranja",
+      "en-US": "orange",
+      "fr-FR": "orange",
+      "zh-CN": "橙子"
+    },
+    {
+      "id": 118,
+      "imagen": "papaya.png",
+      "es-MX": "papaya",
+      "en-US": "papaya",
+      "fr-FR": "papaye",
+      "zh-CN": "木瓜"
+    },
+    {
+      "id": 119,
+      "imagen": "pera.png",
+      "es-MX": "pera",
+      "en-US": "pear",
+      "fr-FR": "poire",
+      "zh-CN": "梨"
+    },
+    {
+      "id": 120,
+      "imagen": "pina.png",
+      "es-MX": "piña",
+      "en-US": "pineapple",
+      "fr-FR": "ananas",
+      "zh-CN": "菠萝"
+    },
+    {
+      "id": 121,
+      "imagen": "platano.png",
+      "es-MX": "plátano",
+      "en-US": "banana",
+      "fr-FR": "banane",
+      "zh-CN": "香蕉"
+    },
+    {
+      "id": 122,
+      "imagen": "sandia.png",
+      "es-MX": "sandía",
+      "en-US": "watermelon",
+      "fr-FR": "pastèque",
+      "zh-CN": "西瓜"
+    },
+    {
+      "id": 123,
+      "imagen": "uvas.png",
+      "es-MX": "uvas",
+      "en-US": "grapes",
+      "fr-FR": "raisins",
+      "zh-CN": "葡萄"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "id": "transportes",
+  "titulo": "Transportes",
+  "icono": "transportes-icono.png",
+  "carpeta_img": "memorama/transportes/img/",
+  "items": [
+    {
+      "id": 201,
+      "imagen": "autobus.png",
+      "es-MX": "autobús",
+      "en-US": "bus",
+      "fr-FR": "bus",
+      "zh-CN": "公共汽车"
+    },
+    {
+      "id": 202,
+      "imagen": "avion.png",
+      "es-MX": "avión",
+      "en-US": "airplane",
+      "fr-FR": "avion",
+      "zh-CN": "飞机"
+    },
+    {
+      "id": 203,
+      "imagen": "barco.png",
+      "es-MX": "barco",
+      "en-US": "ship",
+      "fr-FR": "bateau",
+      "zh-CN": "轮船"
+    },
+    {
+      "id": 204,
+      "imagen": "bicicleta.png",
+      "es-MX": "bicicleta",
+      "en-US": "bicycle",
+      "fr-FR": "vélo",
+      "zh-CN": "自行车"
+    },
+    {
+      "id": 205,
+      "imagen": "coche.png",
+      "es-MX": "coche",
+      "en-US": "car",
+      "fr-FR": "voiture",
+      "zh-CN": "汽车"
+    },
+    {
+      "id": 206,
+      "imagen": "ferrocarril.png",
+      "es-MX": "ferrocarril",
+      "en-US": "train",
+      "fr-FR": "train",
+      "zh-CN": "火车"
+    },
+    {
+      "id": 207,
+      "imagen": "globo.png",
+      "es-MX": "globo aerostático",
+      "en-US": "hot air balloon",
+      "fr-FR": "montgolfière",
+      "zh-CN": "热气球"
+    },
+    {
+      "id": 208,
+      "imagen": "helicoptero.png",
+      "es-MX": "helicóptero",
+      "en-US": "helicopter",
+      "fr-FR": "hélicoptère",
+      "zh-CN": "直升机"
+    },
+    {
+      "id": 209,
+      "imagen": "motocicleta.png",
+      "es-MX": "motocicleta",
+      "en-US": "motorcycle",
+      "fr-FR": "moto",
+      "zh-CN": "摩托车"
+    },
+    {
+      "id": 210,
+      "imagen": "motoneta.png",
+      "es-MX": "motoneta",
+      "en-US": "scooter",
+      "fr-FR": "scooter",
+      "zh-CN": "踏板车"
+    },
+    {
+      "id": 211,
+      "imagen": "submarino.png",
+      "es-MX": "submarino",
+      "en-US": "submarine",
+      "fr-FR": "sous-marin",
+      "zh-CN": "潜水艇"
+    },
+    {
+      "id": 212,
+      "imagen": "teleferico.png",
+      "es-MX": "teleférico",
+      "en-US": "cable car",
+      "fr-FR": "téléphérique",
+      "zh-CN": "缆车"
+    }
+  ]
+}

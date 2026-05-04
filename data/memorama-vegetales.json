@@ -1,0 +1,120 @@
+{
+  "id": "vegetales",
+  "titulo": "Vegetales",
+  "icono": "vegetales-icono.png",
+  "carpeta_img": "memorama/vegetales/img/",
+  "items": [
+    {
+      "id": 301,
+      "imagen": "aguacate.png",
+      "es-MX": "aguacate",
+      "en-US": "avocado",
+      "fr-FR": "avocat",
+      "zh-CN": "牛油果"
+    },
+    {
+      "id": 302,
+      "imagen": "ajo.png",
+      "es-MX": "ajo",
+      "en-US": "garlic",
+      "fr-FR": "ail",
+      "zh-CN": "大蒜"
+    },
+    {
+      "id": 303,
+      "imagen": "berenjena.png",
+      "es-MX": "berenjena",
+      "en-US": "eggplant",
+      "fr-FR": "aubergine",
+      "zh-CN": "茄子"
+    },
+    {
+      "id": 304,
+      "imagen": "brocoli.png",
+      "es-MX": "brócoli",
+      "en-US": "broccoli",
+      "fr-FR": "brocoli",
+      "zh-CN": "西兰花"
+    },
+    {
+      "id": 305,
+      "imagen": "calabaza.png",
+      "es-MX": "calabaza",
+      "en-US": "pumpkin",
+      "fr-FR": "citrouille",
+      "zh-CN": "南瓜"
+    },
+    {
+      "id": 306,
+      "imagen": "cebolla.png",
+      "es-MX": "cebolla",
+      "en-US": "onion",
+      "fr-FR": "oignon",
+      "zh-CN": "洋葱"
+    },
+    {
+      "id": 307,
+      "imagen": "champinon.png",
+      "es-MX": "champiñón",
+      "en-US": "mushroom",
+      "fr-FR": "champignon",
+      "zh-CN": "蘑菇"
+    },
+    {
+      "id": 308,
+      "imagen": "chile.png",
+      "es-MX": "chile",
+      "en-US": "chili pepper",
+      "fr-FR": "piment",
+      "zh-CN": "辣椒"
+    },
+    {
+      "id": 309,
+      "imagen": "lechuga.png",
+      "es-MX": "lechuga",
+      "en-US": "lettuce",
+      "fr-FR": "laitue",
+      "zh-CN": "生菜"
+    },
+    {
+      "id": 310,
+      "imagen": "maiz.png",
+      "es-MX": "maíz",
+      "en-US": "corn",
+      "fr-FR": "maïs",
+      "zh-CN": "玉米"
+    },
+    {
+      "id": 311,
+      "imagen": "papa.png",
+      "es-MX": "papa",
+      "en-US": "potato",
+      "fr-FR": "pomme de terre",
+      "zh-CN": "土豆"
+    },
+    {
+      "id": 312,
+      "imagen": "pimiento.png",
+      "es-MX": "pimiento",
+      "en-US": "bell pepper",
+      "fr-FR": "poivron",
+      "zh-CN": "甜椒"
+    },
+    {
+      "id": 313,
+      "imagen": "tomate.png",
+      "es-MX": "tomate",
+      "en-US": "tomato",
+      "fr-FR": "tomate",
+      "zh-CN": "番茄"
+    },
+    {
+      "id": 314,
+      "imagen": "zanahoria.png",
+      "es-MX": "zanahoria",
+      "en-US": "carrot",
+      "fr-FR": "carotte",
+      "zh-CN": "胡萝卜"
+    }
+  ]
+}
