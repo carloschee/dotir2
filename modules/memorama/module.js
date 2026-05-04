@@ -1,9 +1,4 @@
-/* ============================================================
-   Dótir 2 — modules/memorama/module.js
-   Descriptor del módulo Memorama para el MODULE_REGISTRY.
-   ============================================================ */
-
-import { init, destroy, onEnter, onLeave } from './memorama.js';
+import { init, destroy, onEnter, onLeave, pause, resume } from './memorama.js';
 
 export default {
   id:          'memorama',
@@ -11,19 +6,15 @@ export default {
   desc:        'Juego de memoria',
   emoji:       '🃏',
   color:       '#7B61FF',
-
   orden:       2,
   habilitado:  true,
   requierePin: false,
-
   init,
   destroy,
   onEnter,
   onLeave,
-
-  // Recursos a precachear para uso offline.
-  // Los JSONs de cada tema y sus imágenes se añaden
-  // dinámicamente al leer memorama-temas.json (ver core/offline.js).
+  pause,
+  resume,
   cache: [
     './data/memorama-temas.json',
     './data/memorama-frutas.json',
