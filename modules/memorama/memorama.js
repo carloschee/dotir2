@@ -123,6 +123,21 @@ export function destroy() {
   document.getElementById('mem-nav-style')?.remove();
 }
 
+/** Pausar: conservar todo el estado, solo ocultar acciones de nav */
+export function pause() {
+  // La vista ya se oculta desde el shell (display:none en #modulo-contenido)
+  // Solo necesitamos limpiar las acciones de la navbar
+  document.getElementById('modulo-acciones')?.replaceChildren();
+}
+
+/** Resumir: el DOM ya existe, solo re-inyectar controles en la navbar */
+export async function resume(container) {
+  // container es el mismo #modulo-contenido, ya tiene el HTML del juego
+  _container = container;
+  _renderNavAcciones();  // re-inyectar botones en la navbar
+  _renderListaTemas();   // re-poblar lista por si acaso
+}
+
 export function onEnter() {}
 export function onLeave() { TTS.stop(); }
 

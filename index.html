@@ -383,6 +383,7 @@ onConexionChange(estado => {
    ══════════════════════════════════════════════ */
 import SaacModule     from './modules/saac/module.js';
 import MemoramaModule from './modules/memorama/module.js';
+import AjustesModule  from './modules/ajustes/module.js';
 // import MusicaModule  from './modules/musica/module.js';
 // import LibrosModule  from './modules/libros/module.js';
 // import VideosModule  from './modules/videos/module.js';
@@ -398,6 +399,7 @@ const MODULE_REGISTRY = [
 
   SaacModule,
   MemoramaModule,
+  AjustesModule,
 
   // MusicaModule,
   { id:'musica',  label:'Música',  emoji:'🎵', desc:'Reproductor',       color:'#F5A623', orden:3,  habilitado:true, requierePin:false, init:async c=>{c.innerHTML=_ph('Música')},   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
@@ -405,7 +407,7 @@ const MODULE_REGISTRY = [
   { id:'libros',  label:'Libros',  emoji:'📚', desc:'Visor PDF',          color:'#10B981', orden:4,  habilitado:true, requierePin:false, init:async c=>{c.innerHTML=_ph('Libros')},   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
   // VideosModule,
   { id:'videos',  label:'Videos',  emoji:'🎬', desc:'Reproductor video',  color:'#EF4444', orden:5,  habilitado:true, requierePin:false, init:async c=>{c.innerHTML=_ph('Videos')},   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
-  { id:'ajustes', label:'Ajustes', emoji:'⚙️', desc:'Configuración',      color:'#6B7A99', orden:99, habilitado:true, requierePin:true,  init:async c=>{c.innerHTML=_ph('Ajustes')},  destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
+  // AjustesModule ya está arriba en módulos listos
 
 ].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
 
@@ -428,40 +430,102 @@ MODULE_REGISTRY.forEach(mod => {
   $('menu-grid').appendChild(tile);
 });
 
-/* 5. Navegación */
-let _moduloActivo = null;
+/* ══════════════════════════════════════════════
+   5. NAVEGACIÓN con soporte de pausa/resume
+   ══════════════════════════════════════════════
+   Contrato extendido del módulo:
+   · init(container)  — montar por primera vez
+   · destroy()        — desmontar definitivamente
+   · onEnter()        — foco / reanudar timers
+   · onLeave()        — quitar foco / pausar timers
+   · pause()          — NUEVO: salir al menú sin destruir
+   · resume()         — NUEVO: volver sin reinicializar
+
+   Si el módulo no declara pause/resume, se hace
+   destroy/init como antes (compatibilidad total).
+   ══════════════════════════════════════════════ */
+let _moduloActivo   = null;  // módulo en pantalla
+let _moduloPausado  = null;  // módulo en segundo plano (pausado)
 
 async function navegarA(mod) {
   $('vista-menu').style.display = 'none';
   $('vista-modulo').classList.add('activa');
+
+  // ── Si ya hay un módulo activo diferente → pausar o destruir ──
+  if (_moduloActivo && _moduloActivo.id !== mod.id) {
+    try { _moduloActivo.onLeave?.(); } catch (_) {}
+
+    if (_moduloActivo.pause) {
+      // Módulo soporta pausa: ocultar DOM sin destruir
+      try { _moduloActivo.pause(); } catch (_) {}
+      $('modulo-contenido').style.display = 'none';
+      _moduloPausado = _moduloActivo;
+    } else {
+      // Sin pausa: destruir normalmente
+      try { _moduloActivo.destroy?.(); } catch (_) {}
+      $('modulo-contenido').innerHTML = '';
+      if (_moduloPausado?.id === _moduloActivo.id) _moduloPausado = null;
+    }
+    _moduloActivo = null;
+  }
+
+  // ── Si el módulo pedido ya está pausado → resumir ──
+  if (_moduloPausado?.id === mod.id && mod.resume) {
+    _moduloActivo = mod;
+    $('modulo-contenido').style.display = '';
+    $('modulo-acciones').innerHTML = '';
+    try {
+      await mod.resume($('modulo-contenido'));
+      mod.onEnter?.();
+      animarEntrada($('modulo-contenido'));
+    } catch (e) {
+      console.error(`[App] Error al resumir "${mod.id}":`, e);
+    }
+    return;
+  }
+
+  // ── Módulo diferente al pausado → destruir pausado si existe ──
+  if (_moduloPausado && _moduloPausado.id !== mod.id) {
+    try { _moduloPausado.destroy?.(); } catch (_) {}
+    _moduloPausado = null;
+    $('modulo-contenido').innerHTML = '';
+    $('modulo-contenido').style.display = '';
+  }
+
+  // ── Inicializar módulo fresco ──────────────────────────────
+  _moduloActivo = mod;
+  $('modulo-contenido').style.display = '';
   $('modulo-acciones').innerHTML = '';
 
-  if (_moduloActivo && _moduloActivo.id !== mod.id) {
-    try { _moduloActivo.onLeave?.(); _moduloActivo.destroy?.(); } catch (_) {}
-  }
-  _moduloActivo = mod;
-
-  const contenedor = $('modulo-contenido');
-  contenedor.innerHTML = '';
   try {
-    await mod.init(contenedor);
+    await mod.init($('modulo-contenido'));
     mod.onEnter?.();
-    animarEntrada(contenedor);
+    animarEntrada($('modulo-contenido'));
   } catch (e) {
     console.error(`[App] Error en módulo "${mod.id}":`, e);
-    contenedor.innerHTML = `<div style="padding:2rem;color:#ef4444;font-weight:600;">
-      Error al cargar el módulo.</div>`;
+    $('modulo-contenido').innerHTML =
+      `<div style="padding:2rem;color:#ef4444;font-weight:600;">Error al cargar el módulo.</div>`;
   }
 }
 
 function volverAlMenu() {
   if (_moduloActivo) {
-    try { _moduloActivo.onLeave?.(); _moduloActivo.destroy?.(); } catch (_) {}
+    try { _moduloActivo.onLeave?.(); } catch (_) {}
+
+    if (_moduloActivo.pause) {
+      // Pausar: conservar DOM, ocultar vista
+      try { _moduloActivo.pause(); } catch (_) {}
+      $('modulo-contenido').style.display = 'none';
+      _moduloPausado = _moduloActivo;
+    } else {
+      try { _moduloActivo.destroy?.(); } catch (_) {}
+      $('modulo-contenido').innerHTML = '';
+    }
     _moduloActivo = null;
   }
+
   $('vista-modulo').classList.remove('activa');
   $('modulo-acciones').innerHTML = '';
-  $('modulo-contenido').innerHTML = '';
   $('vista-menu').style.display = '';
 }
 
