@@ -1,8 +1,8 @@
 import { fetchTimeout } from '../../core/offline.js';
 
 const DATA_URL   = './data/audios.json';
-const AUDIO_BASE = './audios/';
-const IMG_BASE   = './audios/img/';
+const AUDIO_BASE = './assets/audio/';
+const IMG_BASE   = './assets/audio/img/';
 
 let _container  = null;
 let _canciones  = [];
