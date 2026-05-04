@@ -47,9 +47,10 @@ export function pause() {
 }
 
 export async function resume(container) {
-  _container = container;
-  _renderCintillo();
-  _iniciarAnimacion();
+ _container = container;
+ _renderCintillo();
+ if (AudioManager.playing) _mostrarBtnStop();
+ _iniciarAnimacion();
 }
 
 async function _cargarCanciones() {
