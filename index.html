@@ -262,6 +262,25 @@
 
 </head>
 <body>
+<!-- tmp -->
+  <script>
+window.addEventListener('error', e => {
+  document.body.innerHTML += 
+    `<pre style="background:red;color:white;padding:10px;font-size:12px;
+     position:fixed;top:0;left:0;right:0;z-index:99999;overflow:auto;">
+     ERROR: ${e.message}\n${e.filename}\nLínea: ${e.lineno}
+     </pre>`;
+});
+window.addEventListener('unhandledrejection', e => {
+  document.body.innerHTML += 
+    `<pre style="background:orange;color:black;padding:10px;font-size:12px;
+     position:fixed;top:0;left:0;right:0;z-index:99999;overflow:auto;">
+     PROMISE: ${e.reason}
+     </pre>`;
+});
+</script>
+
+<!-- finaliza tmp -->
 
 <div id="app">
 
