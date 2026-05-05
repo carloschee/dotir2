@@ -329,7 +329,6 @@ const MODULE_REGISTRY = [
  AjustesModule,
  LibrosModule,VideosModule,
  VideosModule,
- destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
 ].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
 
 MODULE_REGISTRY.forEach(mod => {
