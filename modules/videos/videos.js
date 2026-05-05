@@ -1,7 +1,6 @@
 /* Dotir 2 - modules/videos/videos.js
-   Reproductor de video local con cintillo de miniaturas.
-   Archivos MP4 en assets/videos/a.mp4, b.mp4, etc.
-   Miniaturas opcionales en assets/videos/img/a.jpg, b.jpg, etc.
+   Reproductor de video limpio sin controles ni overlays.
+   Solo el video a pantalla completa y cintillo inferior.
    Deslizar izquierda/derecha cambia de video.
 */
 
@@ -70,19 +69,16 @@ async function _cargarVideos() {
 function _renderShell() {
   _container.innerHTML =
     '<style>' +
-    '#vid-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:#07070f; }' +
+    '#vid-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:#000; }' +
 
-    '#vid-area { flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; background:#000; }' +
+    '#vid-area { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; background:#000; overflow:hidden; }' +
 
-    '#vid-player { width:100%; height:100%; object-fit:contain; display:none; }' +
+    '#vid-player { width:100%; height:100%; object-fit:contain; display:none; pointer-events:none; }' +
 
-    '#vid-vacio { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:rgba(255,255,255,0.3); font-size:0.9rem; font-weight:700; pointer-events:none; }' +
+    '#vid-vacio { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:rgba(255,255,255,0.25); font-size:0.9rem; font-weight:700; width:100%; height:100%; }' +
     '#vid-vacio span { font-size:3rem; }' +
 
-    '#vid-info { position:absolute; bottom:0; left:0; right:0; padding:10px 16px; background:linear-gradient(transparent,rgba(0,0,0,0.7)); pointer-events:none; display:none; }' +
-    '#vid-titulo { color:white; font-size:0.9rem; font-weight:900; text-shadow:0 1px 6px rgba(0,0,0,0.8); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }' +
-
-    '#vid-cintillo-wrap { flex-shrink:0; height:108px; background:rgba(0,0,0,0.55); border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
+    '#vid-cintillo-wrap { flex-shrink:0; height:108px; background:rgba(0,0,0,0.7); border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
     '#vid-cintillo-wrap::-webkit-scrollbar { display:none; }' +
 
     '.vid-tile { flex-shrink:0; width:140px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; scroll-snap-align:start; border-radius:10px; padding:5px 4px; transition:background 0.15s; }' +
@@ -98,9 +94,8 @@ function _renderShell() {
 
     '<div id="vid-wrap">' +
       '<div id="vid-area">' +
-        '<video id="vid-player" playsinline controls preload="none"></video>' +
+        '<video id="vid-player" playsinline preload="none"></video>' +
         '<div id="vid-vacio"><span>🎬</span><p>Elige un video del cintillo</p></div>' +
-        '<div id="vid-info"><div id="vid-titulo"></div></div>' +
       '</div>' +
       '<div id="vid-cintillo-wrap"></div>' +
     '</div>';
@@ -137,7 +132,7 @@ function _renderCintillo() {
 
     const ico = document.createElement('span');
     ico.className = 'vid-ico';
-    ico.textContent = '▶';
+    ico.textContent = '\u25B6';
 
     thumb.appendChild(img);
     thumb.appendChild(ico);
@@ -163,15 +158,11 @@ function _reproducirIdx(idx) {
 
   const player = _q('#vid-player');
   const vacio  = _q('#vid-vacio');
-  const info   = _q('#vid-info');
-  const titulo = _q('#vid-titulo');
   if (!player) return;
 
   player.src = VIDEO_BASE + v.archivo + '.mp4';
   player.style.display = 'block';
-  if (vacio)  vacio.style.display  = 'none';
-  if (info)   info.style.display   = 'block';
-  if (titulo) titulo.textContent   = v.titulo;
+  if (vacio) vacio.style.display = 'none';
 
   player.load();
   player.play().catch(() => {});
