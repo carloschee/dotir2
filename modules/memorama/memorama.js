@@ -300,12 +300,7 @@ function _renderShell() {
       .mem-par-tile.mostrar-nombre::after { opacity: 1; }
 
       /* Modal de temas */
-      #mem-modal {
-        position: absolute; inset: 0; z-index: 40;
-        background: rgba(10,10,30,0.88);
-        display: flex; align-items: center; justify-content: center;
-        backdrop-filter: blur(6px);
-      }
+      #mem-modal { position:absolute; inset:0; z-index:40; background:transparent; display:flex; align-items:center; justify-content:center; }
       #mem-modal.oculto { display: none; }
       #mem-modal-box {
         background: #1e1e3a; border-radius: 24px; padding: 24px;
@@ -325,7 +320,7 @@ function _renderShell() {
       }
       .mem-tema-btn:active { background: rgba(255,255,255,0.16); }
       .mem-tema-btn .mt-emoji  { font-size: 1.8rem; }
-      .mem-tema-btn .mt-titulo { font-weight: 800; font-size: .9rem; }
+      .mem-tema-btn .mt-titulo { font-weight: 900; font-size: 1.2rem; }
       .mem-tema-btn .mt-items  { font-size: .7rem; color: rgba(255,255,255,.4); }
       #mem-modal-cancelar {
         width: 100%; padding: 11px; border-radius: 14px;
@@ -421,13 +416,12 @@ function _renderListaTemas() {
     const btn = document.createElement('button');
     btn.className = 'mem-tema-btn';
     btn.innerHTML = `
-      <span class="mt-emoji">${TEMA_EMOJIS[meta.id] || '🎴'}</span>
-      <div style="flex:1">
-        <div class="mt-titulo">${meta.titulo}</div>
-        <div class="mt-items">${meta.items ?? ''} elementos</div>
-      </div>
-      <span style="color:rgba(255,255,255,.3);font-size:1.2rem">›</span>
-    `;
+  <span class="mt-emoji">${TEMA_EMOJIS[meta.id] || '🎴'}</span>
+  <div style="flex:1">
+    <div class="mt-titulo">${meta.titulo}</div>
+  </div>
+  <span style="color:rgba(255,255,255,.3);font-size:1.2rem">›</span>
+`;
     btn.addEventListener('click', async () => { _cerrarModal(); await _activarTema(meta); });
     lista.appendChild(btn);
   });
