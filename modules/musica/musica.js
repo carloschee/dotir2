@@ -74,7 +74,7 @@ async function _cargarCanciones() {
 function _renderShell() {
   _container.innerHTML =
     '<style>' +
-    '#mus-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:#07070f; position:relative; }' +
+    '#mus-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:transparent; position:relative; }' +
     '#mus-viz-area { flex:1; min-height:0; position:relative; }' +
     '#mus-canvas { position:absolute; inset:0; width:100%; height:100%; }' +
     '#mus-portada-bg { position:absolute; inset:0; background-size:cover; background-position:center; opacity:0.12; transition:background-image 0.6s; }' +

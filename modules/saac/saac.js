@@ -89,7 +89,7 @@ function _renderShell() {
       #saac-wrap {
         display: flex; flex-direction: column;
         height: 100%; overflow: hidden;
-        background: var(--d-bg, #F0F4FA);
+        background: transparent;
       }
 
       /* Barra de frase — va justo debajo de la navbar del shell */

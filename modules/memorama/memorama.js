@@ -193,7 +193,7 @@ function _renderShell() {
       #mem-wrap {
         display: flex; flex-direction: column;
         height: 100%; overflow: hidden;
-        background: #1a1a2e; position: relative;
+        background: transparent;
       }
 
       #mem-grid-wrap {

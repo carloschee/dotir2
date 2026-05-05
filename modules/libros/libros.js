@@ -77,7 +77,7 @@ function _cancelarRender() {
 function _renderShell() {
   _container.innerHTML =
     '<style>' +
-    '#lib-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:#1a1a2e; }' +
+    '#lib-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:transparent; }' +
 
     '#lib-visor { flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; background:#0f0f1a; overflow:hidden; }' +
     '#lib-canvas { max-width:100%; max-height:100%; display:block; border-radius:4px; box-shadow:0 4px 24px rgba(0,0,0,0.5); }' +
