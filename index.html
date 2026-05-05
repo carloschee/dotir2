@@ -51,14 +51,18 @@
      user-select: none;
    }
 
+   body {
+  background: #0f0824;
+}
+
    /* Fondo global persistente */
    #app {
-     position: fixed; inset: 0;
-     padding-top: var(--safe-top);
-     padding-bottom: var(--safe-bottom);
-     display: flex; flex-direction: column;
-     background: var(--d-app-bg);
-   }
+  position: fixed; inset: 0;
+  padding-top: var(--safe-top);
+  padding-bottom: 0;  /* quitar el padding global */
+  display: flex; flex-direction: column;
+  background: #0f0824;
+}
 
    #app-aurora #app-body
   position: fixed; inset: 0;
@@ -279,7 +283,7 @@
 #menu-grid {
   flex: 1; overflow-y: auto; overflow-x: hidden;
   padding: 20px;
-  padding-bottom: calc(20px + var(--safe-bottom));
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
@@ -384,6 +388,13 @@
      color: #C2185B; font-size: 0.95rem;
      font-weight: 800; margin-top: 8px; min-height: 1em;
    }
+
+   #mus-cintillo-wrap,
+#lib-cintillo-wrap,
+#vid-cintillo-wrap {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(108px + env(safe-area-inset-bottom, 0px));
+}
  </style>
 </head>
 <body>

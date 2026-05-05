@@ -260,13 +260,16 @@ function _renderShell() {
       /* Stack de pares */
       #mem-stack-wrap {
         flex-shrink: 0; height: 72px;
-        padding: 5px 8px;
         background: rgba(0,0,0,0.30);
         border-top: 1px solid rgba(255,255,255,0.08);
         display: flex; align-items: center; gap: 5px;
         overflow-x: auto; overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
+        padding-top: 5px;
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
       }
       #mem-stack-wrap::-webkit-scrollbar { display: none; }
 
