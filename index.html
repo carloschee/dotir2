@@ -843,43 +843,89 @@
     window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
     AudioManager.montarBtnGlobal();
 
-    // ── Heartbeat: evita que la pantalla se duerma ────────────────
-// Estrategia dual: Wake Lock API (moderno) + video 1px (fallback iOS Safari)
+    // ── Wake Lock: mantiene la pantalla encendida ─────────────────
+// iOS Safari requiere un video mudo real en loop — no acepta Wake Lock API
+// El video base64 es un MP4 H.264 de 1x1px, 1 segundo, silencioso y valido
+
 const _wakeVideo = document.createElement('video');
-_wakeVideo.setAttribute('loop', '');
+_wakeVideo.loop        = true;
+_wakeVideo.muted       = true;
+_wakeVideo.playsInline = true;
 _wakeVideo.setAttribute('playsinline', '');
-_wakeVideo.setAttribute('muted', '');
-_wakeVideo.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;top:0;left:0;z-index:-1;';
-// Video MP4 de 1 segundo vacio codificado en base64
-_wakeVideo.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAs1tZGF0';
+_wakeVideo.setAttribute('webkit-playsinline', '');
+_wakeVideo.style.cssText =
+  'position:fixed;width:1px;height:1px;top:0;left:0;opacity:0.01;pointer-events:none;z-index:-1;';
+
+// MP4 1x1px H.264 valido — generado con ffmpeg, funciona en Safari iOS
+_wakeVideo.src = 'data:video/mp4;base64,' +
+  'AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMQAAAAhmcmVlAAAAG21kYXQAAAGzABAHAAABthAd' +
+  'AT8LkAAA9oAAAIUGl2aXNhAAAHAm1vb3YAAABsbXZoZAAAAAAAAAAAAAAAAAAAA+gAAAPoAAEAAAEB' +
+  'AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA' +
+  'AAABAAAABnN0dHMAAAAAAAAAAQAAAAEAAAAUAAAAFHN0c3MAAAAAAAAAAQAAAAEAAAAcc3RzYwAAAAAA' +
+  'AAABAAAABAAAAAEAAAABAAAAHHN0c3oAAAAAAAACMgAAAAEAAAAUAAAAFHN0Y28AAAAAAAAAAQAAADAA' +
+  'AAABdHJhawAAAFx0a2hkAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAA' +
+  'AQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAFAAAACAAAAAAAAAAB4bWRpYQAAACBtZGhk' +
+  'AAAAAAAAAAAAAAAAAAB9AAAB9AAVxAAAAAAAI2hkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABW' +
+  'aWRlb0hhbmRsZXIAAAABD21pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYA' +
+  'AAAAAAAAAQAAAAx1cmwgAAAAAQAAAM9zdGJsAAAAa3N0c2QAAAAAAAAAAQAAAFthdmMxAAAAAAAA' +
+  'AAABABAAAAAAAAAAAAAB9AAB9AABAAABAAHgQAEABl//gdLCmgAAAAAAAAAAAAAAAAAAAAAAAAAAAA' +
+  'AAAAAAAAAAAAAAAAAAP//AAAB9AAAB9AQAAAAAEAAAABAAAABAAAABIAAAAUAAAAFAAAABAAAABIc3R0' +
+  'cwAAAAAAAAABAAAABAAAAAEAAAAUc3RzYwAAAAAAAAABAAAABAAAAAEAAAABAAAAHHN0c3oAAAAAAAA' +
+  'AMgAAAAEAAAAUAAAAFAAAABRzdGNvAAAAAAAAAAEAAAAwAAAAYXVkdGEAAABZbWV0YQAAAAAAAAAh' +
+  'aGRscgAAAAAAAAAABG1kaXJhcHBsAAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAA' +
+  'AQAAAABMYXZM';
+
 document.body.appendChild(_wakeVideo);
 
 let _wakeLock = null;
 
 async function _activarWakeLock() {
+  // 1. Intentar Wake Lock API (Chrome, Edge, algunos Android)
   if ('wakeLock' in navigator) {
     try {
+      if (_wakeLock) return; // ya activo
       _wakeLock = await navigator.wakeLock.request('screen');
       _wakeLock.addEventListener('release', () => {
+        _wakeLock = null;
+        // Reactivar si la pagina sigue visible
         if (document.visibilityState === 'visible') _activarWakeLock();
       });
       return;
-    } catch(e) {}
+    } catch(e) {
+      // Wake Lock no disponible, caer al fallback
+    }
   }
-  // Fallback iOS: video mudo en loop
-  _wakeVideo.play().catch(() => {});
+
+  // 2. Fallback iOS Safari: video mudo en loop
+  if (_wakeVideo.paused) {
+    try {
+      await _wakeVideo.play();
+    } catch(e) {
+      console.warn('[WakeLock] fallback video fallo:', e);
+    }
+  }
 }
 
-// Activar en el primer toque (requerido por Safari)
-document.addEventListener('touchstart', () => _activarWakeLock(), { once: true });
-document.addEventListener('click',      () => _activarWakeLock(), { once: true });
-
-// Reactivar al volver a primer plano
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') _activarWakeLock();
+// Safari requiere gesto del usuario antes de reproducir cualquier video
+['touchstart', 'touchend', 'click', 'pointerdown'].forEach(ev => {
+  document.addEventListener(ev, function _unlock() {
+    _activarWakeLock();
+    document.removeEventListener(ev, _unlock);
+  }, { passive: true });
 });
 
-// Heartbeat cada 4 minutos para mantener el SW activo
+// Reactivar al volver a primer plano (cuando el usuario regresa a la app)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    _wakeLock = null; // el sistema lo libera al cambiar de app
+    _activarWakeLock();
+  } else {
+    // Pausar el video fallback cuando la app va al fondo
+    if (!_wakeVideo.paused) _wakeVideo.pause();
+  }
+});
+
+// Heartbeat al service worker cada 4 minutos
 setInterval(() => {
   if (document.visibilityState === 'visible') {
     navigator.serviceWorker?.controller?.postMessage({ tipo: 'heartbeat' });
