@@ -29,7 +29,7 @@
      --d-primary:    #A855F7;
      --d-primary-dk: #7C3AED;
      --d-nav-bg:     linear-gradient(135deg,#7C3AED 0%,#C026D3 60%,#EC4899 100%);
-     --d-app-bg:     linear-gradient(160deg,#F3EEFF 0%,#EDE0FF 40%,#F9E8FF 70%,#FFF0F8 100%);
+     --d-app-bg: linear-gradient(160deg, #0f0824 0%, #1a0a3d 50%, #0d1a2e 100%);
      --d-nav-h:      56px;
      --r-sm:   12px;
      --r-md:   18px;
@@ -137,43 +137,112 @@
    }
 
    #vista-menu {
-     position: absolute; inset: 0;
-     display: flex; flex-direction: column;
-     overflow: hidden;
-   }
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
 
-   #menu-grid {
-     flex: 1; overflow-y: auto; overflow-x: hidden;
-     padding: 20px;
-     padding-bottom: calc(20px + var(--safe-bottom));
-     display: grid;
-     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-     gap: 16px;
-     align-content: start;
-     background:
-       radial-gradient(circle, rgba(168,85,247,0.06) 1px, transparent 1px),
-       radial-gradient(circle, rgba(236,72,153,0.04) 1px, transparent 1px);
-     background-size: 28px 28px, 14px 14px;
-     background-position: 0 0, 14px 14px;
-   }
+#aurora {
+  position: absolute; inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
 
-   .module-tile {
-     background: rgba(255,255,255,0.85);
-     backdrop-filter: blur(8px);
-     border-radius: var(--r-xl);
-     box-shadow: var(--s-card);
-     padding: 26px 14px 20px;
-     display: flex; flex-direction: column;
-     align-items: center; gap: 12px;
-     cursor: pointer; position: relative;
-     border: 3px solid transparent;
-     transition: transform 0.15s ease, box-shadow 0.15s ease;
-   }
+#aurora::before,
+#aurora::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+#aurora::before {
+  width: 80vw; height: 80vw;
+  top: -20vw; left: -20vw;
+  background: radial-gradient(circle, #7C3AED, #06B6D4, transparent 70%);
+  animation: aurora-a 9s infinite alternate;
+}
+
+#aurora::after {
+  width: 70vw; height: 70vw;
+  bottom: -10vw; right: -10vw;
+  background: radial-gradient(circle, #C026D3, #10B981, transparent 70%);
+  animation: aurora-b 11s infinite alternate;
+}
+
+.aurora-blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(55px); opacity: 0.45;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.aurora-blob:nth-child(1) {
+  width: 60vw; height: 60vw;
+  top: 20%; left: 30%;
+  background: radial-gradient(circle, #06B6D4, transparent 70%);
+  animation: aurora-c 13s infinite alternate;
+}
+
+.aurora-blob:nth-child(2) {
+  width: 50vw; height: 50vw;
+  top: 50%; left: 10%;
+  background: radial-gradient(circle, #EC4899, transparent 70%);
+  animation: aurora-d 8s infinite alternate;
+}
+
+@keyframes aurora-a {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(15vw, 12vh) scale(1.2); }
+}
+@keyframes aurora-b {
+  from { transform: translate(0, 0) scale(1.1); }
+  to   { transform: translate(-12vw, -10vh) scale(0.9); }
+}
+@keyframes aurora-c {
+  from { transform: translate(0, 0) scale(0.9); }
+  to   { transform: translate(-10vw, 15vh) scale(1.15); }
+}
+@keyframes aurora-d {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(12vw, -8vh) scale(1.1); }
+}
+
+#menu-grid {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 20px;
+  padding-bottom: calc(20px + var(--safe-bottom));
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  align-content: start;
+  position: relative; z-index: 1;
+  background: transparent;
+}
+
+.module-tile {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--r-xl);
+  box-shadow: var(--s-card);
+  padding: 26px 14px 20px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+  cursor: pointer; position: relative;
+  border: 3px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
    .module-tile:active { transform: scale(0.93); box-shadow: none; }
    .module-tile .tile-emoji  { font-size: 3.2rem; line-height: 1; }
    .module-tile .tile-label  {
      font-size: 0.95rem; font-weight: 900;
-     text-align: center; color: var(--d-text); line-height: 1.2;
+     text-align: center; color: #2D1B4E; line-height: 1.2;
    }
    .module-tile .tile-desc {
      font-size: 0.78rem; color: #5B3E9B;
@@ -288,8 +357,12 @@ window.addEventListener('unhandledrejection', e => {
 
  <div id="app-body">
    <div id="vista-menu">
-     <nav id="menu-grid" aria-label="Modulos de la aplicacion"></nav>
-   </div>
+  <div id="aurora">
+    <div class="aurora-blob"></div>
+    <div class="aurora-blob"></div>
+  </div>
+  <nav id="menu-grid" aria-label="Modulos de la aplicacion"></nav>
+</div>
  </div>
 
 </div>
