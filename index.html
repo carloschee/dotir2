@@ -29,7 +29,7 @@
      --d-primary:    #A855F7;
      --d-primary-dk: #7C3AED;
      --d-nav-bg:     linear-gradient(135deg,#7C3AED 0%,#C026D3 60%,#EC4899 100%);
-     --d-app-bg: linear-gradient(160deg, #0f0824 0%, #1a0a3d 50%, #0d1a2e 100%);
+     --d-app-bg: #0f0824;
      --d-nav-h:      56px;
      --r-sm:   12px;
      --r-md:   18px;
@@ -59,6 +59,66 @@
      display: flex; flex-direction: column;
      background: var(--d-app-bg);
    }
+
+   #app-aurora #app-body
+  position: fixed; inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+#app-aurora::before,
+#app-aurora::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.6;
+}
+#app-aurora::before {
+  width: 90vw; height: 90vw;
+  top: -30vw; left: -20vw;
+  background: radial-gradient(circle, #7C3AED, #06B6D4, transparent 70%);
+  animation: aurora-a 9s ease-in-out infinite alternate;
+}
+#app-aurora::after {
+  width: 80vw; height: 80vw;
+  bottom: -20vw; right: -15vw;
+  background: radial-gradient(circle, #C026D3, #10B981, transparent 70%);
+  animation: aurora-b 11s ease-in-out infinite alternate;
+}
+.aurora-blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(65px); opacity: 0.45;
+  pointer-events: none;
+}
+.aurora-blob:nth-child(1) {
+  width: 70vw; height: 70vw;
+  top: 25%; left: 25%;
+  background: radial-gradient(circle, #06B6D4, transparent 70%);
+  animation: aurora-c 13s ease-in-out infinite alternate;
+}
+.aurora-blob:nth-child(2) {
+  width: 55vw; height: 55vw;
+  top: 55%; left: 5%;
+  background: radial-gradient(circle, #EC4899, transparent 70%);
+  animation: aurora-d 8s ease-in-out infinite alternate;
+}
+@keyframes aurora-a {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(15vw,12vh) scale(1.2); }
+}
+@keyframes aurora-b {
+  from { transform: translate(0,0) scale(1.1); }
+  to   { transform: translate(-12vw,-10vh) scale(0.9); }
+}
+@keyframes aurora-c {
+  from { transform: translate(0,0) scale(0.9); }
+  to   { transform: translate(-10vw,15vh) scale(1.15); }
+}
+@keyframes aurora-d {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(12vw,-8vh) scale(1.1); }
+}
 
    /* ── Cabecera unificada ─────────────────────────── */
    #app-header {
@@ -134,12 +194,15 @@
    #app-body {
      flex: 1; min-height: 0;
      position: relative;
+     z-index: 1;
+     background: transparent;
    }
 
    #vista-menu {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
   overflow: hidden;
+  background: transparent;
 }
 
 #aurora {
@@ -337,6 +400,10 @@ window.addEventListener('unhandledrejection', e => {
 </script>
 
 <div id="app">
+  <div id="app-aurora">
+    <div class="aurora-blob"></div>
+    <div class="aurora-blob"></div>
+  </div>
 
  <header id="app-header">
    <div id="header-izq">
@@ -357,10 +424,7 @@ window.addEventListener('unhandledrejection', e => {
 
  <div id="app-body">
    <div id="vista-menu">
-  <div id="aurora">
-    <div class="aurora-blob"></div>
-    <div class="aurora-blob"></div>
-  </div>
+  
   <nav id="menu-grid" aria-label="Modulos de la aplicacion"></nav>
 </div>
  </div>
