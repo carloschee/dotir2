@@ -21,24 +21,16 @@
 
  <style>
    :root {
-     --d-bg:          #FFF8F0;
-     --d-surface:     #FFFFFF;
-     --d-text:        #2D1B4E;
-     --d-muted:       #9B7EC8;
-     --d-border:      rgba(155,126,200,0.15);
-     --d-primary:     #A855F7;
-     --d-primary-dk:  #7C3AED;
-     --d-nav-bg:      linear-gradient(135deg,#7C3AED 0%,#C026D3 60%,#EC4899 100%);
-     --d-nav-h:       48px;
-     --d-nav-icon:    #FFFFFF;
-     --cat-social:    #FFD6E7;  --cat-social-t:    #9D174D;
-     --cat-emociones: #FDE68A;  --cat-emociones-t: #92400E;
-     --cat-medical:   #FCA5A5;  --cat-medical-t:   #7F1D1D;
-     --cat-action:    #A7F3D0;  --cat-action-t:    #064E3B;
-     --cat-place:     #BAE6FD;  --cat-place-t:     #0C4A6E;
-     --cat-noun:      #DDD6FE;  --cat-noun-t:      #3B0764;
-     --cat-juego:     #FBCFE8;  --cat-juego-t:     #831843;
-     --cat-favs:      #FEF08A;  --cat-favs-t:      #713F12;
+     --d-bg:         #F3EEFF;
+     --d-surface:    #FFFFFF;
+     --d-text:       #2D1B4E;
+     --d-muted:      #9B7EC8;
+     --d-border:     rgba(155,126,200,0.15);
+     --d-primary:    #A855F7;
+     --d-primary-dk: #7C3AED;
+     --d-nav-bg:     linear-gradient(135deg,#7C3AED 0%,#C026D3 60%,#EC4899 100%);
+     --d-app-bg:     linear-gradient(160deg,#F3EEFF 0%,#EDE0FF 40%,#F9E8FF 70%,#FFF0F8 100%);
+     --d-nav-h:      56px;
      --r-sm:   12px;
      --r-md:   18px;
      --r-lg:   24px;
@@ -52,74 +44,122 @@
    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
    html, body {
-     height: 100%; overflow: hidden;
-     font-family: 'Nunito', sans-serif;
-     background: var(--d-bg);
+     height: 100%; width: 100%; overflow: hidden;
+     font-family: 'Nunito', system-ui, sans-serif;
      color: var(--d-text);
      -webkit-tap-highlight-color: transparent;
-     -webkit-text-size-adjust: 100%;
+     user-select: none;
    }
 
+   /* Fondo global persistente */
    #app {
-     height: 100%;
+     position: fixed; inset: 0;
      padding-top: var(--safe-top);
      padding-bottom: var(--safe-bottom);
-   }
-
-   #vista-menu {
-     height: 100%;
      display: flex; flex-direction: column;
-     overflow: hidden;
+     background: var(--d-app-bg);
    }
 
-   #menu-header {
-     display: flex; align-items: center; justify-content: space-between;
-     padding: 14px 20px 10px;
+   /* ── Cabecera unificada ─────────────────────────── */
+   #app-header {
+     flex-shrink: 0;
+     height: var(--d-nav-h);
+     display: flex; align-items: center;
+     padding: 0 12px; gap: 8px;
      background: var(--d-nav-bg);
+     border-radius: 0 0 20px 20px;
+     box-shadow: 0 4px 20px rgba(124,58,237,0.28);
+     position: relative; z-index: 20;
+   }
+
+   /* Lado izquierdo: logo en menu, btn-volver en modulo */
+   #header-izq {
+     display: flex; align-items: center; gap: 8px;
      flex-shrink: 0;
    }
 
    .menu-logo { display: flex; align-items: baseline; gap: 6px; }
    .menu-logo h1 {
-     font-size: 1.6rem; font-weight: 900;
-     color: white; letter-spacing: -0.5px;
+     font-size: 1.45rem; font-weight: 900;
+     letter-spacing: -0.5px; color: #fff;
    }
    .menu-logo .version {
-     font-size: 0.7rem; font-weight: 800;
-     color: rgba(255,255,255,0.55);
+     font-size: 0.6rem; font-weight: 700;
+     color: rgba(255,255,255,.4);
+     text-transform: uppercase; letter-spacing: .1em;
+   }
+
+   #btn-volver {
+     display: none;
+     align-items: center; justify-content: center;
+     width: 36px; height: 36px; flex-shrink: 0;
+     border-radius: var(--r-md); border: none;
+     background: rgba(255,255,255,0.18);
+     color: white; font-size: 1.1rem;
+     cursor: pointer;
+     transition: background 0.15s, transform 0.12s;
+   }
+   #btn-volver:active { background: rgba(255,255,255,0.32); transform: scale(0.90); }
+   #btn-volver.visible { display: flex; }
+
+   /* Centro: indicador de conexion */
+   #header-centro {
+     flex: 1;
+     display: flex; align-items: center; justify-content: center;
    }
 
    #indicador-offline {
-     display: flex; align-items: center; gap: 6px;
-     font-size: 0.72rem; font-weight: 800;
-     color: rgba(255,255,255,0.8);
+     display: flex; align-items: center; gap: 5px;
+     padding: 4px 10px; border-radius: 20px;
+     font-size: 0.68rem; font-weight: 700;
+     border: 1.5px solid; transition: all 0.3s ease;
    }
+   #indicador-offline.online   { background:#dcfce7; border-color:#86efac; color:#166534; }
+   #indicador-offline.offline  { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
+   #indicador-offline.checking { background:#fef9c3; border-color:#fde047; color:#713f12; }
    #dot-conexion {
-     width: 8px; height: 8px; border-radius: 50%;
-     background: #eab308;
-     transition: background 0.4s;
+     width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
    }
-   #indicador-offline.online  #dot-conexion { background: #22c55e; }
-   #indicador-offline.offline #dot-conexion { background: #ef4444; }
-   #indicador-offline.checking #dot-conexion { background: #eab308; }
+   .online  #dot-conexion  { background: #22c55e; }
+   .offline #dot-conexion  { background: #ef4444; }
+   .checking #dot-conexion { background: #eab308; }
+
+   /* Lado derecho: acciones del modulo */
+   #modulo-acciones {
+     display: flex; align-items: center; gap: 6px;
+     flex-shrink: 0; margin-left: auto;
+   }
+
+   /* ── Contenido bajo la cabecera ─────────────────── */
+   #app-body {
+     flex: 1; min-height: 0;
+     position: relative;
+   }
+
+   #vista-menu {
+     position: absolute; inset: 0;
+     display: flex; flex-direction: column;
+     overflow: hidden;
+   }
 
    #menu-grid {
-     flex: 1; overflow-y: auto;
-     padding: 20px 16px;
+     flex: 1; overflow-y: auto; overflow-x: hidden;
+     padding: 20px;
      padding-bottom: calc(20px + var(--safe-bottom));
      display: grid;
      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
      gap: 16px;
      align-content: start;
      background:
-       radial-gradient(circle, rgba(168,85,247,0.07) 1px, transparent 1px),
-       radial-gradient(circle, rgba(236,72,153,0.05) 1px, transparent 1px);
+       radial-gradient(circle, rgba(168,85,247,0.06) 1px, transparent 1px),
+       radial-gradient(circle, rgba(236,72,153,0.04) 1px, transparent 1px);
      background-size: 28px 28px, 14px 14px;
      background-position: 0 0, 14px 14px;
    }
 
    .module-tile {
-     background: var(--d-surface);
+     background: rgba(255,255,255,0.85);
+     backdrop-filter: blur(8px);
      border-radius: var(--r-xl);
      box-shadow: var(--s-card);
      padding: 26px 14px 20px;
@@ -139,46 +179,15 @@
      font-size: 0.78rem; color: #5B3E9B;
      text-align: center; font-weight: 800;
    }
-   .module-tile[data-requiere-pin]::after {
-     content: 'lock'; font-size: 0.7rem;
-     position: absolute; top: 10px; right: 12px;
+
+   /* Contenedores de modulos */
+   #app-body > div[data-modulo] {
+     position: absolute; inset: 0;
+     display: none; flex-direction: column;
+     overflow: hidden;
    }
 
-   #vista-modulo {
-     display: none;
-     position: fixed; inset: 0;
-     padding-top: var(--safe-top);
-     padding-bottom: var(--safe-bottom);
-     flex-direction: column;
-     z-index: 10;
-   }
-   #vista-modulo.activa { display: flex; }
-
-   #modulo-nav {
-     display: flex; align-items: center;
-     height: var(--d-nav-h); flex-shrink: 0;
-     background: var(--d-nav-bg);
-     padding: 0 10px; gap: 8px;
-     border-radius: 0 0 16px 16px;
-     box-shadow: 0 4px 16px rgba(124,58,237,0.22);
-   }
-
-   #btn-volver {
-     display: flex; align-items: center; justify-content: center;
-     width: 36px; height: 36px; flex-shrink: 0;
-     border-radius: var(--r-md); border: none;
-     background: rgba(255,255,255,0.18);
-     color: white; font-size: 1.1rem;
-     cursor: pointer;
-     transition: background 0.15s, transform 0.12s;
-   }
-   #btn-volver:active { background: rgba(255,255,255,0.32); transform: scale(0.90); }
-
-   #modulo-acciones {
-     margin-left: auto;
-     display: flex; align-items: center; gap: 6px;
-   }
-
+   /* ── Design system compartido ───────────────────── */
    .d-nav-btn {
      display: flex; align-items: center; justify-content: center;
      height: 32px; padding: 0 13px; border-radius: var(--r-md);
@@ -200,6 +209,7 @@
    }
    .d-lang-btn.activo { border-color: white; background: rgba(255,255,255,0.28); }
 
+   /* ── Modal PIN ──────────────────────────────────── */
    #modal-pin {
      position: fixed; inset: 0;
      background: rgba(124,58,237,0.45);
@@ -259,24 +269,26 @@ window.addEventListener('unhandledrejection', e => {
 
 <div id="app">
 
- <div id="vista-menu">
-   <header id="menu-header">
-     <div class="menu-logo">
+ <header id="app-header">
+   <div id="header-izq">
+     <button id="btn-volver" aria-label="Volver al menu">&#127968;</button>
+     <div class="menu-logo" id="header-logo">
        <h1>Dotir</h1>
        <span class="version">v2.0</span>
      </div>
+   </div>
+   <div id="header-centro">
      <div id="indicador-offline" class="checking">
        <span id="dot-conexion"></span>
        <span id="texto-conexion">Verificando...</span>
      </div>
-   </header>
-   <nav id="menu-grid" aria-label="Modulos de la aplicacion"></nav>
- </div>
+   </div>
+   <div id="modulo-acciones"></div>
+ </header>
 
- <div id="vista-modulo">
-   <div id="modulo-nav">
-     <button id="btn-volver" aria-label="Volver al menu">&#127968;</button>
-     <div id="modulo-acciones"></div>
+ <div id="app-body">
+   <div id="vista-menu">
+     <nav id="menu-grid" aria-label="Modulos de la aplicacion"></nav>
    </div>
  </div>
 
@@ -305,8 +317,7 @@ import MemoramaModule                    from './modules/memorama/module.js';
 import MusicaModule                      from './modules/musica/module.js';
 import AjustesModule                     from './modules/ajustes/module.js';
 import LibrosModule                      from './modules/libros/module.js';
-import VideosModule from './modules/videos/module.js';
-
+import VideosModule                      from './modules/videos/module.js';
 
 const $ = id => document.getElementById(id);
 
@@ -318,9 +329,6 @@ onConexionChange(estado => {
    online: 'En linea', offline: 'Sin conexion', checking: 'Verificando...'
  }[estado];
 });
-
-const _ph = n =>
- '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#1a1a2e;color:rgba(255,255,255,.3);font-size:1rem;font-weight:600;">Modulo ' + n + ' en construccion...</div>';
 
 const MODULE_REGISTRY = [
  SaacModule,
@@ -336,7 +344,6 @@ MODULE_REGISTRY.forEach(mod => {
  tile.className = 'module-tile';
  tile.setAttribute('aria-label', mod.label);
  tile.dataset.id = mod.id;
- if (mod.requierePin) tile.dataset.requierePin = '1';
  tile.style.borderColor = mod.color + '33';
  tile.innerHTML =
    '<span class="tile-emoji">' + mod.emoji + '</span>' +
@@ -355,22 +362,28 @@ const _contenedores    = {};
 function _getContenedor(id) {
  if (!_contenedores[id]) {
    const div = document.createElement('div');
-   div.style.cssText =
-     'position:fixed;' +
-     'top:calc(var(--safe-top) + var(--d-nav-h));' +
-     'left:0;right:0;' +
-     'bottom:0;' +
-     'display:none;flex-direction:column;' +
-     'z-index:11;overflow:hidden;';
-   $('app').appendChild(div);
+   div.dataset.modulo = id;
+   div.style.cssText = 'position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;';
+   $('app-body').appendChild(div);
    _contenedores[id] = div;
  }
  return _contenedores[id];
 }
 
+function _modoMenu() {
+ $('btn-volver').classList.remove('visible');
+ $('header-logo').style.display = '';
+ $('modulo-acciones').innerHTML = '';
+}
+
+function _modoModulo() {
+ $('btn-volver').classList.add('visible');
+ $('header-logo').style.display = 'none';
+}
+
 async function navegarA(mod) {
  $('vista-menu').style.display = 'none';
- $('vista-modulo').classList.add('activa');
+ _modoModulo();
 
  if (_moduloActivo && _moduloActivo.id !== mod.id) {
    try { _moduloActivo.onLeave?.(); } catch (_) {}
@@ -439,9 +452,8 @@ function volverAlMenu() {
    }
    _moduloActivo = null;
  }
- $('vista-modulo').classList.remove('activa');
- $('modulo-acciones').innerHTML = '';
  $('vista-menu').style.display = '';
+ _modoMenu();
 }
 
 $('btn-volver').addEventListener('click', volverAlMenu);
@@ -492,7 +504,6 @@ if (moduloUrl) {
 
 window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
 AudioManager.montarBtnGlobal();
-
 </script>
 </body>
 </html>
