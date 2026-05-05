@@ -116,6 +116,13 @@ function _renderShell() {
           </div>
           <button class="aj-btn aj-neutral" id="btn-aj-verificar">Verificar</button>
         </div>
+        <div class="aj-fila">
+          <div class="aj-fila-info">
+            <span class="aj-label">Modo avion</span>
+            <span class="aj-desc">Usa solo contenido descargado previamente</span>
+          </div>
+          <button class="aj-btn aj-neutral" id="btn-aj-avion">Activar</button>
+        </div>
       </div>
 
       <div class="aj-seccion">
@@ -133,48 +140,105 @@ function _renderShell() {
         </div>
         <div class="aj-fila">
           <div class="aj-fila-info">
-            <span class="aj-label">Limpiar cache</span>
-            <span class="aj-desc">Borra los archivos guardados</span>
+            <span class="aj-label">Borrar cache</span>
+            <span class="aj-desc">Libera espacio en el dispositivo</span>
           </div>
-          <button class="aj-btn aj-danger" id="btn-aj-limpiar">Limpiar</button>
+          <button class="aj-btn aj-danger" id="btn-aj-borrar">Borrar</button>
         </div>
       </div>
 
       <div class="aj-seccion">
-        <p class="aj-titulo">Comunicador SAAC</p>
+        <p class="aj-titulo">Aplicacion</p>
         <div class="aj-fila">
           <div class="aj-fila-info">
-            <span class="aj-label">Tamano de pictogramas</span>
+            <span class="aj-label">Actualizar app</span>
+            <span class="aj-desc">Aplica la ultima version disponible</span>
           </div>
+          <button class="aj-btn aj-neutral" id="btn-aj-refresh">Actualizar</button>
         </div>
-        <div id="aj-tamano-btns">
-          <button class="aj-tam-btn${tamano === 'S' ? ' activo' : ''}" data-tam="S">S</button>
-          <button class="aj-tam-btn${tamano === 'M' ? ' activo' : ''}" data-tam="M">M</button>
-          <button class="aj-tam-btn${tamano === 'L' ? ' activo' : ''}" data-tam="L">L</button>
+        <div class="aj-fila">
+          <div class="aj-fila-info">
+            <span class="aj-label">Reinicio completo</span>
+            <span class="aj-desc">Borra cache y recarga desde el servidor</span>
+          </div>
+          <button class="aj-btn aj-danger" id="btn-aj-reset">Resetear</button>
         </div>
       </div>
 
-      <p id="aj-version">Dotir 2</p>
+      <div class="aj-seccion">
+        <p class="aj-titulo">Comunicador</p>
+        <div class="aj-fila">
+          <div class="aj-fila-info">
+            <span class="aj-label">Tamano de pictogramas</span>
+            <span class="aj-desc">Ajusta el tamano de las tarjetas del tablero</span>
+          </div>
+        </div>
+        <div id="aj-tamano-btns">
+          ${['S','M','L'].map(t => `
+            <button class="aj-tam-btn${tamano === t ? ' activo' : ''}" data-tam="${t}">
+              ${t === 'S' ? 'Pequeno' : t === 'M' ? 'Mediano' : 'Grande'}
+            </button>`).join('')}
+        </div>
+      </div>
+
+      <p id="aj-version">Dotir 2 v2.0</p>
 
     </div>
   `;
 
   _q('#btn-aj-verificar').addEventListener('click', _actualizarEstadoConexion);
+
+  let _avion = false;
+  _q('#btn-aj-avion').addEventListener('click', () => {
+    _avion = !_avion;
+    const btn = _q('#btn-aj-avion');
+    btn.textContent      = _avion ? 'Desactivar' : 'Activar';
+    btn.style.background = _avion ? '#EF4444' : '';
+    btn.style.color      = _avion ? 'white'   : '';
+    navigator.serviceWorker?.controller?.postMessage({
+      tipo: _avion ? 'forzar-offline' : 'forzar-online'
+    });
+    toast(_avion ? 'Modo avion activado' : 'Modo avion desactivado',
+      { emoji: _avion ? '✈️' : '📶' });
+  });
+
   _q('#btn-aj-descargar').addEventListener('click', _descargarTodo);
-  _q('#btn-aj-limpiar').addEventListener('click', async () => {
+
+  _q('#btn-aj-borrar').addEventListener('click', async () => {
+    const btn = _q('#btn-aj-borrar');
+    btn.disabled = true;
     await borrarCache();
-    toast('Cache limpiada', { emoji: '🗑️' });
+    toast('Cache borrada', { emoji: '🗑️' });
+    btn.disabled = false;
+  });
+
+  _q('#btn-aj-refresh').addEventListener('click', async () => {
+    const reg = await navigator.serviceWorker?.getRegistration();
+    if (reg?.waiting) {
+      reg.waiting.postMessage({ tipo: 'skipWaiting' });
+      setTimeout(() => location.reload(), 400);
+    } else {
+      location.reload();
+    }
+  });
+
+  _q('#btn-aj-reset').addEventListener('click', async () => {
+    _q('#btn-aj-reset').disabled = true;
+    await borrarCache();
+    location.reload(true);
   });
 
   _q('#aj-tamano-btns').addEventListener('click', e => {
     const btn = e.target.closest('[data-tam]');
     if (!btn) return;
-    const tam = btn.dataset.tam;
-    localStorage.setItem(LS_TAMANO, tam);
-    _q('#aj-tamano-btns').querySelectorAll('.aj-tam-btn').forEach(b => {
-      b.classList.toggle('activo', b.dataset.tam === tam);
-    });
-    toast('Tamano ' + tam + ' aplicado', { emoji: '✅' });
+    const t = btn.dataset.tam;
+    localStorage.setItem(LS_TAMANO, t);
+    _q('#aj-tamano-btns').querySelectorAll('.aj-tam-btn').forEach(b =>
+      b.classList.toggle('activo', b.dataset.tam === t)
+    );
+    const nombre = t === 'S' ? 'pequeno' : t === 'M' ? 'mediano' : 'grande';
+    toast('Tamano ' + nombre, { emoji: '🔲' });
+    window.DotirApp?.MODULE_REGISTRY?.find(m => m.id === 'saac')?.setTamano?.(t);
   });
 }
 
@@ -184,10 +248,15 @@ async function _actualizarEstadoConexion() {
   if (!dot || !texto) return;
   dot.style.background = '#eab308';
   texto.textContent    = 'Verificando...';
+  if (!navigator.onLine) {
+    dot.style.background = '#ef4444';
+    texto.textContent    = 'Sin conexion';
+    return;
+  }
   try {
-    const res = await fetchTimeout('https://www.google.com/favicon.ico', 4000);
+    const res = await fetchTimeout('./manifest.json', 4000, { method: 'HEAD', cache: 'no-store' });
     dot.style.background = res.ok ? '#22c55e' : '#ef4444';
-    texto.textContent    = res.ok ? 'En linea'  : 'Sin conexion';
+    texto.textContent    = res.ok ? 'En linea' : 'Sin conexion';
   } catch {
     dot.style.background = '#ef4444';
     texto.textContent    = 'Sin conexion';
