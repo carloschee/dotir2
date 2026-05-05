@@ -1,82 +1,122 @@
+/* ============================================================
+Dótir 2 — core/audio.js
+· Singleton AudioManager compartido por toda la app
+· montarBtnGlobal() crea el botón ⏹ persistente en #modulo-nav
+que se muestra/oculta automáticamente según estado de reproducción
+============================================================ */
+
 const AudioManager = (() => {
-  let _audio   = null;
-  let _actx    = null;
-  let _analyser= null;
-  let _source  = null;
-  let _idx     = -1;
-  let _canciones = [];
-  let _onPlayCb  = null;
-  let _onStopCb  = null;
+let _audio    = null;
+let _actx     = null;
+let _analyser = null;
+let _source   = null;
+let _idx      = -1;
+let _canciones  = [];
+let _onPlayCb   = null;
+let _onStopCb   = null;
+let _btnMontado = false;
 
-  function _init() {
-    if (_audio) return;
-    _audio = new Audio();
-    _audio.crossOrigin = 'anonymous';
-    _audio.addEventListener('ended', () => {
-      _notificar();
-    });
-    _audio.addEventListener('play',  _notificar);
-    _audio.addEventListener('pause', _notificar);
-    try {
-      _actx    = new (window.AudioContext || window.webkitAudioContext)();
-      _analyser = _actx.createAnalyser();
-      _analyser.fftSize = 512;
-      _analyser.smoothingTimeConstant = 0.82;
-      _source  = _actx.createMediaElementSource(_audio);
-      _source.connect(_analyser);
-      _analyser.connect(_actx.destination);
-    } catch(e) {
-      console.warn('[Audio]', e);
-    }
+function _init() {
+if (_audio) return;
+_audio = new Audio();
+_audio.crossOrigin = ‘anonymous’;
+_audio.addEventListener(‘ended’, _notificar);
+_audio.addEventListener(‘play’,  _notificar);
+_audio.addEventListener(‘pause’, _notificar);
+try {
+_actx     = new (window.AudioContext || window.webkitAudioContext)();
+_analyser = _actx.createAnalyser();
+_analyser.fftSize = 512;
+_analyser.smoothingTimeConstant = 0.82;
+_source   = _actx.createMediaElementSource(_audio);
+_source.connect(_analyser);
+_analyser.connect(_actx.destination);
+} catch (e) {
+console.warn(’[Audio]’, e);
+}
+}
+
+function _notificar() {
+const playing = _audio && !_audio.paused;
+if (playing && _onPlayCb) _onPlayCb(_idx, _canciones[_idx]);
+if (!playing && _onStopCb) _onStopCb();
+_actualizarBtnGlobal();
+}
+
+function _actualizarBtnGlobal() {
+const btn = document.getElementById(‘mus-btn-global’);
+if (!btn) return;
+const playing = _audio && !_audio.paused;
+btn.style.display = playing ? ‘flex’ : ‘none’;
+}
+
+function _resumeCtx() {
+if (_actx && _actx.state === ‘suspended’) _actx.resume();
+}
+
+return {
+get audio()    { return _audio; },
+get analyser() { return _analyser; },
+get idx()      { return _idx; },
+get canciones(){ return _canciones; },
+get playing()  { return _audio && !_audio.paused; },
+
+```
+setCanciones(list) { _canciones = list; },
+
+play(idx, srcUrl) {
+  _init();
+  _resumeCtx();
+  _idx = idx;
+  if (_audio.src !== srcUrl) {
+    _audio.src = srcUrl;
+  } else {
+    _audio.currentTime = 0;
   }
+  _audio.play().catch(e => console.warn('[Audio] play:', e));
+},
 
-  function _notificar() {
-    const playing = _audio && !_audio.paused;
-    if (playing && _onPlayCb) _onPlayCb(_idx, _canciones[_idx]);
-    if (!playing && _onStopCb) _onStopCb();
-    _actualizarBtnGlobal();
-  }
+stop() {
+  if (_audio) { _audio.pause(); _audio.currentTime = 0; }
+  _notificar();
+},
 
-  function _actualizarBtnGlobal() {
-    const btn = document.getElementById('mus-btn-global');
-    if (!btn) return;
-    const playing = _audio && !_audio.paused;
-    btn.style.display = playing ? 'flex' : 'none';
-  }
+onPlay(cb)  { _onPlayCb  = cb; },
+onStop(cb)  { _onStopCb  = cb; },
 
-  function _resumeCtx() {
-    if (_actx && _actx.state === 'suspended') _actx.resume();
-  }
+/**
+ * Crea el botón ⏹ global en #modulo-nav y lo mantiene
+ * sincronizado con el estado de reproducción.
+ * Debe llamarse UNA sola vez al arrancar la app.
+ */
+montarBtnGlobal() {
+  if (_btnMontado) return;
+  _btnMontado = true;
 
-  return {
-    get audio()    { return _audio; },
-    get analyser() { return _analyser; },
-    get idx()      { return _idx; },
-    get canciones(){ return _canciones; },
-    get playing()  { return _audio && !_audio.paused; },
+  const nav = document.getElementById('modulo-nav');
+  if (!nav) return;
 
-    setCanciones(list) { _canciones = list; },
+  const btn = document.createElement('button');
+  btn.id        = 'mus-btn-global';
+  btn.className = 'd-nav-btn';
+  btn.title     = 'Detener música';
+  btn.style.cssText = 'display:none; background:rgba(239,68,68,0.75); gap:5px;';
+  btn.innerHTML = '⏹ Detener';
 
-    play(idx, srcUrl) {
-      _init();
-      _resumeCtx();
-      _idx = idx;
-      if (_audio.src !== srcUrl) {
-        _audio.src = srcUrl;
-      } else {
-        _audio.currentTime = 0;
-      }
-      _audio.play().catch(e => console.warn('[Audio] play:', e));
-    },
+  btn.addEventListener('click', () => {
+    AudioManager.stop();
+  });
 
-    stop() {
-      if (_audio) { _audio.pause(); _audio.currentTime = 0; }
-      _notificar();
-    },
+  // Insertar antes del div #modulo-acciones para que quede a la izquierda
+  const acciones = document.getElementById('modulo-acciones');
+  nav.insertBefore(btn, acciones);
 
-    onPlay(cb)  { _onPlayCb  = cb; },
-    onStop(cb)  { _onStopCb  = cb; },
-  };
+  // Sincronizar estado inicial por si ya hay algo reproduciéndose
+  _actualizarBtnGlobal();
+},
+```
+
+};
 })();
 
 export default AudioManager;
