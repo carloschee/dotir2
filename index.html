@@ -282,30 +282,27 @@
 
 #menu-grid {
   flex: 1; overflow-y: auto; overflow-x: hidden;
-  padding: 20px;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  padding: 32px 24px;
+  padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
   align-content: start;
   position: relative; z-index: 1;
   background: transparent;
 }
 
 .module-tile {
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: var(--r-xl);
-  box-shadow: var(--s-card);
-  padding: 26px 14px 20px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
   display: flex; flex-direction: column;
-  align-items: center; gap: 12px;
+  align-items: center; gap: 14px;
   cursor: pointer; position: relative;
-  border: 3px solid transparent;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease;
 }
-   .module-tile:active { transform: scale(0.93); box-shadow: none; }
+.module-tile:active { transform: scale(0.90); }
    .module-tile .tile-emoji  { font-size: 3.2rem; line-height: 1; }
    .module-tile .tile-label  {
      font-size: 0.95rem; font-weight: 900;
@@ -394,6 +391,24 @@
 #vid-cintillo-wrap {
   padding-bottom: env(safe-area-inset-bottom, 0px);
   height: calc(108px + env(safe-area-inset-bottom, 0px));
+}
+
+.tile-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.45));
+  transition: filter 0.15s ease;
+}
+.module-tile:active .tile-img {
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+}
+
+.tile-label {
+  font-size: 1.1rem; font-weight: 900;
+  text-align: center; color: white;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  line-height: 1.2;
 }
  </style>
 </head>
@@ -487,20 +502,32 @@ const MODULE_REGISTRY = [
  VideosModule,
 ].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
 
+const UI_IMGS = {
+  saac:     'assets/ui/btn-comunicador.png',
+  memorama: 'assets/ui/btn-memorama.png',
+  musica:   'assets/ui/btn-musica.png',
+  libros:   'assets/ui/btn-libros.png',
+  videos:   'assets/ui/btn-videos.png',
+  ajustes:  'assets/ui/btn-ajustes.png',
+};
+
 MODULE_REGISTRY.forEach(mod => {
- const tile = document.createElement('button');
- tile.className = 'module-tile';
- tile.setAttribute('aria-label', mod.label);
- tile.dataset.id = mod.id;
- tile.style.borderColor = mod.color + '33';
- tile.innerHTML =
-   '<span class="tile-emoji">' + mod.emoji + '</span>' +
-   '<span class="tile-label">' + mod.label + '</span>' +
-   (mod.desc ? '<span class="tile-desc">' + mod.desc + '</span>' : '');
- tile.addEventListener('click', () =>
-   mod.requierePin ? abrirPin(mod) : navegarA(mod)
- );
- $('menu-grid').appendChild(tile);
+  const tile = document.createElement('button');
+  tile.className = 'module-tile';
+  tile.setAttribute('aria-label', mod.label);
+  tile.dataset.id = mod.id;
+
+  const imgSrc = UI_IMGS[mod.id];
+  tile.innerHTML =
+    (imgSrc
+      ? '<img class="tile-img" src="' + imgSrc + '" alt="' + mod.label + '">'
+      : '<span style="font-size:4rem">' + mod.emoji + '</span>') +
+    '<span class="tile-label">' + mod.label + '</span>';
+
+  tile.addEventListener('click', () =>
+    mod.requierePin ? abrirPin(mod) : navegarA(mod)
+  );
+  $('menu-grid').appendChild(tile);
 });
 
 let _moduloActivo      = null;
