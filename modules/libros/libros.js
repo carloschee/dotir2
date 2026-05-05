@@ -1,8 +1,10 @@
+/* Dotir 2 - modules/libros/libros.js */
+
 import { fetchTimeout } from '../../core/offline.js';
 
-const DATA_URL   = './data/libros.json';
-const PDF_BASE   = './assets/libros/';
-const IMG_BASE   = './assets/libros/img/';
+const DATA_URL = './data/libros.json';
+const PDF_BASE = './assets/libros/';
+const IMG_BASE = './assets/libros/img/';
 
 let _container = null;
 let _libros    = [];
@@ -77,39 +79,42 @@ function _cancelarRender() {
 function _renderShell() {
   _container.innerHTML =
     '<style>' +
-    '#lib-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:transparent; }' +
+    '#lib-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:transparent; padding:10px 10px 0; gap:10px; }' +
 
-    '#lib-visor { flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; background:#0f0f1a; overflow:hidden; }' +
-    '#lib-canvas { max-width:100%; max-height:100%; display:block; border-radius:4px; box-shadow:0 4px 24px rgba(0,0,0,0.5); }' +
-    '#lib-vacio { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:rgba(255,255,255,0.3); font-size:0.9rem; font-weight:700; }' +
+    '#lib-visor-marco { flex:1; min-height:0; border-radius:20px; border:1.5px solid rgba(255,255,255,0.25); background:rgba(0,0,0,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }' +
+
+    '#lib-canvas { max-width:100%; max-height:100%; display:none; border-radius:4px; }' +
+
+    '#lib-vacio { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:rgba(255,255,255,0.35); font-size:0.9rem; font-weight:700; }' +
     '#lib-vacio span { font-size:3rem; }' +
-    '#lib-loading { position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(15,15,26,0.8); color:rgba(255,255,255,0.6); font-size:0.85rem; font-weight:700; }' +
+
+    '#lib-loading { position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); color:rgba(255,255,255,0.7); font-size:0.85rem; font-weight:700; border-radius:20px; }' +
     '#lib-loading.visible { display:flex; }' +
 
-    '#lib-cintillo-wrap { flex-shrink:0; height:108px; background:rgba(0,0,0,0.55); border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
+    '#lib-cintillo-wrap { flex-shrink:0; height:108px; background:rgba(0,0,0,0.30); border:1.5px solid rgba(255,255,255,0.12); border-radius:16px; margin-bottom:10px; display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
     '#lib-cintillo-wrap::-webkit-scrollbar { display:none; }' +
 
     '.lib-tile { flex-shrink:0; width:72px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; scroll-snap-align:start; border-radius:10px; padding:5px 4px; transition:background 0.15s; }' +
     '.lib-tile:active { background:rgba(255,255,255,0.08); }' +
     '.lib-tile.activo { background:rgba(16,185,129,0.35); outline:2px solid rgba(16,185,129,0.7); }' +
-    '.lib-tile-img { width:56px; height:72px; border-radius:6px; object-fit:cover; background:#1e2a3a; flex-shrink:0; display:flex; align-items:center; justify-content:center; }' +
+    '.lib-tile-img { width:56px; height:72px; border-radius:6px; background:rgba(255,255,255,0.08); flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }' +
     '.lib-tile-img img { width:100%; height:100%; object-fit:cover; border-radius:6px; }' +
-    '.lib-tile-img .lib-tile-ico { font-size:1.8rem; }' +
+    '.lib-tile-ico { font-size:1.8rem; }' +
     '.lib-tile-titulo { color:white; font-size:0.56rem; font-weight:800; text-align:center; line-height:1.2; max-width:68px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }' +
     '</style>' +
 
     '<div id="lib-wrap">' +
-      '<div id="lib-visor">' +
-        '<canvas id="lib-canvas" style="display:none;"></canvas>' +
+      '<div id="lib-visor-marco">' +
+        '<canvas id="lib-canvas"></canvas>' +
         '<div id="lib-vacio"><span>📚</span><p>Elige un libro del cintillo</p></div>' +
         '<div id="lib-loading">Cargando...</div>' +
       '</div>' +
       '<div id="lib-cintillo-wrap"></div>' +
     '</div>';
 
-  const visor = _q('#lib-visor');
-  visor.addEventListener('touchstart', e => { _touchX0 = e.touches[0].clientX; }, { passive:true });
-  visor.addEventListener('touchend', e => {
+  const marco = _q('#lib-visor-marco');
+  marco.addEventListener('touchstart', e => { _touchX0 = e.touches[0].clientX; }, { passive:true });
+  marco.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - _touchX0;
     if (Math.abs(dx) > 50) {
       if (dx < 0) _paginaSiguiente();
@@ -166,13 +171,13 @@ async function _renderPagina(num) {
   _q('#lib-loading').classList.add('visible');
   _cancelarRender();
 
-  const page     = await _pdfActual.getPage(num);
-  const canvas   = _q('#lib-canvas');
-  const visor    = _q('#lib-visor');
-  const maxW     = visor.offsetWidth  - 16;
-  const maxH     = visor.offsetHeight - 16;
-  const vp0      = page.getViewport({ scale: 1 });
-  const scale    = Math.min(maxW / vp0.width, maxH / vp0.height);
+  const page   = await _pdfActual.getPage(num);
+  const canvas = _q('#lib-canvas');
+  const marco  = _q('#lib-visor-marco');
+  const maxW   = marco.offsetWidth  - 24;
+  const maxH   = marco.offsetHeight - 24;
+  const vp0    = page.getViewport({ scale: 1 });
+  const scale  = Math.min(maxW / vp0.width, maxH / vp0.height);
   const viewport = page.getViewport({ scale });
 
   canvas.width  = viewport.width;

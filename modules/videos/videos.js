@@ -1,8 +1,4 @@
-/* Dotir 2 - modules/videos/videos.js
-   Reproductor de video limpio sin controles ni overlays.
-   Solo el video a pantalla completa y cintillo inferior.
-   Deslizar izquierda/derecha cambia de video.
-*/
+/* Dotir 2 - modules/videos/videos.js */
 
 import { fetchTimeout } from '../../core/offline.js';
 
@@ -69,23 +65,23 @@ async function _cargarVideos() {
 function _renderShell() {
   _container.innerHTML =
     '<style>' +
-    '#vid-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:#000; }' +
+    '#vid-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:transparent; padding:10px 10px 0; gap:10px; }' +
 
-    '#vid-area { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; background:#000; overflow:hidden; }' +
+    '#vid-marco { flex:1; min-height:0; border-radius:20px; border:1.5px solid rgba(255,255,255,0.25); background:rgba(0,0,0,0.45); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }' +
 
     '#vid-player { width:100%; height:100%; object-fit:contain; display:none; pointer-events:none; }' +
 
-    '#vid-vacio { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:rgba(255,255,255,0.25); font-size:0.9rem; font-weight:700; width:100%; height:100%; }' +
+    '#vid-vacio { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:rgba(255,255,255,0.3); font-size:0.9rem; font-weight:700; pointer-events:none; }' +
     '#vid-vacio span { font-size:3rem; }' +
 
-    '#vid-cintillo-wrap { flex-shrink:0; height:108px; background:rgba(0,0,0,0.7); border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
+    '#vid-cintillo-wrap { flex-shrink:0; height:108px; background:rgba(0,0,0,0.30); border:1.5px solid rgba(255,255,255,0.12); border-radius:16px; margin-bottom:10px; display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
     '#vid-cintillo-wrap::-webkit-scrollbar { display:none; }' +
 
     '.vid-tile { flex-shrink:0; width:140px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; scroll-snap-align:start; border-radius:10px; padding:5px 4px; transition:background 0.15s; }' +
     '.vid-tile:active { background:rgba(255,255,255,0.08); }' +
     '.vid-tile.activo { background:rgba(239,68,68,0.35); outline:2px solid rgba(239,68,68,0.7); }' +
 
-    '.vid-thumb { width:132px; height:74px; border-radius:8px; background:#1a1a2e; flex-shrink:0; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }' +
+    '.vid-thumb { width:132px; height:74px; border-radius:8px; background:rgba(255,255,255,0.08); flex-shrink:0; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }' +
     '.vid-thumb img { width:100%; height:100%; object-fit:cover; border-radius:8px; }' +
     '.vid-thumb .vid-ico { position:absolute; font-size:1.5rem; opacity:0.9; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }' +
 
@@ -93,18 +89,18 @@ function _renderShell() {
     '</style>' +
 
     '<div id="vid-wrap">' +
-      '<div id="vid-area">' +
+      '<div id="vid-marco">' +
         '<video id="vid-player" playsinline preload="none"></video>' +
         '<div id="vid-vacio"><span>🎬</span><p>Elige un video del cintillo</p></div>' +
       '</div>' +
       '<div id="vid-cintillo-wrap"></div>' +
     '</div>';
 
-  const area = _q('#vid-area');
-  area.addEventListener('touchstart', e => {
+  const marco = _q('#vid-marco');
+  marco.addEventListener('touchstart', e => {
     _touchX0 = e.touches[0].clientX;
   }, { passive: true });
-  area.addEventListener('touchend', e => {
+  marco.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - _touchX0;
     if (Math.abs(dx) > 60) {
       if (dx < 0) _reproducirIdx(_idxActual + 1);

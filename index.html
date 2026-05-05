@@ -842,6 +842,49 @@
 
     window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
     AudioManager.montarBtnGlobal();
+
+    // ── Heartbeat: evita que la pantalla se duerma ────────────────
+// Estrategia dual: Wake Lock API (moderno) + video 1px (fallback iOS Safari)
+const _wakeVideo = document.createElement('video');
+_wakeVideo.setAttribute('loop', '');
+_wakeVideo.setAttribute('playsinline', '');
+_wakeVideo.setAttribute('muted', '');
+_wakeVideo.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;top:0;left:0;z-index:-1;';
+// Video MP4 de 1 segundo vacio codificado en base64
+_wakeVideo.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAs1tZGF0';
+document.body.appendChild(_wakeVideo);
+
+let _wakeLock = null;
+
+async function _activarWakeLock() {
+  if ('wakeLock' in navigator) {
+    try {
+      _wakeLock = await navigator.wakeLock.request('screen');
+      _wakeLock.addEventListener('release', () => {
+        if (document.visibilityState === 'visible') _activarWakeLock();
+      });
+      return;
+    } catch(e) {}
+  }
+  // Fallback iOS: video mudo en loop
+  _wakeVideo.play().catch(() => {});
+}
+
+// Activar en el primer toque (requerido por Safari)
+document.addEventListener('touchstart', () => _activarWakeLock(), { once: true });
+document.addEventListener('click',      () => _activarWakeLock(), { once: true });
+
+// Reactivar al volver a primer plano
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') _activarWakeLock();
+});
+
+// Heartbeat cada 4 minutos para mantener el SW activo
+setInterval(() => {
+  if (document.visibilityState === 'visible') {
+    navigator.serviceWorker?.controller?.postMessage({ tipo: 'heartbeat' });
+  }
+}, 4 * 60 * 1000);
   </script>
 </body>
 
