@@ -188,6 +188,10 @@ function _renderNavAcciones() {
 
 // ── Shell HTML ────────────────────────────────────────────────
 function _renderShell() {
+   _q('#mem-modal').addEventListener('click', e => {
+  if (e.target === _q('#mem-modal') && _q('#mem-modal')._cancelable) _cerrarModal();
+});
+_q('#mem-modal-cancelar').addEventListener('click', _cerrarModal);
   _container.innerHTML = `
     <style>
       #mem-wrap {
@@ -373,7 +377,9 @@ function _renderShell() {
 
       <div id="mem-modal">
         <div id="mem-modal-box">
-          <h2>🎴 Elige un tema</h2>
+          '<h2>🎴 Elige un tema</h2>' +
+'<button id="mem-modal-cancelar" class="d-nav-btn" ' +
+'style="background:rgba(255,255,255,0.08);margin-bottom:4px;display:none;">Continuar jugando</button>' +
           <div id="mem-lista-temas"></div>
         </div>
       </div>
@@ -381,7 +387,14 @@ function _renderShell() {
   `;
 }
 
-function _mostrarModalTemas() { _q('#mem-modal')?.classList.remove('oculto'); }
+function _mostrarModalTemas(cancelable) {
+  const modal = _q('#mem-modal');
+  if (!modal) return;
+  modal.classList.remove('oculto');
+  const btnCancelar = _q('#mem-modal-cancelar');
+  if (btnCancelar) btnCancelar.style.display = cancelable ? 'block' : 'none';
+  modal._cancelable = cancelable;
+}
 function _cerrarModal()       { _q('#mem-modal')?.classList.add('oculto'); }
 
 function _renderListaTemas() {
