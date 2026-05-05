@@ -5,11 +5,12 @@
    · Stack inferior estilo DJ Emmy: cuadrado imagen + TTS al tocar
    · Persistente entre visitas al menú (pause / resume)
    · Controles en navbar del shell (design system unificado)
+   · Modal cancelable cuando hay juego en curso
    ============================================================ */
 
-import { TTS            } from '../../core/tts.js';
+import { TTS             } from '../../core/tts.js';
 import { lanzarConfeti, toast } from '../../core/ui.js';
-import { fetchTimeout    } from '../../core/offline.js';
+import { fetchTimeout     } from '../../core/offline.js';
 
 const TEMAS_URL = './data/memorama-temas.json';
 const PICS_BASE = './';
@@ -157,7 +158,6 @@ function _renderNavAcciones() {
     document.head.appendChild(s);
   }
 
-  // Selectores de idioma
   const langsWrap = document.createElement('div');
   langsWrap.style.cssText = 'display:flex;gap:4px;';
   IDIOMAS.forEach(({ id, bandera }) => {
@@ -181,17 +181,13 @@ function _renderNavAcciones() {
   const btnTema = document.createElement('button');
   btnTema.className = 'd-nav-btn';
   btnTema.textContent = '🎴 Tema';
-  btnTema.addEventListener('click', _mostrarModalTemas(true));
+  btnTema.addEventListener('click', _mostrarModalTemas);
 
   acc.append(langsWrap, btnNuevo, btnTema);
 }
 
 // ── Shell HTML ────────────────────────────────────────────────
 function _renderShell() {
-   _q('#mem-modal').addEventListener('click', e => {
-  if (e.target === _q('#mem-modal') && _q('#mem-modal')._cancelable) _cerrarModal();
-});
-_q('#mem-modal-cancelar').addEventListener('click', _cerrarModal);
   _container.innerHTML = `
     <style>
       #mem-wrap {
@@ -292,7 +288,8 @@ _q('#mem-modal-cancelar').addEventListener('click', _cerrarModal);
         position: absolute; inset: 0;
         background: rgba(124,58,237,0.88);
         color: white; font-size: .62rem; font-weight: 800;
-        display: flex; align-items: center; justify-content: center;
+        display: flex; align-items: center;
+        justify-content: center;
         text-align: center; padding: 3px;
         opacity: 0; transition: opacity .15s ease;
         border-radius: 10px;
@@ -316,15 +313,7 @@ _q('#mem-modal-cancelar').addEventListener('click', _cerrarModal);
         max-height: 80vh; overflow-y: auto;
       }
       #mem-modal-box h2 { color: white; font-size: 1.1rem; font-weight: 900; text-align: center; }
-      #mem-modal-cancelar {
-		width: 100%; padding: 11px; border-radius: 14px;
-		border: 1px solid rgba(255,255,255,0.18);
-		background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.55);
-		font-size: .85rem; font-weight: 700; cursor: pointer;
-		transition: background .15s;
-	  }
-		#mem-modal-cancelar:active { background: rgba(255,255,255,0.14); }
-	  .mem-tema-btn {
+      .mem-tema-btn {
         width: 100%; display: flex; align-items: center; gap: 12px;
         padding: 12px 14px; border-radius: 16px;
         border: 1px solid rgba(255,255,255,0.1);
@@ -335,6 +324,14 @@ _q('#mem-modal-cancelar').addEventListener('click', _cerrarModal);
       .mem-tema-btn .mt-emoji  { font-size: 1.8rem; }
       .mem-tema-btn .mt-titulo { font-weight: 800; font-size: .9rem; }
       .mem-tema-btn .mt-items  { font-size: .7rem; color: rgba(255,255,255,.4); }
+      #mem-modal-cancelar {
+        width: 100%; padding: 11px; border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.18);
+        background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.55);
+        font-size: .85rem; font-weight: 700; cursor: pointer;
+        transition: background .15s;
+      }
+      #mem-modal-cancelar:active { background: rgba(255,255,255,0.14); }
 
       /* Intro */
       #mem-intro {
@@ -385,27 +382,29 @@ _q('#mem-modal-cancelar').addEventListener('click', _cerrarModal);
 
       <div id="mem-modal">
         <div id="mem-modal-box">
-          '<h2>🎴 Elige un tema</h2>' +
-'<button id="mem-modal-cancelar" class="d-nav-btn" ' +
-'style="background:rgba(255,255,255,0.08);margin-bottom:4px;display:none;">Continuar jugando</button>' +
+          <h2>🎴 Elige un tema</h2>
           <div id="mem-lista-temas"></div>
-		  <button id="mem-modal-cancelar" style="display:none">Cancelar</button>
+          <button id="mem-modal-cancelar" style="display:none">Cancelar</button>
         </div>
       </div>
     </div>
   `;
 }
 
+// ── Modal de temas ────────────────────────────────────────────
 function _mostrarModalTemas() {
   _q('#mem-modal')?.classList.remove('oculto');
   const btnCancel = _q('#mem-modal-cancelar');
   if (!btnCancel) return;
-  const hayJuego = _cartas.length > 0;
-  btnCancel.style.display = hayJuego ? '' : 'none';
-  btnCancel.replaceWith(btnCancel.cloneNode(true));
-  _q('#mem-modal-cancelar').addEventListener('click', _cerrarModal);
+  // Mostrar cancelar solo si ya hay cartas repartidas
+  btnCancel.style.display = _cartas.length > 0 ? '' : 'none';
+  // Clonar para eliminar listeners acumulados de sesiones anteriores
+  const fresh = btnCancel.cloneNode(true);
+  btnCancel.replaceWith(fresh);
+  fresh.addEventListener('click', _cerrarModal);
 }
-function _cerrarModal()       { _q('#mem-modal')?.classList.add('oculto'); }
+
+function _cerrarModal() { _q('#mem-modal')?.classList.add('oculto'); }
 
 function _renderListaTemas() {
   const lista = _q('#mem-lista-temas');
@@ -445,6 +444,7 @@ async function _activarTema(meta) {
   }
 }
 
+// ── Intro animada ─────────────────────────────────────────────
 function _mostrarIntro() {
   if (!_temaActivo) return;
   _q('#mem-intro-titulo').textContent = _temaActivo.titulo;
@@ -468,6 +468,7 @@ function _mostrarIntro() {
   setTimeout(() => { _q('#mem-intro').classList.add('oculto'); _iniciarJuego(); }, 2200);
 }
 
+// ── Juego ─────────────────────────────────────────────────────
 function _iniciarJuego() {
   if (!_temaActivo) return;
   _cartas = []; _volteadas = [];
@@ -583,6 +584,7 @@ function _victoria() {
     setTimeout(() => {
       vict.classList.add('oculto'); vict.style.opacity = '';
       trofeo.style.transform = 'scale(0)'; trofeo.style.opacity = '0';
+      _cartas = []; // resetear antes de mostrar modal → no habrá botón cancelar
       _mostrarModalTemas();
     }, 600);
   }, 3000);
