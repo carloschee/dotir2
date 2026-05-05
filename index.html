@@ -21,15 +21,13 @@
 
  <style>
    :root {
-     --d-bg:         #F3EEFF;
+     --d-bg:         #0f0824;
      --d-surface:    #FFFFFF;
      --d-text:       #2D1B4E;
      --d-muted:      #9B7EC8;
-     --d-border:     rgba(155,126,200,0.15);
      --d-primary:    #A855F7;
      --d-primary-dk: #7C3AED;
      --d-nav-bg:     linear-gradient(135deg,#7C3AED 0%,#C026D3 60%,#EC4899 100%);
-     --d-app-bg: #0f0824;
      --d-nav-h:      56px;
      --r-sm:   12px;
      --r-md:   18px;
@@ -46,85 +44,78 @@
    html, body {
      height: 100%; width: 100%; overflow: hidden;
      font-family: 'Nunito', system-ui, sans-serif;
+     background: #0f0824;
      color: var(--d-text);
      -webkit-tap-highlight-color: transparent;
      user-select: none;
    }
 
-   body {
-  background: #0f0824;
-}
-
-   /* Fondo global persistente */
    #app {
-  position: fixed; inset: 0;
-  padding-top: var(--safe-top);
-  padding-bottom: 0;  /* quitar el padding global */
-  display: flex; flex-direction: column;
-  background: #0f0824;
-}
+     position: fixed; inset: 0;
+     padding-top: var(--safe-top);
+     padding-bottom: 0;
+     display: flex; flex-direction: column;
+     background: #0f0824;
+   }
 
-   #app-aurora #app-body
-  position: fixed; inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-#app-aurora::before,
-#app-aurora::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(70px);
-  opacity: 0.6;
-}
-#app-aurora::before {
-  width: 90vw; height: 90vw;
-  top: -30vw; left: -20vw;
-  background: radial-gradient(circle, #7C3AED, #06B6D4, transparent 70%);
-  animation: aurora-a 9s ease-in-out infinite alternate;
-}
-#app-aurora::after {
-  width: 80vw; height: 80vw;
-  bottom: -20vw; right: -15vw;
-  background: radial-gradient(circle, #C026D3, #10B981, transparent 70%);
-  animation: aurora-b 11s ease-in-out infinite alternate;
-}
-.aurora-blob {
-  position: absolute; border-radius: 50%;
-  filter: blur(65px); opacity: 0.45;
-  pointer-events: none;
-}
-.aurora-blob:nth-child(1) {
-  width: 70vw; height: 70vw;
-  top: 25%; left: 25%;
-  background: radial-gradient(circle, #06B6D4, transparent 70%);
-  animation: aurora-c 13s ease-in-out infinite alternate;
-}
-.aurora-blob:nth-child(2) {
-  width: 55vw; height: 55vw;
-  top: 55%; left: 5%;
-  background: radial-gradient(circle, #EC4899, transparent 70%);
-  animation: aurora-d 8s ease-in-out infinite alternate;
-}
-@keyframes aurora-a {
-  from { transform: translate(0,0) scale(1); }
-  to   { transform: translate(15vw,12vh) scale(1.2); }
-}
-@keyframes aurora-b {
-  from { transform: translate(0,0) scale(1.1); }
-  to   { transform: translate(-12vw,-10vh) scale(0.9); }
-}
-@keyframes aurora-c {
-  from { transform: translate(0,0) scale(0.9); }
-  to   { transform: translate(-10vw,15vh) scale(1.15); }
-}
-@keyframes aurora-d {
-  from { transform: translate(0,0) scale(1); }
-  to   { transform: translate(12vw,-8vh) scale(1.1); }
-}
+   #app-aurora {
+     position: fixed; inset: 0;
+     z-index: 0;
+     overflow: hidden;
+     pointer-events: none;
+   }
+   #app-aurora::before {
+     content: '';
+     position: absolute; border-radius: 50%;
+     filter: blur(70px); opacity: 0.6;
+     width: 90vw; height: 90vw;
+     top: -30vw; left: -20vw;
+     background: radial-gradient(circle, #7C3AED, #06B6D4, transparent 70%);
+     animation: aurora-a 9s ease-in-out infinite alternate;
+   }
+   #app-aurora::after {
+     content: '';
+     position: absolute; border-radius: 50%;
+     filter: blur(70px); opacity: 0.6;
+     width: 80vw; height: 80vw;
+     bottom: -20vw; right: -15vw;
+     background: radial-gradient(circle, #C026D3, #10B981, transparent 70%);
+     animation: aurora-b 11s ease-in-out infinite alternate;
+   }
+   .aurora-blob {
+     position: absolute; border-radius: 50%;
+     filter: blur(65px); opacity: 0.45;
+     pointer-events: none;
+   }
+   .aurora-blob:nth-child(1) {
+     width: 70vw; height: 70vw;
+     top: 25%; left: 25%;
+     background: radial-gradient(circle, #06B6D4, transparent 70%);
+     animation: aurora-c 13s ease-in-out infinite alternate;
+   }
+   .aurora-blob:nth-child(2) {
+     width: 55vw; height: 55vw;
+     top: 55%; left: 5%;
+     background: radial-gradient(circle, #EC4899, transparent 70%);
+     animation: aurora-d 8s ease-in-out infinite alternate;
+   }
+   @keyframes aurora-a {
+     from { transform: translate(0,0) scale(1); }
+     to   { transform: translate(15vw,12vh) scale(1.2); }
+   }
+   @keyframes aurora-b {
+     from { transform: translate(0,0) scale(1.1); }
+     to   { transform: translate(-12vw,-10vh) scale(0.9); }
+   }
+   @keyframes aurora-c {
+     from { transform: translate(0,0) scale(0.9); }
+     to   { transform: translate(-10vw,15vh) scale(1.15); }
+   }
+   @keyframes aurora-d {
+     from { transform: translate(0,0) scale(1); }
+     to   { transform: translate(12vw,-8vh) scale(1.1); }
+   }
 
-   /* ── Cabecera unificada ─────────────────────────── */
    #app-header {
      flex-shrink: 0;
      height: var(--d-nav-h);
@@ -136,7 +127,6 @@
      position: relative; z-index: 20;
    }
 
-   /* Lado izquierdo: logo en menu, btn-volver en modulo */
    #header-izq {
      display: flex; align-items: center; gap: 8px;
      flex-shrink: 0;
@@ -166,11 +156,10 @@
    #btn-volver:active { background: rgba(255,255,255,0.32); transform: scale(0.90); }
    #btn-volver.visible { display: flex; }
 
-   /* Centro: indicador de conexion */
    #header-centro {
-  display: flex; align-items: center;
-  margin-left: auto;
-}
+     display: flex; align-items: center;
+     margin-left: auto;
+   }
 
    #indicador-offline {
      display: flex; align-items: center; gap: 5px;
@@ -188,141 +177,68 @@
    .offline #dot-conexion  { background: #ef4444; }
    .checking #dot-conexion { background: #eab308; }
 
-   /* Lado derecho: acciones del modulo */
    #modulo-acciones {
      display: flex; align-items: center; gap: 6px;
      flex-shrink: 0;
    }
 
-   /* ── Contenido bajo la cabecera ─────────────────── */
    #app-body {
      flex: 1; min-height: 0;
-     position: relative;
-     z-index: 1;
-     background: transparent;
+     position: relative; z-index: 1;
    }
 
    #vista-menu {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  overflow: hidden;
-  background: transparent;
-}
-
-#aurora {
-  position: absolute; inset: 0;
-  overflow: hidden;
-  z-index: 0;
-}
-
-#aurora::before,
-#aurora::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.55;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-#aurora::before {
-  width: 80vw; height: 80vw;
-  top: -20vw; left: -20vw;
-  background: radial-gradient(circle, #7C3AED, #06B6D4, transparent 70%);
-  animation: aurora-a 9s infinite alternate;
-}
-
-#aurora::after {
-  width: 70vw; height: 70vw;
-  bottom: -10vw; right: -10vw;
-  background: radial-gradient(circle, #C026D3, #10B981, transparent 70%);
-  animation: aurora-b 11s infinite alternate;
-}
-
-.aurora-blob {
-  position: absolute; border-radius: 50%;
-  filter: blur(55px); opacity: 0.45;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-.aurora-blob:nth-child(1) {
-  width: 60vw; height: 60vw;
-  top: 20%; left: 30%;
-  background: radial-gradient(circle, #06B6D4, transparent 70%);
-  animation: aurora-c 13s infinite alternate;
-}
-
-.aurora-blob:nth-child(2) {
-  width: 50vw; height: 50vw;
-  top: 50%; left: 10%;
-  background: radial-gradient(circle, #EC4899, transparent 70%);
-  animation: aurora-d 8s infinite alternate;
-}
-
-@keyframes aurora-a {
-  from { transform: translate(0, 0) scale(1); }
-  to   { transform: translate(15vw, 12vh) scale(1.2); }
-}
-@keyframes aurora-b {
-  from { transform: translate(0, 0) scale(1.1); }
-  to   { transform: translate(-12vw, -10vh) scale(0.9); }
-}
-@keyframes aurora-c {
-  from { transform: translate(0, 0) scale(0.9); }
-  to   { transform: translate(-10vw, 15vh) scale(1.15); }
-}
-@keyframes aurora-d {
-  from { transform: translate(0, 0) scale(1); }
-  to   { transform: translate(12vw, -8vh) scale(1.1); }
-}
-
-#menu-grid {
-  flex: 1; overflow: hidden;
-  padding: 16px 24px;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 12px;
-  position: relative; z-index: 1;
-  background: transparent;
-}
-
-.module-tile {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 8px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 10px;
-  cursor: pointer; position: relative;
-  transition: transform 0.15s ease;
-  min-height: 0;
-}
-.module-tile:active { transform: scale(0.90); }
-   .module-tile .tile-emoji  { font-size: 3.2rem; line-height: 1; }
-   .module-tile .tile-label  {
-     font-size: 0.95rem; font-weight: 900;
-     text-align: center; color: #dddcdf; line-height: 1.2;
-   }
-   .module-tile .tile-desc {
-     font-size: 0.78rem; color: #5B3E9B;
-     text-align: center; font-weight: 800;
-   }
-
-   /* Contenedores de modulos */
-   #app-body > div[data-modulo] {
      position: absolute; inset: 0;
-     display: none; flex-direction: column;
+     display: flex; flex-direction: column;
      overflow: hidden;
+     background: transparent;
    }
 
-   /* ── Design system compartido ───────────────────── */
+   #menu-grid {
+     flex: 1; overflow: hidden;
+     padding: 16px 24px;
+     padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+     display: grid;
+     grid-template-columns: repeat(3, 1fr);
+     grid-template-rows: repeat(2, 1fr);
+     gap: 12px;
+     position: relative; z-index: 1;
+     background: transparent;
+   }
+
+   .module-tile {
+     background: transparent;
+     border: none;
+     box-shadow: none;
+     padding: 8px;
+     display: flex; flex-direction: column;
+     align-items: center; justify-content: center;
+     gap: 10px;
+     cursor: pointer; position: relative;
+     transition: transform 0.15s ease;
+     min-height: 0;
+   }
+   .module-tile:active { transform: scale(0.90); }
+
+   .tile-img {
+     width: auto;
+     height: 75%;
+     max-height: 140px;
+     object-fit: contain;
+     filter: drop-shadow(0 8px 24px rgba(0,0,0,0.45));
+     transition: filter 0.15s ease;
+   }
+   .module-tile:active .tile-img {
+     filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+   }
+
+   .tile-label {
+     font-size: 1rem; font-weight: 900;
+     text-align: center; color: white;
+     text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+     line-height: 1.2; flex-shrink: 0;
+   }
+
    .d-nav-btn {
      display: flex; align-items: center; justify-content: center;
      height: 32px; padding: 0 13px; border-radius: var(--r-md);
@@ -344,7 +260,6 @@
    }
    .d-lang-btn.activo { border-color: white; background: rgba(255,255,255,0.28); }
 
-   /* ── Modal PIN ──────────────────────────────────── */
    #modal-pin {
      position: fixed; inset: 0;
      background: rgba(124,58,237,0.45);
@@ -382,37 +297,11 @@
      cursor: pointer; font-family: inherit;
    }
    #btn-pin-ok     { background: var(--d-primary); color: white; }
-   #btn-pin-cancel { background: var(--d-bg); color: #2D1B4E; }
+   #btn-pin-cancel { background: #F3EEFF; color: #2D1B4E; }
    #pin-error {
      color: #C2185B; font-size: 0.95rem;
      font-weight: 800; margin-top: 8px; min-height: 1em;
    }
-
-   #mus-cintillo-wrap,
-#lib-cintillo-wrap,
-#vid-cintillo-wrap {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  height: calc(108px + env(safe-area-inset-bottom, 0px));
-}
-
-.tile-img {
-  width: auto;
-  height: 75%;
-  max-height: 140px;
-  object-fit: contain;
-  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.45));
-  transition: filter 0.15s ease;
-}
-.module-tile:active .tile-img {
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
-}
-
-.tile-label {
-  font-size: 1rem; font-weight: 900;
-  text-align: center; color: white;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.7);
-  line-height: 1.2; flex-shrink: 0;
-}
  </style>
 </head>
 <body>
@@ -429,10 +318,11 @@ window.addEventListener('unhandledrejection', e => {
 </script>
 
 <div id="app">
-  <div id="app-aurora">
-    <div class="aurora-blob"></div>
-    <div class="aurora-blob"></div>
-  </div>
+
+ <div id="app-aurora">
+   <div class="aurora-blob"></div>
+   <div class="aurora-blob"></div>
+ </div>
 
  <header id="app-header">
    <div id="header-izq">
@@ -453,9 +343,8 @@ window.addEventListener('unhandledrejection', e => {
 
  <div id="app-body">
    <div id="vista-menu">
-  
-  <nav id="menu-grid" aria-label="Modulos de la aplicacion"></nav>
-</div>
+     <nav id="menu-grid" aria-label="Modulos de la aplicacion"></nav>
+   </div>
  </div>
 
 </div>
@@ -506,31 +395,31 @@ const MODULE_REGISTRY = [
 ].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
 
 const UI_IMGS = {
-  saac:     'assets/ui/btn-comunicador.png',
-  memorama: 'assets/ui/btn-memorama.png',
-  musica:   'assets/ui/btn-musica.png',
-  libros:   'assets/ui/btn-libros.png',
-  videos:   'assets/ui/btn-videos.png',
-  ajustes:  'assets/ui/btn-ajustes.png',
+ saac:     'assets/ui/btn-comunicador.png',
+ memorama: 'assets/ui/btn-memorama.png',
+ musica:   'assets/ui/btn-musica.png',
+ libros:   'assets/ui/btn-libros.png',
+ videos:   'assets/ui/btn-videos.png',
+ ajustes:  'assets/ui/btn-ajustes.png',
 };
 
 MODULE_REGISTRY.forEach(mod => {
-  const tile = document.createElement('button');
-  tile.className = 'module-tile';
-  tile.setAttribute('aria-label', mod.label);
-  tile.dataset.id = mod.id;
+ const tile = document.createElement('button');
+ tile.className = 'module-tile';
+ tile.setAttribute('aria-label', mod.label);
+ tile.dataset.id = mod.id;
 
-  const imgSrc = UI_IMGS[mod.id];
-  tile.innerHTML =
-    (imgSrc
-      ? '<img class="tile-img" src="' + imgSrc + '" alt="' + mod.label + '">'
-      : '<span style="font-size:4rem">' + mod.emoji + '</span>') +
-    '<span class="tile-label">' + mod.label + '</span>';
+ const imgSrc = UI_IMGS[mod.id];
+ tile.innerHTML =
+   (imgSrc
+     ? '<img class="tile-img" src="' + imgSrc + '" alt="' + mod.label + '">'
+     : '<span style="font-size:4rem">' + mod.emoji + '</span>') +
+   '<span class="tile-label">' + mod.label + '</span>';
 
-  tile.addEventListener('click', () =>
-    mod.requierePin ? abrirPin(mod) : navegarA(mod)
-  );
-  $('menu-grid').appendChild(tile);
+ tile.addEventListener('click', () =>
+   mod.requierePin ? abrirPin(mod) : navegarA(mod)
+ );
+ $('menu-grid').appendChild(tile);
 });
 
 let _moduloActivo      = null;
@@ -541,7 +430,8 @@ function _getContenedor(id) {
  if (!_contenedores[id]) {
    const div = document.createElement('div');
    div.dataset.modulo = id;
-   div.style.cssText = 'position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;';
+   div.style.cssText =
+     'position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;';
    $('app-body').appendChild(div);
    _contenedores[id] = div;
  }
