@@ -52,65 +52,60 @@
    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
    html, body {
-     height: 100%; width: 100%; overflow: hidden;
-     font-family: 'Nunito', system-ui, sans-serif;
+     height: 100%; overflow: hidden;
+     font-family: 'Nunito', sans-serif;
      background: var(--d-bg);
      color: var(--d-text);
      -webkit-tap-highlight-color: transparent;
-     user-select: none;
+     -webkit-text-size-adjust: 100%;
    }
 
    #app {
-     position: fixed; inset: 0;
+     height: 100%;
      padding-top: var(--safe-top);
-     display: flex; flex-direction: column;
+     padding-bottom: var(--safe-bottom);
    }
 
    #vista-menu {
+     height: 100%;
      display: flex; flex-direction: column;
-     height: 100%; width: 100%;
+     overflow: hidden;
    }
 
    #menu-header {
-     display: flex; align-items: center;
-     justify-content: space-between;
+     display: flex; align-items: center; justify-content: space-between;
      padding: 14px 20px 10px;
      background: var(--d-nav-bg);
      flex-shrink: 0;
-     border-radius: 0 0 20px 20px;
-     box-shadow: 0 4px 20px rgba(124,58,237,0.25);
    }
 
-   .menu-logo { display: flex; align-items: baseline; gap: 7px; }
+   .menu-logo { display: flex; align-items: baseline; gap: 6px; }
    .menu-logo h1 {
      font-size: 1.6rem; font-weight: 900;
-     letter-spacing: -0.5px; color: #fff;
+     color: white; letter-spacing: -0.5px;
    }
    .menu-logo .version {
-     font-size: 0.62rem; font-weight: 700;
-     color: rgba(255,255,255,.4);
-     text-transform: uppercase; letter-spacing: .1em;
+     font-size: 0.7rem; font-weight: 800;
+     color: rgba(255,255,255,0.55);
    }
 
    #indicador-offline {
      display: flex; align-items: center; gap: 6px;
-     padding: 5px 12px; border-radius: 20px;
-     font-size: 0.72rem; font-weight: 700;
-     border: 1.5px solid; transition: all 0.3s ease;
+     font-size: 0.72rem; font-weight: 800;
+     color: rgba(255,255,255,0.8);
    }
-   #indicador-offline.online   { background:#dcfce7; border-color:#86efac; color:#166534; }
-   #indicador-offline.offline  { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
-   #indicador-offline.checking { background:#fef9c3; border-color:#fde047; color:#713f12; }
    #dot-conexion {
-     width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+     width: 8px; height: 8px; border-radius: 50%;
+     background: #eab308;
+     transition: background 0.4s;
    }
-   .online  #dot-conexion  { background: #22c55e; }
-   .offline #dot-conexion  { background: #ef4444; }
-   .checking #dot-conexion { background: #eab308; }
+   #indicador-offline.online  #dot-conexion { background: #22c55e; }
+   #indicador-offline.offline #dot-conexion { background: #ef4444; }
+   #indicador-offline.checking #dot-conexion { background: #eab308; }
 
    #menu-grid {
-     flex: 1; overflow-y: auto; overflow-x: hidden;
-     padding: 20px;
+     flex: 1; overflow-y: auto;
+     padding: 20px 16px;
      padding-bottom: calc(20px + var(--safe-bottom));
      display: grid;
      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -304,6 +299,12 @@ window.addEventListener('unhandledrejection', e => {
 <script type="module">
 import { registrarSW, onConexionChange } from './core/offline.js';
 import { toast, animarEntrada          } from './core/ui.js';
+import AudioManager                      from './core/audio.js';
+import SaacModule                        from './modules/saac/module.js';
+import MemoramaModule                    from './modules/memorama/module.js';
+import MusicaModule                      from './modules/musica/module.js';
+import AjustesModule                     from './modules/ajustes/module.js';
+import LibrosModule                      from './modules/libros/module.js';
 
 const $ = id => document.getElementById(id);
 
@@ -315,13 +316,6 @@ onConexionChange(estado => {
    online: 'En linea', offline: 'Sin conexion', checking: 'Verificando...'
  }[estado];
 });
-
-import SaacModule     from './modules/saac/module.js';
-import MemoramaModule from './modules/memorama/module.js';
-import MusicaModule   from './modules/musica/module.js';
-import AjustesModule  from './modules/ajustes/module.js';
-import LibrosModule from './modules/libros/module.js';
-import AudioManager from './core/audio.js';
 
 const _ph = n =>
  '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#1a1a2e;color:rgba(255,255,255,.3);font-size:1rem;font-weight:600;">Modulo ' + n + ' en construccion...</div>';
