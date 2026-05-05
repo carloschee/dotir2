@@ -327,11 +327,9 @@ const MODULE_REGISTRY = [
  MemoramaModule,
  MusicaModule,
  AjustesModule,
- LibrosModule,
- { id:'videos', label:'Videos', emoji:'🎬', desc:'Reproductor video',
-   color:'#EF4444', orden:5, habilitado:true, requierePin:false,
-   init:async c=>{c.innerHTML=_ph('Videos')},
-   destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
+ LibrosModule,VideosModule,
+ VideosModule,
+ destroy:()=>{}, onEnter:()=>{}, onLeave:()=>{}, cache:[] },
 ].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
 
 MODULE_REGISTRY.forEach(mod => {
