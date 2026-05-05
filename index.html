@@ -297,12 +297,6 @@
       filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
     }
 
-    #header-centro {
-      display: flex;
-      align-items: center;
-      margin-left: auto;
-    }
-
     #indicador-offline {
       display: flex;
       align-items: center;
@@ -356,7 +350,15 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    #header-derecha {
+      display: flex;
+      align-items: center;
       flex-shrink: 0;
+      margin-left: 8px;
     }
 
     #app-body {
@@ -603,13 +605,13 @@
           <span class="version">v2.0</span>
         </div>
       </div>
-      <div id="header-centro">
+      <div id="modulo-acciones"></div>
+      <div id="header-derecha">
         <div id="indicador-offline" class="checking">
           <span id="dot-conexion"></span>
           <span id="texto-conexion">Verificando...</span>
         </div>
       </div>
-      <div id="modulo-acciones"></div>
     </header>
 
     <div id="app-body">
@@ -844,93 +846,93 @@
     AudioManager.montarBtnGlobal();
 
     // ── Wake Lock: mantiene la pantalla encendida ─────────────────
-// iOS Safari requiere un video mudo real en loop — no acepta Wake Lock API
-// El video base64 es un MP4 H.264 de 1x1px, 1 segundo, silencioso y valido
+    // iOS Safari requiere un video mudo real en loop — no acepta Wake Lock API
+    // El video base64 es un MP4 H.264 de 1x1px, 1 segundo, silencioso y valido
 
-const _wakeVideo = document.createElement('video');
-_wakeVideo.loop        = true;
-_wakeVideo.muted       = true;
-_wakeVideo.playsInline = true;
-_wakeVideo.setAttribute('playsinline', '');
-_wakeVideo.setAttribute('webkit-playsinline', '');
-_wakeVideo.style.cssText =
-  'position:fixed;width:1px;height:1px;top:0;left:0;opacity:0.01;pointer-events:none;z-index:-1;';
+    const _wakeVideo = document.createElement('video');
+    _wakeVideo.loop = true;
+    _wakeVideo.muted = true;
+    _wakeVideo.playsInline = true;
+    _wakeVideo.setAttribute('playsinline', '');
+    _wakeVideo.setAttribute('webkit-playsinline', '');
+    _wakeVideo.style.cssText =
+      'position:fixed;width:1px;height:1px;top:0;left:0;opacity:0.01;pointer-events:none;z-index:-1;';
 
-// MP4 1x1px H.264 valido — generado con ffmpeg, funciona en Safari iOS
-_wakeVideo.src = 'data:video/mp4;base64,' +
-  'AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMQAAAAhmcmVlAAAAG21kYXQAAAGzABAHAAABthAd' +
-  'AT8LkAAA9oAAAIUGl2aXNhAAAHAm1vb3YAAABsbXZoZAAAAAAAAAAAAAAAAAAAA+gAAAPoAAEAAAEB' +
-  'AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA' +
-  'AAABAAAABnN0dHMAAAAAAAAAAQAAAAEAAAAUAAAAFHN0c3MAAAAAAAAAAQAAAAEAAAAcc3RzYwAAAAAA' +
-  'AAABAAAABAAAAAEAAAABAAAAHHN0c3oAAAAAAAACMgAAAAEAAAAUAAAAFHN0Y28AAAAAAAAAAQAAADAA' +
-  'AAABdHJhawAAAFx0a2hkAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAA' +
-  'AQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAFAAAACAAAAAAAAAAB4bWRpYQAAACBtZGhk' +
-  'AAAAAAAAAAAAAAAAAAB9AAAB9AAVxAAAAAAAI2hkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABW' +
-  'aWRlb0hhbmRsZXIAAAABD21pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYA' +
-  'AAAAAAAAAQAAAAx1cmwgAAAAAQAAAM9zdGJsAAAAa3N0c2QAAAAAAAAAAQAAAFthdmMxAAAAAAAA' +
-  'AAABABAAAAAAAAAAAAAB9AAB9AABAAABAAHgQAEABl//gdLCmgAAAAAAAAAAAAAAAAAAAAAAAAAAAA' +
-  'AAAAAAAAAAAAAAAAAAP//AAAB9AAAB9AQAAAAAEAAAABAAAABAAAABIAAAAUAAAAFAAAABAAAABIc3R0' +
-  'cwAAAAAAAAABAAAABAAAAAEAAAAUc3RzYwAAAAAAAAABAAAABAAAAAEAAAABAAAAHHN0c3oAAAAAAAA' +
-  'AMgAAAAEAAAAUAAAAFAAAABRzdGNvAAAAAAAAAAEAAAAwAAAAYXVkdGEAAABZbWV0YQAAAAAAAAAh' +
-  'aGRscgAAAAAAAAAABG1kaXJhcHBsAAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAA' +
-  'AQAAAABMYXZM';
+    // MP4 1x1px H.264 valido — generado con ffmpeg, funciona en Safari iOS
+    _wakeVideo.src = 'data:video/mp4;base64,' +
+      'AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMQAAAAhmcmVlAAAAG21kYXQAAAGzABAHAAABthAd' +
+      'AT8LkAAA9oAAAIUGl2aXNhAAAHAm1vb3YAAABsbXZoZAAAAAAAAAAAAAAAAAAAA+gAAAPoAAEAAAEB' +
+      'AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA' +
+      'AAABAAAABnN0dHMAAAAAAAAAAQAAAAEAAAAUAAAAFHN0c3MAAAAAAAAAAQAAAAEAAAAcc3RzYwAAAAAA' +
+      'AAABAAAABAAAAAEAAAABAAAAHHN0c3oAAAAAAAACMgAAAAEAAAAUAAAAFHN0Y28AAAAAAAAAAQAAADAA' +
+      'AAABdHJhawAAAFx0a2hkAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAA' +
+      'AQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAFAAAACAAAAAAAAAAB4bWRpYQAAACBtZGhk' +
+      'AAAAAAAAAAAAAAAAAAB9AAAB9AAVxAAAAAAAI2hkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABW' +
+      'aWRlb0hhbmRsZXIAAAABD21pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYA' +
+      'AAAAAAAAAQAAAAx1cmwgAAAAAQAAAM9zdGJsAAAAa3N0c2QAAAAAAAAAAQAAAFthdmMxAAAAAAAA' +
+      'AAABABAAAAAAAAAAAAAB9AAB9AABAAABAAHgQAEABl//gdLCmgAAAAAAAAAAAAAAAAAAAAAAAAAAAA' +
+      'AAAAAAAAAAAAAAAAAAP//AAAB9AAAB9AQAAAAAEAAAABAAAABAAAABIAAAAUAAAAFAAAABAAAABIc3R0' +
+      'cwAAAAAAAAABAAAABAAAAAEAAAAUc3RzYwAAAAAAAAABAAAABAAAAAEAAAABAAAAHHN0c3oAAAAAAAA' +
+      'AMgAAAAEAAAAUAAAAFAAAABRzdGNvAAAAAAAAAAEAAAAwAAAAYXVkdGEAAABZbWV0YQAAAAAAAAAh' +
+      'aGRscgAAAAAAAAAABG1kaXJhcHBsAAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAA' +
+      'AQAAAABMYXZM';
 
-document.body.appendChild(_wakeVideo);
+    document.body.appendChild(_wakeVideo);
 
-let _wakeLock = null;
+    let _wakeLock = null;
 
-async function _activarWakeLock() {
-  // 1. Intentar Wake Lock API (Chrome, Edge, algunos Android)
-  if ('wakeLock' in navigator) {
-    try {
-      if (_wakeLock) return; // ya activo
-      _wakeLock = await navigator.wakeLock.request('screen');
-      _wakeLock.addEventListener('release', () => {
-        _wakeLock = null;
-        // Reactivar si la pagina sigue visible
-        if (document.visibilityState === 'visible') _activarWakeLock();
-      });
-      return;
-    } catch(e) {
-      // Wake Lock no disponible, caer al fallback
+    async function _activarWakeLock() {
+      // 1. Intentar Wake Lock API (Chrome, Edge, algunos Android)
+      if ('wakeLock' in navigator) {
+        try {
+          if (_wakeLock) return; // ya activo
+          _wakeLock = await navigator.wakeLock.request('screen');
+          _wakeLock.addEventListener('release', () => {
+            _wakeLock = null;
+            // Reactivar si la pagina sigue visible
+            if (document.visibilityState === 'visible') _activarWakeLock();
+          });
+          return;
+        } catch (e) {
+          // Wake Lock no disponible, caer al fallback
+        }
+      }
+
+      // 2. Fallback iOS Safari: video mudo en loop
+      if (_wakeVideo.paused) {
+        try {
+          await _wakeVideo.play();
+        } catch (e) {
+          console.warn('[WakeLock] fallback video fallo:', e);
+        }
+      }
     }
-  }
 
-  // 2. Fallback iOS Safari: video mudo en loop
-  if (_wakeVideo.paused) {
-    try {
-      await _wakeVideo.play();
-    } catch(e) {
-      console.warn('[WakeLock] fallback video fallo:', e);
-    }
-  }
-}
+    // Safari requiere gesto del usuario antes de reproducir cualquier video
+    ['touchstart', 'touchend', 'click', 'pointerdown'].forEach(ev => {
+      document.addEventListener(ev, function _unlock() {
+        _activarWakeLock();
+        document.removeEventListener(ev, _unlock);
+      }, { passive: true });
+    });
 
-// Safari requiere gesto del usuario antes de reproducir cualquier video
-['touchstart', 'touchend', 'click', 'pointerdown'].forEach(ev => {
-  document.addEventListener(ev, function _unlock() {
-    _activarWakeLock();
-    document.removeEventListener(ev, _unlock);
-  }, { passive: true });
-});
+    // Reactivar al volver a primer plano (cuando el usuario regresa a la app)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        _wakeLock = null; // el sistema lo libera al cambiar de app
+        _activarWakeLock();
+      } else {
+        // Pausar el video fallback cuando la app va al fondo
+        if (!_wakeVideo.paused) _wakeVideo.pause();
+      }
+    });
 
-// Reactivar al volver a primer plano (cuando el usuario regresa a la app)
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
-    _wakeLock = null; // el sistema lo libera al cambiar de app
-    _activarWakeLock();
-  } else {
-    // Pausar el video fallback cuando la app va al fondo
-    if (!_wakeVideo.paused) _wakeVideo.pause();
-  }
-});
-
-// Heartbeat al service worker cada 4 minutos
-setInterval(() => {
-  if (document.visibilityState === 'visible') {
-    navigator.serviceWorker?.controller?.postMessage({ tipo: 'heartbeat' });
-  }
-}, 4 * 60 * 1000);
+    // Heartbeat al service worker cada 4 minutos
+    setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        navigator.serviceWorker?.controller?.postMessage({ tipo: 'heartbeat' });
+      }
+    }, 4 * 60 * 1000);
   </script>
 </body>
 
