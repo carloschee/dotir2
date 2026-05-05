@@ -33,7 +33,7 @@ function _renderShell() {
         padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
       }
       .aj-seccion {
-        background: rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.65);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid rgba(255,255,255,0.16);
