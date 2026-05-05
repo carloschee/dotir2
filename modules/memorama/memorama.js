@@ -181,7 +181,7 @@ function _renderNavAcciones() {
   const btnTema = document.createElement('button');
   btnTema.className = 'd-nav-btn';
   btnTema.textContent = '🎴 Tema';
-  btnTema.addEventListener('click', _mostrarModalTemas(true));
+  btnTema.addEventListener('click', _mostrarModalTemas);
 
   acc.append(langsWrap, btnNuevo, btnTema);
 }
