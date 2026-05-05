@@ -281,13 +281,13 @@
 }
 
 #menu-grid {
-  flex: 1; overflow-y: auto; overflow-x: hidden;
-  padding: 32px 24px;
-  padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+  flex: 1; overflow: hidden;
+  padding: 16px 24px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 24px;
-  align-content: start;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 12px;
   position: relative; z-index: 1;
   background: transparent;
 }
@@ -296,11 +296,13 @@
   background: transparent;
   border: none;
   box-shadow: none;
-  padding: 0;
+  padding: 8px;
   display: flex; flex-direction: column;
-  align-items: center; gap: 14px;
+  align-items: center; justify-content: center;
+  gap: 10px;
   cursor: pointer; position: relative;
   transition: transform 0.15s ease;
+  min-height: 0;
 }
 .module-tile:active { transform: scale(0.90); }
    .module-tile .tile-emoji  { font-size: 3.2rem; line-height: 1; }
@@ -394,8 +396,9 @@
 }
 
 .tile-img {
-  width: 100%;
-  aspect-ratio: 1 / 1;
+  width: auto;
+  height: 75%;
+  max-height: 140px;
   object-fit: contain;
   filter: drop-shadow(0 8px 24px rgba(0,0,0,0.45));
   transition: filter 0.15s ease;
@@ -405,10 +408,10 @@
 }
 
 .tile-label {
-  font-size: 1.1rem; font-weight: 900;
+  font-size: 1rem; font-weight: 900;
   text-align: center; color: white;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-  line-height: 1.2;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  line-height: 1.2; flex-shrink: 0;
 }
  </style>
 </head>
