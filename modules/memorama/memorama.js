@@ -316,7 +316,15 @@ _q('#mem-modal-cancelar').addEventListener('click', _cerrarModal);
         max-height: 80vh; overflow-y: auto;
       }
       #mem-modal-box h2 { color: white; font-size: 1.1rem; font-weight: 900; text-align: center; }
-      .mem-tema-btn {
+      #mem-modal-cancelar {
+		width: 100%; padding: 11px; border-radius: 14px;
+		border: 1px solid rgba(255,255,255,0.18);
+		background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.55);
+		font-size: .85rem; font-weight: 700; cursor: pointer;
+		transition: background .15s;
+	  }
+		#mem-modal-cancelar:active { background: rgba(255,255,255,0.14); }
+	  .mem-tema-btn {
         width: 100%; display: flex; align-items: center; gap: 12px;
         padding: 12px 14px; border-radius: 16px;
         border: 1px solid rgba(255,255,255,0.1);
@@ -381,19 +389,21 @@ _q('#mem-modal-cancelar').addEventListener('click', _cerrarModal);
 '<button id="mem-modal-cancelar" class="d-nav-btn" ' +
 'style="background:rgba(255,255,255,0.08);margin-bottom:4px;display:none;">Continuar jugando</button>' +
           <div id="mem-lista-temas"></div>
+		  <button id="mem-modal-cancelar" style="display:none">Cancelar</button>
         </div>
       </div>
     </div>
   `;
 }
 
-function _mostrarModalTemas(cancelable) {
-  const modal = _q('#mem-modal');
-  if (!modal) return;
-  modal.classList.remove('oculto');
-  const btnCancelar = _q('#mem-modal-cancelar');
-  if (btnCancelar) btnCancelar.style.display = cancelable ? 'block' : 'none';
-  modal._cancelable = cancelable;
+function _mostrarModalTemas() {
+  _q('#mem-modal')?.classList.remove('oculto');
+  const btnCancel = _q('#mem-modal-cancelar');
+  if (!btnCancel) return;
+  const hayJuego = _cartas.length > 0;
+  btnCancel.style.display = hayJuego ? '' : 'none';
+  btnCancel.replaceWith(btnCancel.cloneNode(true));
+  _q('#mem-modal-cancelar').addEventListener('click', _cerrarModal);
 }
 function _cerrarModal()       { _q('#mem-modal')?.classList.add('oculto'); }
 
