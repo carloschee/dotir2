@@ -77,19 +77,40 @@
 
   "shortcuts": [
     {
-      "name": "Comunicador",
-      "short_name": "SAAC",
-      "description": "Abrir el tablero de comunicación directamente",
-      "url": "./index.html?modulo=saac",
-      "icons": [{ "src": "assets/img/icon-saac.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Memorama",
-      "short_name": "Memorama",
-      "description": "Ir directamente al juego de memoria",
-      "url": "./index.html?modulo=memorama",
-      "icons": [{ "src": "assets/img/icon-memorama.png", "sizes": "96x96" }]
-    }
+    "name": "Comunicador",
+    "short_name": "SAAC",
+    "description": "Abrir el tablero de comunicacion directamente",
+    "url": "./index.html?modulo=saac",
+    "icons": [{ "src": "assets/ui/btn-comunicador.png", "sizes": "192x192" }]
+  },
+  {
+    "name": "Memorama",
+    "short_name": "Memorama",
+    "description": "Ir directamente al juego de memoria",
+    "url": "./index.html?modulo=memorama",
+    "icons": [{ "src": "assets/ui/btn-memorama.png", "sizes": "192x192" }]
+  },
+  {
+    "name": "Musica",
+    "short_name": "Musica",
+    "description": "Abrir el reproductor de musica",
+    "url": "./index.html?modulo=musica",
+    "icons": [{ "src": "assets/ui/btn-musica.png", "sizes": "192x192" }]
+  },
+  {
+    "name": "Libros",
+    "short_name": "Libros",
+    "description": "Abrir el visor de libros",
+    "url": "./index.html?modulo=libros",
+    "icons": [{ "src": "assets/ui/btn-libros.png", "sizes": "192x192" }]
+  },
+  {
+    "name": "Videos",
+    "short_name": "Videos",
+    "description": "Abrir el reproductor de videos",
+    "url": "./index.html?modulo=videos",
+    "icons": [{ "src": "assets/ui/btn-videos.png", "sizes": "192x192" }]
+   }
   ],
 
   "prefer_related_applications": false
