@@ -1,24 +1,16 @@
-/* Dotir 2 - modules/temporizador/temporizador.js
-   Temporizador visual tipo reloj analogo.
-   - La cuidadora configura el tiempo (detras del PIN via navbar)
-   - Emmy puede tocar la esfera para pausar/reanudar
-   - Arco de color que se reduce conforme avanza el tiempo
-   - Sonido al llegar a cero
-   - Dos modos: solo minutos / minutos+segundos
-*/
+/* Dotir 2 - modules/temporizador/temporizador.js */
 
 import { TTS } from '../../core/tts.js';
 import { lanzarConfeti } from '../../core/ui.js';
 
 const LS_MODO = 'dotir2-timer-modo';
 
-let _container  = null;
-let _totalSeg   = 0;
-let _restaSeg   = 0;
-let _corriendo  = false;
-let _intervalo  = null;
-let _modo       = localStorage.getItem(LS_MODO) || 'min';
-let _rafId      = null;
+let _container     = null;
+let _totalSeg      = 0;
+let _restaSeg      = 0;
+let _corriendo     = false;
+let _intervalo     = null;
+let _modo          = localStorage.getItem(LS_MODO) || 'min';
 let _configAbierta = false;
 
 const _q = sel => _container?.querySelector(sel);
@@ -27,18 +19,24 @@ export async function init(container) {
   _container = container;
   _renderShell();
   _renderNavAcciones();
-  _dibujar();
+  _ajustarCanvas();
 }
 
 export function destroy() {
   _detener();
   _container = null;
+  window.removeEventListener('resize', _ajustarCanvas);
   document.getElementById('modulo-acciones')?.replaceChildren();
   document.getElementById('timer-nav-style')?.remove();
 }
 
-export function onEnter() {}
-export function onLeave() { _detener(); }
+export function onEnter() {
+  _ajustarCanvas();
+}
+
+export function onLeave() {
+  _detener();
+}
 
 export function pause() {
   if (_corriendo) _pausar();
@@ -48,7 +46,7 @@ export function pause() {
 export async function resume(container) {
   _container = container;
   _renderNavAcciones();
-  _dibujar();
+  _ajustarCanvas();
 }
 
 function _renderNavAcciones() {
@@ -61,9 +59,10 @@ function _renderNavAcciones() {
     s.id = 'timer-nav-style';
     s.textContent =
       '.timer-modo-btn{display:flex;align-items:center;justify-content:center;' +
-      'height:28px;padding:0 10px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.25);' +
-      'background:rgba(255,255,255,0.12);color:white;font-size:0.72rem;font-weight:800;' +
-      'cursor:pointer;transition:all .15s;}' +
+      'height:28px;padding:0 10px;border-radius:10px;' +
+      'border:1.5px solid rgba(255,255,255,0.25);' +
+      'background:rgba(255,255,255,0.12);color:white;' +
+      'font-size:0.72rem;font-weight:800;cursor:pointer;transition:all .15s;}' +
       '.timer-modo-btn.activo{background:rgba(255,255,255,0.30);border-color:white;}';
     document.head.appendChild(s);
   }
@@ -101,11 +100,19 @@ function _renderShell() {
         height: 100%; overflow: hidden;
         background: transparent;
         align-items: center; justify-content: center;
-        gap: 24px; padding: 16px;
+        gap: 16px; padding: 16px;
         position: relative;
       }
 
-      #timer-canvas-wrap { position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; -webkit-user-select:none; width:min(70vw,70vh,480px); height:min(70vw,70vh,480px); }
+      #timer-canvas-wrap {
+        position: relative;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        user-select: none; -webkit-user-select: none;
+        width: min(70vw, 70vh, 480px);
+        height: min(70vw, 70vh, 480px);
+        flex-shrink: 0;
+      }
 
       #timer-canvas {
         border-radius: 50%;
@@ -135,19 +142,18 @@ function _renderShell() {
       #timer-hint {
         font-size: 0.75rem; font-weight: 700;
         color: rgba(255,255,255,0.35);
-        text-align: center;
+        text-align: center; flex-shrink: 0;
       }
 
-      /* Panel de configuracion */
       #timer-config {
-        display: none;
-        flex-direction: column; gap: 16px;
+        display: none; flex-direction: column; gap: 14px;
         background: rgba(0,0,0,0.45);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid rgba(255,255,255,0.15);
         border-radius: 24px; padding: 20px;
-        width: 100%; max-width: 380px;
+        width: 100%; max-width: 400px;
+        flex-shrink: 0;
       }
       #timer-config.visible { display: flex; }
 
@@ -169,21 +175,28 @@ function _renderShell() {
       .timer-preset:active { background: rgba(255,255,255,0.2); transform: scale(0.95); }
 
       .timer-custom {
-        display: flex; gap: 8px; align-items: center;
+        display: flex; gap: 8px; align-items: flex-end;
+      }
+      .timer-custom-campo {
+        flex: 1; display: flex; flex-direction: column;
+        gap: 4px; align-items: center;
       }
       .timer-custom input {
-        flex: 1; padding: 12px; border-radius: 14px;
+        width: 100%; padding: 12px; border-radius: 14px;
         border: 1.5px solid rgba(255,255,255,0.2);
         background: rgba(255,255,255,0.08); color: white;
         font-size: 1.2rem; font-weight: 900; text-align: center;
-        font-family: inherit; outline: none; min-width: 0;
+        font-family: inherit; outline: none;
         -webkit-appearance: none;
       }
       .timer-custom input:focus { border-color: #F59E0B; }
       .timer-custom input::placeholder { color: rgba(255,255,255,0.25); }
       .timer-custom label {
-        color: rgba(255,255,255,0.5); font-size: 0.75rem;
-        font-weight: 700; flex-shrink: 0;
+        color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: 700;
+      }
+      .timer-sep {
+        color: white; font-size: 1.5rem; font-weight: 900;
+        padding-bottom: 14px; flex-shrink: 0;
       }
 
       #btn-timer-iniciar {
@@ -200,8 +213,14 @@ function _renderShell() {
         gap: 16px; pointer-events: none; z-index: 10;
       }
       #timer-fin.visible { display: flex; }
-      #timer-fin-emoji { font-size: 5rem; animation: timer-pop .5s cubic-bezier(.34,1.56,.64,1); }
-      #timer-fin-texto { color: white; font-size: 1.4rem; font-weight: 900; text-shadow: 0 2px 12px rgba(0,0,0,.6); }
+      #timer-fin-emoji {
+        font-size: 5rem;
+        animation: timer-pop .5s cubic-bezier(.34,1.56,.64,1);
+      }
+      #timer-fin-texto {
+        color: white; font-size: 1.4rem; font-weight: 900;
+        text-shadow: 0 2px 12px rgba(0,0,0,.6);
+      }
 
       @keyframes timer-pop {
         from { transform: scale(0); opacity: 0; }
@@ -225,13 +244,15 @@ function _renderShell() {
         <div class="timer-presets" id="timer-presets"></div>
         <p>Tiempo personalizado</p>
         <div class="timer-custom">
-          <div style="flex:1;display:flex;flex-direction:column;gap:4px;align-items:center;">
-            <input id="input-min" type="number" min="0" max="60" placeholder="0" inputmode="numeric">
+          <div class="timer-custom-campo">
+            <input id="input-min" type="number" min="0" max="60"
+                   placeholder="0" inputmode="numeric">
             <label>min</label>
           </div>
-          <span style="color:white;font-size:1.5rem;font-weight:900;padding-bottom:18px;">:</span>
-          <div style="flex:1;display:flex;flex-direction:column;gap:4px;align-items:center;">
-            <input id="input-seg" type="number" min="0" max="59" placeholder="0" inputmode="numeric">
+          <span class="timer-sep">:</span>
+          <div class="timer-custom-campo">
+            <input id="input-seg" type="number" min="0" max="59"
+                   placeholder="0" inputmode="numeric">
             <label>seg</label>
           </div>
         </div>
@@ -239,14 +260,13 @@ function _renderShell() {
       </div>
 
       <div id="timer-fin">
-        <span id="timer-fin-emoji">\u2705</span>
+        <span id="timer-fin-emoji">&#9989;</span>
         <p id="timer-fin-texto">Tiempo terminado</p>
       </div>
     </div>
   `;
 
   _renderPresets();
-  _ajustarCanvas();
 
   _q('#timer-canvas-wrap').addEventListener('click', () => {
     if (_totalSeg === 0) return;
@@ -255,38 +275,37 @@ function _renderShell() {
   });
 
   _q('#btn-timer-iniciar').addEventListener('click', () => {
-    const min = parseInt(_q('#input-min').value) || 0;
-    const seg = parseInt(_q('#input-seg').value) || 0;
+    const min   = parseInt(_q('#input-min').value) || 0;
+    const seg   = parseInt(_q('#input-seg').value) || 0;
     const total = min * 60 + seg;
     if (total <= 0) return;
     _iniciar(total);
     _toggleConfig();
   });
 
-  window.addEventListener('resize', _ajustarCanvas);
+  window.addEventListener('resize', _onResize);
 }
+
+function _onResize() { _ajustarCanvas(); }
 
 function _renderPresets() {
   const wrap = _q('#timer-presets');
   if (!wrap) return;
   const presets = [
-    { label: '1 min',  seg: 60  },
-    { label: '2 min',  seg: 120 },
-    { label: '5 min',  seg: 300 },
-    { label: '10 min', seg: 600 },
-    { label: '15 min', seg: 900 },
+    { label: '1 min',  seg: 60   },
+    { label: '2 min',  seg: 120  },
+    { label: '5 min',  seg: 300  },
+    { label: '10 min', seg: 600  },
+    { label: '15 min', seg: 900  },
     { label: '20 min', seg: 1200 },
     { label: '30 min', seg: 1800 },
   ];
   wrap.innerHTML = '';
   presets.forEach(p => {
     const btn = document.createElement('button');
-    btn.className = 'timer-preset';
+    btn.className   = 'timer-preset';
     btn.textContent = p.label;
-    btn.addEventListener('click', () => {
-      _iniciar(p.seg);
-      _toggleConfig();
-    });
+    btn.addEventListener('click', () => { _iniciar(p.seg); _toggleConfig(); });
     wrap.appendChild(btn);
   });
 }
@@ -295,89 +314,6 @@ function _toggleConfig() {
   _configAbierta = !_configAbierta;
   _q('#timer-config').classList.toggle('visible', _configAbierta);
   _q('#timer-hint').style.display = _configAbierta ? 'none' : '';
-}
-
-function _iniciar(totalSeg) {
-  _detener();
-  _totalSeg  = totalSeg;
-  _restaSeg  = totalSeg;
-  _corriendo = true;
-  _q('#timer-fin').classList.remove('visible');
-  _dibujar();
-  _intervalo = setInterval(() => {
-    if (!_corriendo) return;
-    _restaSeg--;
-    _dibujar();
-    if (_restaSeg <= 0) _terminar();
-  }, 1000);
-}
-
-function _pausar() {
-  _corriendo = false;
-  _actualizarEstado();
-}
-
-function _reanudar() {
-  if (_restaSeg <= 0) return;
-  _corriendo = true;
-  _actualizarEstado();
-  _dibujar();
-}
-
-function _detener() {
-  clearInterval(_intervalo);
-  _intervalo = null;
-  _corriendo = false;
-}
-
-function _terminar() {
-  _detener();
-  _corriendo = false;
-  _restaSeg  = 0;
-  _dibujar();
-  _sonarFin();
-  lanzarConfeti({ count: 60, container: _q('#timer-wrap') });
-  const fin = _q('#timer-fin');
-  if (fin) fin.classList.add('visible');
-  TTS.speak('Tiempo terminado', { lang: 'es-MX', pitch: 1.2, rate: 0.9, delay: 800 });
-  setTimeout(() => { if (fin) fin.classList.remove('visible'); }, 4000);
-}
-
-function _sonarFin() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const notas = [523.25, 659.25, 783.99, 1046.50];
-    notas.forEach((freq, i) => {
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.18);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.18 + 0.4);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(ctx.currentTime + i * 0.18);
-      osc.stop(ctx.currentTime + i * 0.18 + 0.4);
-    });
-  } catch(e) {}
-}
-
-function _actualizarEstado() {
-  const estado = _q('#timer-estado');
-  if (!estado) return;
-  if (_restaSeg <= 0)    estado.textContent = 'Terminado';
-  else if (_corriendo)   estado.textContent = 'En curso';
-  else                   estado.textContent = 'Pausado';
-}
-
-function _formatTiempo() {
-  if (_totalSeg === 0) return '--:--';
-  const min = Math.floor(_restaSeg / 60);
-  const seg = _restaSeg % 60;
-  if (_modo === 'min') {
-    return min + ' min';
-  }
-  return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
 }
 
 function _ajustarCanvas() {
@@ -395,6 +331,84 @@ function _ajustarCanvas() {
   _dibujar();
 }
 
+function _iniciar(totalSeg) {
+  _detener();
+  _totalSeg  = totalSeg;
+  _restaSeg  = totalSeg;
+  _corriendo = true;
+  const fin = _q('#timer-fin');
+  if (fin) fin.classList.remove('visible');
+  _dibujar();
+  _intervalo = setInterval(() => {
+    if (!_corriendo) return;
+    _restaSeg--;
+    _dibujar();
+    if (_restaSeg <= 0) _terminar();
+  }, 1000);
+}
+
+function _pausar() {
+  _corriendo = false;
+  _dibujar();
+}
+
+function _reanudar() {
+  if (_restaSeg <= 0) return;
+  _corriendo = true;
+  _dibujar();
+  _intervalo = setInterval(() => {
+    if (!_corriendo) return;
+    _restaSeg--;
+    _dibujar();
+    if (_restaSeg <= 0) _terminar();
+  }, 1000);
+}
+
+function _detener() {
+  clearInterval(_intervalo);
+  _intervalo = null;
+  _corriendo = false;
+  window.removeEventListener('resize', _onResize);
+}
+
+function _terminar() {
+  _detener();
+  _restaSeg = 0;
+  _dibujar();
+  _sonarFin();
+  lanzarConfeti({ count: 60, container: _q('#timer-wrap') });
+  const fin = _q('#timer-fin');
+  if (fin) fin.classList.add('visible');
+  TTS.speak('Tiempo terminado', { lang: 'es-MX', pitch: 1.2, rate: 0.9, delay: 800 });
+  setTimeout(() => { if (fin) fin.classList.remove('visible'); }, 4000);
+}
+
+function _sonarFin() {
+  try {
+    const ctx   = new (window.AudioContext || window.webkitAudioContext)();
+    const notas = [523.25, 659.25, 783.99, 1046.50];
+    notas.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.18 + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.18);
+      osc.stop(ctx.currentTime + i * 0.18 + 0.4);
+    });
+  } catch(e) {}
+}
+
+function _formatTiempo() {
+  if (_totalSeg === 0) return '--:--';
+  const min = Math.floor(_restaSeg / 60);
+  const seg = _restaSeg % 60;
+  if (_modo === 'min') return min + ' min';
+  return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
+}
 
 function _dibujar() {
   const canvas = _q('#timer-canvas');
@@ -404,13 +418,13 @@ function _dibujar() {
   const H   = canvas.height;
   const cx  = W / 2;
   const cy  = H / 2;
-  const R   = W * 0.46;   // radio exterior del arco
-  const Ri  = W * 0.30;   // radio interior (grosor del arco)
-  const lw  = R - Ri;     // grosor
+  const R   = W * 0.46;
+  const Ri  = W * 0.30;
+  const lw  = R - Ri;
 
   ctx.clearRect(0, 0, W, H);
 
-  // ── Fondo esfera ────────────────────────────────────────────
+  // Fondo esfera
   const bgGrad = ctx.createRadialGradient(cx, cy - R * 0.15, R * 0.05, cx, cy, R);
   bgGrad.addColorStop(0, '#2a2a4a');
   bgGrad.addColorStop(1, '#0d0d1e');
@@ -419,19 +433,18 @@ function _dibujar() {
   ctx.fillStyle = bgGrad;
   ctx.fill();
 
-  // borde exterior
   ctx.beginPath();
   ctx.arc(cx, cy, R, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(255,255,255,0.10)';
   ctx.lineWidth   = W * 0.010;
   ctx.stroke();
 
-  // ── Marcas y numeros ────────────────────────────────────────
+  // Marcas
   for (let i = 0; i < 60; i++) {
-    const ang    = (i / 60) * Math.PI * 2 - Math.PI / 2;
-    const mayor  = i % 5 === 0;
-    const r1     = R * (mayor ? 0.86 : 0.91);
-    const r2     = R * 0.96;
+    const ang   = (i / 60) * Math.PI * 2 - Math.PI / 2;
+    const mayor = i % 5 === 0;
+    const r1    = R * (mayor ? 0.86 : 0.91);
+    const r2    = R * 0.96;
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(ang) * r1, cy + Math.sin(ang) * r1);
     ctx.lineTo(cx + Math.cos(ang) * r2, cy + Math.sin(ang) * r2);
@@ -439,6 +452,8 @@ function _dibujar() {
     ctx.lineWidth   = mayor ? W * 0.007 : W * 0.003;
     ctx.stroke();
   }
+
+  // Numeros
   ctx.font         = 'bold ' + (W * 0.052) + 'px system-ui';
   ctx.textAlign    = 'center';
   ctx.textBaseline = 'middle';
@@ -450,27 +465,24 @@ function _dibujar() {
     ctx.fillText(String(num), cx + Math.cos(ang) * r, cy + Math.sin(ang) * r);
   }
 
-  // ── Arco de arcoiris decreciente ────────────────────────────
+  // Arco de arcoiris
   if (_totalSeg > 0) {
     const progreso  = Math.max(0, _restaSeg / _totalSeg);
     const angInicio = -Math.PI / 2;
     const angFin    = angInicio + progreso * Math.PI * 2;
     const arcR      = (R + Ri) / 2;
-
-    // Colores del arcoiris: rojo -> naranja -> amarillo -> verde -> azul -> violeta
-    const colores = [
-      '#EF4444', // rojo
-      '#F97316', // naranja
-      '#EAB308', // amarillo
-      '#22C55E', // verde
-      '#3B82F6', // azul
-      '#8B5CF6', // violeta
+    const colores   = [
+      '#EF4444',
+      '#F97316',
+      '#EAB308',
+      '#22C55E',
+      '#3B82F6',
+      '#8B5CF6',
     ];
-
-    const totalAng = progreso * Math.PI * 2;
+    const totalAng  = progreso * Math.PI * 2;
     const segmentos = colores.length;
 
-    // Fondo gris del arco completo (tiempo transcurrido)
+    // Fondo gris del arco completo
     ctx.beginPath();
     ctx.arc(cx, cy, arcR, angInicio, angInicio + Math.PI * 2);
     ctx.strokeStyle = 'rgba(255,255,255,0.06)';
@@ -478,11 +490,9 @@ function _dibujar() {
     ctx.lineCap     = 'butt';
     ctx.stroke();
 
-    // Sombra glow debajo del arco
-    ctx.shadowColor = 'rgba(255,255,255,0.15)';
-    ctx.shadowBlur  = lw * 0.6;
-
-    // Dibujar cada segmento de color del arcoiris
+    // Segmentos de color
+    ctx.shadowColor = 'rgba(255,255,255,0.12)';
+    ctx.shadowBlur  = lw * 0.5;
     for (let s = 0; s < segmentos; s++) {
       const a0 = angInicio + (s / segmentos) * totalAng;
       const a1 = angInicio + ((s + 1) / segmentos) * totalAng;
@@ -494,27 +504,22 @@ function _dibujar() {
       ctx.lineCap     = 'butt';
       ctx.stroke();
     }
-
     ctx.shadowBlur = 0;
 
-    // Separadores entre segmentos (lineas sutiles)
+    // Separadores
     if (progreso > 0.02) {
       for (let s = 1; s < segmentos; s++) {
         const ang = angInicio + (s / segmentos) * totalAng;
-        const x1  = cx + Math.cos(ang) * Ri;
-        const y1  = cy + Math.sin(ang) * Ri;
-        const x2  = cx + Math.cos(ang) * R;
-        const y2  = cy + Math.sin(ang) * R;
         ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
+        ctx.moveTo(cx + Math.cos(ang) * Ri, cy + Math.sin(ang) * Ri);
+        ctx.lineTo(cx + Math.cos(ang) * R,  cy + Math.sin(ang) * R);
         ctx.strokeStyle = 'rgba(0,0,0,0.35)';
         ctx.lineWidth   = W * 0.004;
         ctx.stroke();
       }
     }
 
-    // Indicador blanco en la punta del arco
+    // Indicador punta
     if (progreso > 0.01) {
       ctx.beginPath();
       ctx.arc(
@@ -526,42 +531,42 @@ function _dibujar() {
       ctx.shadowColor = 'rgba(255,255,255,0.9)';
       ctx.shadowBlur  = lw * 0.5;
       ctx.fill();
-      ctx.shadowBlur = 0;
+      ctx.shadowBlur  = 0;
     }
   }
 
-  // ── Centro interior (hub) ────────────────────────────────────
+  // Hub interior
   const hubGrad = ctx.createRadialGradient(cx, cy - Ri * 0.08, Ri * 0.04, cx, cy, Ri * 0.98);
   hubGrad.addColorStop(0, '#252540');
   hubGrad.addColorStop(1, '#0a0a18');
   ctx.beginPath();
   ctx.arc(cx, cy, Ri, 0, Math.PI * 2);
-  ctx.fillStyle = hubGrad;
+  ctx.fillStyle   = hubGrad;
   ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,0.06)';
   ctx.lineWidth   = W * 0.005;
   ctx.stroke();
 
-  // boton central (hub fisico)
-  const hubBtn = ctx.createRadialGradient(cx, cy - Ri * 0.15, Ri * 0.05, cx, cy, Ri * 0.35);
+  // Boton central
+  const hubBtn = ctx.createRadialGradient(cx, cy - Ri * 0.15, Ri * 0.02, cx, cy, Ri * 0.35);
   hubBtn.addColorStop(0, '#3a3a5c');
   hubBtn.addColorStop(1, '#1a1a2e');
   ctx.beginPath();
   ctx.arc(cx, cy, Ri * 0.22, 0, Math.PI * 2);
-  ctx.fillStyle = hubBtn;
+  ctx.fillStyle   = hubBtn;
   ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,0.12)';
   ctx.lineWidth   = W * 0.005;
   ctx.stroke();
 
-  // ── Texto ────────────────────────────────────────────────────
+  // Texto
   const tiempo = _q('#timer-tiempo');
   const estado = _q('#timer-estado');
   if (tiempo) tiempo.textContent = _formatTiempo();
   if (estado) {
-    if (_totalSeg === 0)      estado.textContent = 'Configura el tiempo';
-    else if (_corriendo)      estado.textContent = 'En curso';
-    else if (_restaSeg <= 0)  estado.textContent = 'Terminado';
-    else                      estado.textContent = 'Pausado';
+    if (_totalSeg === 0)     estado.textContent = 'Configura el tiempo';
+    else if (_corriendo)     estado.textContent = 'En curso';
+    else if (_restaSeg <= 0) estado.textContent = 'Terminado';
+    else                     estado.textContent = 'Pausado';
   }
 }
