@@ -1,14 +1,14 @@
 /* Dotir 2 - modules/memorama/memorama.js */
 
-import { TTS             } from '../../core/tts.js';
+import { TTS } from '../../core/tts.js';
 import { lanzarConfeti, toast } from '../../core/ui.js';
-import { fetchTimeout     } from '../../core/offline.js';
+import { fetchTimeout } from '../../core/offline.js';
 
 const TEMAS_URL = './data/memorama-temas.json';
 const PICS_BASE = './';
 const MAX_PARES = 12;
-const COLS      = 8;
-const FILAS     = 3;
+const COLS = 8;
+const FILAS = 3;
 
 const IDIOMAS = [
   { id: 'es-MX', bandera: '\u{1F1F2}\u{1F1FD}', lang: 'es-MX' },
@@ -17,7 +17,7 @@ const IDIOMAS = [
   { id: 'zh-CN', bandera: '\u{1F1E8}\u{1F1F3}', lang: 'zh-CN' },
 ];
 
-const LS_IDIOMAS  = 'dotir2-mem-idiomas';
+const LS_IDIOMAS = 'dotir2-mem-idiomas';
 const TEMA_EMOJIS = { frutas: '\u{1F34E}', transportes: '\u{1F697}', vegetales: '\u{1F966}' };
 
 const DORSOS = {
@@ -39,24 +39,24 @@ const DORSOS = {
   },
 };
 
-let _container  = null;
-let _temas      = [];
+let _container = null;
+let _temas = [];
 let _temaActivo = null;
-let _itemMap    = {};
-let _cartas     = [];
-let _volteadas  = [];
-let _bloqueado  = false;
-let _parejas    = 0;
+let _itemMap = {};
+let _cartas = [];
+let _volteadas = [];
+let _bloqueado = false;
+let _parejas = 0;
 
 let _idiomasActivos = new Set(
   JSON.parse(localStorage.getItem(LS_IDIOMAS) || '["es-MX"]')
 );
 
-const _q        = sel => _container?.querySelector(sel);
+const _q = sel => _container?.querySelector(sel);
 const _idiomaAl = () => { const a = [..._idiomasActivos]; return a[Math.floor(Math.random() * a.length)]; };
-const _nombre   = (item, idioma) => item[idioma] || item['es-MX'] || String(item.id);
-const _dorso    = id => DORSOS[id] || DORSOS.default;
-const _imgUrl   = item => (_temaActivo?.carpeta_img && item?.imagen)
+const _nombre = (item, idioma) => item[idioma] || item['es-MX'] || String(item.id);
+const _dorso = id => DORSOS[id] || DORSOS.default;
+const _imgUrl = item => (_temaActivo?.carpeta_img && item?.imagen)
   ? `${PICS_BASE}${_temaActivo.carpeta_img}${item.imagen}` : null;
 
 async function _cargarTemas() {
@@ -104,7 +104,7 @@ export async function resume(container) {
   _renderListaTemas();
 }
 
-export function onEnter() {}
+export function onEnter() { }
 export function onLeave() { TTS.stop(); }
 
 function _renderNavAcciones() {
@@ -422,9 +422,8 @@ function _renderListaTemas() {
       '<span class="mt-emoji">' + (TEMA_EMOJIS[meta.id] || '\u{1F3B4}') + '</span>' +
       '<div style="flex:1"><div class="mt-titulo">' + meta.titulo + '</div></div>' +
       '<span style="color:rgba(255,255,255,.3);font-size:1.2rem">›</span>';
-    btn.addEventListener('click', async () => {
-      _cerrarModal();
-      await _activarTema(meta);
+    btn.addEventListener('click', () => {
+      _activarTema(meta);   // ya no hace await aquí, y _cerrarModal está dentro
     });
     lista.appendChild(btn);
   });
@@ -434,10 +433,15 @@ function _renderListaTemas() {
 let _introTimeout = null;
 
 async function _activarTema(meta) {
-  // Cancelar cualquier intro pendiente antes de cargar el nuevo tema
   if (_introTimeout) { clearTimeout(_introTimeout); _introTimeout = null; }
+  _cerrarModal();
+  // Esperar a que la animación de cierre del modal termine (350ms)
+  // antes de cargar y renderizar el tema
+  await new Promise(r => setTimeout(r, 360));
+  if (!_container) return;   // guard: pudo haberse destruido mientras esperaba
   try {
     const datos = await _cargarTema(meta);
+    if (!_container) return;   // guard: pudo destruirse durante el fetch
     _temaActivo = datos;
     _itemMap = {};
     datos.items.forEach(item => { _itemMap[item.id] = item; });
@@ -450,7 +454,10 @@ async function _activarTema(meta) {
 }
 
 function _mostrarIntro() {
-  if (!_temaActivo) return;
+  if (!_temaActivo || !_container) return;
+  const intro = _q('#mem-intro');
+  if (!intro) return;
+
   _q('#mem-intro-titulo').textContent = _temaActivo.titulo;
   const el = _q('#mem-intro-elementos');
   el.innerHTML = '';
@@ -459,8 +466,8 @@ function _mostrarIntro() {
     if (!url) return;
     const div = document.createElement('div');
     div.className = 'mem-flotar';
-    div.style.animationDelay    = `${(i % 8) * 0.18}s`;
-    div.style.animationDuration = `${2.2 + (i % 4) * 0.3}s`;
+    div.style.animationDelay = (i % 8) * 0.18 + 's';
+    div.style.animationDuration = (2.2 + (i % 4) * 0.3) + 's';
     const img = document.createElement('img');
     img.src = url; img.alt = item['es-MX'] || '';
     img.style.cssText = 'width:54px;height:54px;object-fit:contain;border-radius:8px;';
@@ -468,11 +475,13 @@ function _mostrarIntro() {
     div.appendChild(img);
     el.appendChild(div);
   });
-  _q('#mem-intro').classList.remove('oculto');
+
+  intro.classList.add('visible');   // FIX: era remove('oculto')
+
   _introTimeout = setTimeout(() => {
     _introTimeout = null;
-    if (!_container) return;   // guard: si el módulo ya se destruyó, no hacer nada
-    _q('#mem-intro')?.classList.add('oculto');
+    if (!_container) return;
+    _q('#mem-intro')?.classList.remove('visible');   // FIX: era add('oculto')
     _iniciarJuego();
   }, 2200);
 }
@@ -491,7 +500,7 @@ function _iniciarJuego() {
   _q('#mem-stack-wrap').innerHTML = '';
 
   const vict = _q('#mem-victoria'), trofeo = _q('#mem-trofeo');
-  if (vict)   { vict.classList.add('oculto'); vict.style.opacity = ''; }
+  if (vict) { vict.classList.add('oculto'); vict.style.opacity = ''; }
   if (trofeo) { trofeo.style.transform = 'scale(0)'; trofeo.style.opacity = '0'; }
 
   const gridWrap = _q('#mem-grid-wrap');
@@ -505,24 +514,25 @@ function _iniciarJuego() {
 
 function _renderGrid() {
   const grid = _q('#mem-grid');
+  if (!grid) return;   // guard
   grid.innerHTML = '';
   const dorso = _dorso(_temaActivo?.id);
   _cartas.forEach((carta, i) => {
-    const item   = _itemMap[carta.itemId];
-    const url    = _imgUrl(item);
+    const item = _itemMap[carta.itemId];
+    const url = _imgUrl(item);
     const nombre = item ? _nombre(item, 'es-MX') : String(carta.itemId);
-    const celda  = document.createElement('div');
+    const celda = document.createElement('div');
     celda.className = 'mem-celda';
     celda.style.animationDelay = (i * 0.025) + 's';
     celda.innerHTML =
       '<div class="mem-carta" data-idx="' + i + '">' +
-        '<div class="mem-cara mem-dorso" style="background:' + dorso.bg + '">' + dorso.svg + '</div>' +
-        '<div class="mem-cara mem-frente">' +
-          (url
-            ? '<img src="' + url + '" alt="' + nombre + '" onerror="this.style.opacity=\'.15\'">'
-            : '<span style="font-size:1.4rem">' + nombre + '</span>') +
-          '<span class="mem-label">' + nombre + '</span>' +
-        '</div>' +
+      '<div class="mem-cara mem-dorso" style="background:' + dorso.bg + '">' + dorso.svg + '</div>' +
+      '<div class="mem-cara mem-frente">' +
+      (url
+        ? '<img src="' + url + '" alt="' + nombre + '" onerror="this.style.opacity=\'.15\'">'
+        : '<span style="font-size:1.4rem">' + nombre + '</span>') +
+      '<span class="mem-label">' + nombre + '</span>' +
+      '</div>' +
       '</div>';
     celda.querySelector('.mem-carta').addEventListener('click', () => _voltear(i));
     grid.appendChild(celda);
@@ -539,8 +549,8 @@ function _voltear(idx) {
   _bloqueado = true;
   const [a, b] = _volteadas;
   if (_cartas[a].itemId === _cartas[b].itemId) {
-    const item    = _itemMap[_cartas[a].itemId];
-    const idioma  = _idiomaAl();
+    const item = _itemMap[_cartas[a].itemId];
+    const idioma = _idiomaAl();
     const langObj = IDIOMAS.find(l => l.id === idioma);
     TTS.speak(_nombre(item, idioma), { lang: langObj?.lang || 'es-MX', pitch: 1.2, rate: .9, delay: 250 });
     setTimeout(() => {
@@ -563,11 +573,11 @@ function _voltear(idx) {
 }
 
 function _agregarStack(itemId, idioma) {
-  const item   = _itemMap[itemId];
+  const item = _itemMap[itemId];
   const nombre = _nombre(item, idioma);
-  const url    = _imgUrl(item);
-  const stack  = _q('#mem-stack-wrap');
-  const tile   = document.createElement('div');
+  const url = _imgUrl(item);
+  const stack = _q('#mem-stack-wrap');
+  const tile = document.createElement('div');
   tile.className = 'mem-par-tile';
   tile.dataset.nombre = nombre;
   if (url) {
@@ -579,9 +589,9 @@ function _agregarStack(itemId, idioma) {
     tile.style.cssText += ';display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:#1a1a2e;text-align:center;padding:4px;';
   }
   tile.addEventListener('click', () => {
-    const id2  = _idiomaAl();
+    const id2 = _idiomaAl();
     const nom2 = _nombre(item, id2);
-    const lo   = IDIOMAS.find(l => l.id === id2);
+    const lo = IDIOMAS.find(l => l.id === id2);
     tile.dataset.nombre = nom2;
     tile.classList.add('mostrar-nombre');
     TTS.speak(nom2, { lang: lo?.lang || 'es-MX', pitch: 1.2, rate: .9 });
@@ -595,7 +605,7 @@ function _victoria() {
   lanzarConfeti({ container: _q('#mem-wrap') });
   TTS.speak('Muy bien!', { lang: 'es-MX', pitch: 1.3, rate: .9 });
   const vict = _q('#mem-victoria'), trofeo = _q('#mem-trofeo');
-  if (vict)   { vict.classList.remove('oculto'); vict.style.opacity = '1'; }
+  if (vict) { vict.classList.remove('oculto'); vict.style.opacity = '1'; }
   if (trofeo) {
     requestAnimationFrame(() => {
       trofeo.style.transform = 'scale(1)'; trofeo.style.opacity = '1';
@@ -604,7 +614,7 @@ function _victoria() {
   setTimeout(() => {
     if (vict) vict.style.opacity = '0';
     setTimeout(() => {
-      if (vict)   { vict.classList.add('oculto'); vict.style.opacity = ''; }
+      if (vict) { vict.classList.add('oculto'); vict.style.opacity = ''; }
       if (trofeo) { trofeo.style.transform = 'scale(0)'; trofeo.style.opacity = '0'; }
       _cartas = [];
       _mostrarModalTemas();
