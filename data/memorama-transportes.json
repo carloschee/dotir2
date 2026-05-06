@@ -2,7 +2,7 @@
   "id": "transportes",
   "titulo": "Transportes",
   "icono": "transportes-icono.png",
-  "carpeta_img": "memorama/transportes/img/",
+  "carpeta_img": "assets/memorama/transportes/",
   "items": [
     {
       "id": 201,

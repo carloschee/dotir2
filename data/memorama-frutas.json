@@ -2,7 +2,7 @@
   "id": "frutas",
   "titulo": "Frutas",
   "icono": "frutas-icono.png",
-  "carpeta_img": "memorama/frutas/img/",
+  "carpeta_img": "assets/memorama/frutas/",
   "items": [
     {
       "id": 101,

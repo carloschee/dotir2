@@ -2,7 +2,7 @@
   "id": "vegetales",
   "titulo": "Vegetales",
   "icono": "vegetales-icono.png",
-  "carpeta_img": "memorama/vegetales/img/",
+  "carpeta_img": "assets/memorama/vegetales/",
   "items": [
     {
       "id": 301,
