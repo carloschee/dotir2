@@ -70,7 +70,7 @@ function _renderShell() {
     '#mus-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:transparent; padding:10px 10px 0; gap:10px; }' +
 
     /* Panel del visualizador */
-    '#mus-viz-marco { flex:1; min-height:0; border-radius:20px; border:1.5px solid rgba(255,255,255,0.75); background:rgba(0,0,0,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); overflow:hidden; position:relative; }' +
+    '#mus-viz-marco { flex:1; min-height:0; border-radius:20px; border:1.5px solid rgba(255,255,255,0.35); background:rgba(0,0,0,0.65); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); overflow:hidden; position:relative; }' +
 
     '#mus-canvas { position:absolute; inset:0; width:100%; height:100%; }' +
     '#mus-portada-bg { position:absolute; inset:0; background-size:cover; background-position:center; opacity:0.10; transition:background-image 0.6s; border-radius:20px; }' +
