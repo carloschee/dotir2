@@ -848,6 +848,18 @@
     }
 
     window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
+    window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
+
+const btnAjustes = document.createElement('button');
+btnAjustes.id = 'btn-ajustes-header';
+btnAjustes.title = 'Ajustes';
+btnAjustes.style.cssText = 'width:32px;height:32px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);font-size:1.1rem;flex-shrink:0;transition:color .15s;';
+btnAjustes.innerHTML = '&#9881;&#65039;';
+btnAjustes.addEventListener('click', () => { abrirPin(AjustesModule); });
+document.getElementById('header-derecha')?.insertBefore(btnAjustes, document.getElementById('indicador-offline'));
+
+MediaStop.montar();
+
     MediaStop.montar();
 
     // ── Wake Lock: mantiene la pantalla encendida ─────────────────
