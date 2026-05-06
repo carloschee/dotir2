@@ -485,7 +485,7 @@ function _formatTiempo() {
   const min = Math.floor(_restaSeg / 60);
   const seg = _restaSeg % 60;
   if (_modo === 'min') return min + ' min';
-  return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0'));
+  return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
 }
 
 // ── Dibujo en canvas ───────────────────────────────────────────
