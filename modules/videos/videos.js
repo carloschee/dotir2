@@ -102,16 +102,6 @@ function _renderShell() {
       '</div>' +
       '<div id="vid-cintillo-wrap"></div>' +
     '</div>';
-
-  const marco = _q('#vid-marco');
-  marco.addEventListener('touchstart', e => { _touchX0 = e.touches[0].clientX; }, { passive: true });
-  marco.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - _touchX0;
-    if (Math.abs(dx) > 60) {
-      if (dx < 0) _reproducirIdx((VideoManager.idx ?? -1) + 1);
-      else        _reproducirIdx((VideoManager.idx ?? 1)  - 1);
-    }
-  }, { passive: true });
 }
 
 function _renderCintillo() {
