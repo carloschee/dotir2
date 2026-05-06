@@ -227,7 +227,8 @@
 
     #app-header {
       flex-shrink: 0;
-      height: var(--d-nav-h);
+  height: calc(var(--d-nav-h) + var(--safe-top));
+  padding-top: var(--safe-top);
       display: flex;
       align-items: center;
       padding: 0 12px;
