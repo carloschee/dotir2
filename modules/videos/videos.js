@@ -83,10 +83,10 @@ function _renderShell() {
   _container.innerHTML =
     '<style>' +
     '#vid-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:transparent; padding:10px 10px 0; gap:10px; }' +
-    '#vid-marco { flex:1; min-height:0; border-radius:20px; border:1.5px solid rgba(255,255,255,0.25); background:rgba(0,0,0,0.45); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }' +
+    '#vid-marco { flex:1; min-height:0; border-radius:20px; border:1.5px solid rgba(255,255,255,0.25); background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }' +
     '#vid-vacio { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:rgba(255,255,255,0.3); font-size:0.9rem; font-weight:700; pointer-events:none; }' +
     '#vid-vacio span { font-size:3rem; }' +
-    '#vid-cintillo-wrap { flex-shrink:0; height:108px; background:rgba(0,0,0,0.30); border:1.5px solid rgba(255,255,255,0.12); border-radius:16px; margin-bottom:10px; display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
+    '#vid-cintillo-wrap { flex-shrink:0; height:108px; background:rgba(0,0,0,0.60); border:1.5px solid rgba(255,255,255,0.12); border-radius:16px; margin-bottom:10px; display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
     '#vid-cintillo-wrap::-webkit-scrollbar { display:none; }' +
     '.vid-tile { flex-shrink:0; width:140px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; scroll-snap-align:start; border-radius:10px; padding:5px 4px; transition:background 0.15s; }' +
     '.vid-tile:active { background:rgba(255,255,255,0.08); }' +
