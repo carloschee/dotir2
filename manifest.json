@@ -60,42 +60,42 @@
 
   "screenshots": [
     {
-    "src": "assets/img/screenshot-menu.png",
+    "src": "assets/ui/screenshot-menu.png",
     "sizes": "1180x820",
     "type": "image/png",
     "form_factor": "wide",
     "label": "Menu principal de Dotir"
   },
   {
-    "src": "assets/img/screenshot-comunicador.png",
+    "src": "assets/ui/screenshot-comunicador.png",
     "sizes": "1180x820",
     "type": "image/png",
     "form_factor": "wide",
     "label": "Tablero de comunicacion SAAC"
   },
   {
-    "src": "assets/img/screenshot-memorama.png",
+    "src": "assets/ui/screenshot-memorama.png",
     "sizes": "1180x820",
     "type": "image/png",
     "form_factor": "wide",
     "label": "Memorama"
   },
   {
-    "src": "assets/img/screenshot-musica.png",
+    "src": "assets/ui/screenshot-musica.png",
     "sizes": "1180x820",
     "type": "image/png",
     "form_factor": "wide",
     "label": "Reproductor de musica"
   },
   {
-    "src": "assets/img/screenshot-videos.png",
+    "src": "assets/ui/screenshot-videos.png",
     "sizes": "1180x820",
     "type": "image/png",
     "form_factor": "wide",
     "label": "Reproductor de videos"
   },
   {
-    "src": "assets/img/screenshot-libros.png",
+    "src": "assets/ui/screenshot-libros.png",
     "sizes": "1180x820",
     "type": "image/png",
     "form_factor": "wide",
