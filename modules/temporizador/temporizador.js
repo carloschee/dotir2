@@ -105,12 +105,7 @@ function _renderShell() {
         position: relative;
       }
 
-      #timer-canvas-wrap {
-        position: relative;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer;
-        user-select: none; -webkit-user-select: none;
-      }
+      #timer-canvas-wrap { position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; -webkit-user-select:none; width:min(70vw,70vh,480px); height:min(70vw,70vh,480px); }
 
       #timer-canvas {
         border-radius: 50%;
