@@ -275,27 +275,59 @@ async function _descargarTodo() {
   txt.textContent = 'Recopilando recursos...';
 
   const urls = new Set([
-    './index.html','./manifest.json',
-    './core/tts.js','./core/offline.js','./core/ui.js','./core/audio.js',
-    './modules/saac/module.js','./modules/saac/saac.js',
-    './modules/memorama/module.js','./modules/memorama/memorama.js',
-    './modules/ajustes/module.js','./modules/ajustes/ajustes.js',
+    // Shell
+    './index.html', './manifest.json', './sw.js',
+    './core/tts.js', './core/offline.js', './core/ui.js', './core/audio.js',
+    // UI
+    './assets/ui/btn-comunicador.png', './assets/ui/btn-memorama.png',
+    './assets/ui/btn-musica.png', './assets/ui/btn-libros.png',
+    './assets/ui/btn-videos.png', './assets/ui/btn-ajustes.png',
+    './assets/ui/btn-inicio.png', './assets/ui/favicon.png',
+    // Modulos
+    './modules/saac/module.js',      './modules/saac/saac.js',
+    './modules/memorama/module.js',  './modules/memorama/memorama.js',
+    './modules/musica/module.js',    './modules/musica/musica.js',
+    './modules/libros/module.js',    './modules/libros/libros.js',
+    './modules/videos/module.js',    './modules/videos/videos.js',
+    './modules/ajustes/module.js',   './modules/ajustes/ajustes.js',
+    // Datos base
     './data/saac.json',
+    './data/audios.json', './data/videos.json', './data/libros.json',
     './data/memorama-temas.json',
-    './data/memorama-frutas.json',
-    './data/memorama-transportes.json',
-    './data/memorama-vegetales.json',
   ]);
 
-  (window.DotirApp?.MODULE_REGISTRY || []).forEach(m =>
-    m.cache?.forEach(u => urls.add(u))
-  );
+  // Llamar buildCache() en cada modulo que lo tenga
+  const registry = window.DotirApp?.MODULE_REGISTRY || [];
+  for (const mod of registry) {
+    try {
+      const cache = mod.buildCache
+        ? await mod.buildCache()
+        : (mod.cache || []);
+      cache.forEach(u => urls.add(u));
+    } catch (_) {}
+  }
 
+  // Imagenes de pictogramas del SAAC
+  try {
+    const r = await fetchTimeout('./data/saac.json', 6000);
+    if (r.ok) {
+      const data = await r.json();
+      const cats = data.categorias || data;
+      (Array.isArray(cats) ? cats : Object.values(cats)).forEach(cat => {
+        (cat.items || []).forEach(item => {
+          if (item.imagen) urls.add('./assets/pics/' + item.imagen);
+        });
+      });
+    }
+  } catch (_) {}
+
+  // Imagenes del memorama
   try {
     const r = await fetchTimeout('./data/memorama-temas.json', 5000);
     if (r.ok) {
       const temas = await r.json();
       for (const meta of temas) {
+        urls.add('./' + meta.archivo);
         try {
           const r2 = await fetchTimeout('./' + meta.archivo, 5000);
           if (r2.ok) {
@@ -321,10 +353,10 @@ async function _descargarTodo() {
   bar.style.width      = '100%';
   bar.style.background = ok === total ? '#22c55e' : '#f59e0b';
   txt.textContent      = ok === total
-    ? ok + ' archivos descargados'
+    ? ok + ' archivos listos'
     : ok + ' de ' + total + ' descargados';
 
   lanzarConfeti({ count: 40, container: _container });
-  toast('Descarga completada', { emoji: '📥' });
+  toast('Descarga completada', { emoji: '\u{1F4E5}' });
   btn.disabled = false;
 }
