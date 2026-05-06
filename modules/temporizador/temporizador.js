@@ -300,10 +300,15 @@ function _toggleConfig() {
 function _ajustarCanvas() {
   const canvas = _q('#timer-canvas');
   if (!canvas) return;
-  const wrap = _q('#timer-canvas-wrap');
-  const size = Math.min(wrap.offsetWidth || 300, wrap.offsetHeight || 300, 380);
-  canvas.width  = size;
-  canvas.height = size;
+  const wrap = _q('#timer-wrap');
+  if (!wrap) return;
+  const size = Math.min(
+    wrap.offsetWidth  * 0.85,
+    wrap.offsetHeight * 0.75,
+    500
+  );
+  canvas.width  = Math.floor(size);
+  canvas.height = Math.floor(size);
   _dibujar();
 }
 
