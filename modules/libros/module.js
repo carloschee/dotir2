@@ -16,7 +16,7 @@ async function _buildCache() {
 
 export default {
   id: 'libros', label: 'Libros', desc: 'Visor PDF',
-  emoji: '\u{1F4DA}', color: '#10B981', orden: 4,
+  emoji: '\u{1F4DA}', color: '#10B981', orden: 5,
   habilitado: true, requierePin: false,
   init, destroy, onEnter, onLeave, pause, resume,
   cache: [],
