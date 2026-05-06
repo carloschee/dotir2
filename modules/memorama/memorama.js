@@ -87,6 +87,7 @@ export async function init(container) {
 }
 
 export function destroy() {
+  if (_introTimeout) { clearTimeout(_introTimeout); _introTimeout = null; }
   _cartas = []; _volteadas = [];
   _temaActivo = null; _container = null;
   document.getElementById('modulo-acciones')?.replaceChildren();
@@ -429,35 +430,37 @@ function _renderListaTemas() {
   });
 }
 
+// Agregar esta variable junto al resto del estado
+let _introTimeout = null;
+
 async function _activarTema(meta) {
+  // Cancelar cualquier intro pendiente antes de cargar el nuevo tema
+  if (_introTimeout) { clearTimeout(_introTimeout); _introTimeout = null; }
   try {
     const datos = await _cargarTema(meta);
     _temaActivo = datos;
     _itemMap = {};
     datos.items.forEach(item => { _itemMap[item.id] = item; });
+    TTS.speak(datos.titulo, { lang: 'es-MX', pitch: 1.2, rate: .95 });
     _mostrarIntro();
   } catch (e) {
     console.error('[Memorama]', e);
-    toast('Error al cargar el tema', { emoji: '\u274C' });
+    toast('Error al cargar el tema', { emoji: '❌' });
   }
 }
 
 function _mostrarIntro() {
   if (!_temaActivo) return;
-  const intro = _q('#mem-intro');
-  if (!intro) { _iniciarJuego(); return; }
-
   _q('#mem-intro-titulo').textContent = _temaActivo.titulo;
   const el = _q('#mem-intro-elementos');
   el.innerHTML = '';
-
   _temaActivo.items.forEach((item, i) => {
     const url = _imgUrl(item);
     if (!url) return;
     const div = document.createElement('div');
     div.className = 'mem-flotar';
-    div.style.animationDelay    = (i % 8) * 0.18 + 's';
-    div.style.animationDuration = (2.2 + (i % 4) * 0.3) + 's';
+    div.style.animationDelay    = `${(i % 8) * 0.18}s`;
+    div.style.animationDuration = `${2.2 + (i % 4) * 0.3}s`;
     const img = document.createElement('img');
     img.src = url; img.alt = item['es-MX'] || '';
     img.style.cssText = 'width:54px;height:54px;object-fit:contain;border-radius:8px;';
@@ -465,14 +468,12 @@ function _mostrarIntro() {
     div.appendChild(img);
     el.appendChild(div);
   });
-
-  TTS.speak(_temaActivo.titulo, { lang: 'es-MX', pitch: 1.2, rate: .95 });
-
-  requestAnimationFrame(() => { intro.classList.add('visible'); });
-
-  setTimeout(() => {
-    intro.classList.remove('visible');
-    setTimeout(() => { _iniciarJuego(); }, 420);
+  _q('#mem-intro').classList.remove('oculto');
+  _introTimeout = setTimeout(() => {
+    _introTimeout = null;
+    if (!_container) return;   // guard: si el módulo ya se destruyó, no hacer nada
+    _q('#mem-intro')?.classList.add('oculto');
+    _iniciarJuego();
   }, 2200);
 }
 
