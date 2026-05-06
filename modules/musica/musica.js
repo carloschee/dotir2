@@ -70,7 +70,7 @@ function _renderShell() {
     '#mus-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:transparent; padding:10px 10px 0; gap:10px; }' +
 
     /* Panel del visualizador */
-    '#mus-viz-marco { flex:1; min-height:0; border-radius:20px; border:1.5px solid rgba(255,255,255,0.25); background:rgba(0,0,0,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); overflow:hidden; position:relative; }' +
+    '#mus-viz-marco { flex:1; min-height:0; border-radius:20px; border:1.5px solid rgba(255,255,255,0.65); background:rgba(0,0,0,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); overflow:hidden; position:relative; }' +
 
     '#mus-canvas { position:absolute; inset:0; width:100%; height:100%; }' +
     '#mus-portada-bg { position:absolute; inset:0; background-size:cover; background-position:center; opacity:0.10; transition:background-image 0.6s; border-radius:20px; }' +
@@ -82,7 +82,7 @@ function _renderShell() {
     '#mus-hint { position:absolute; top:10px; right:14px; color:rgba(255,255,255,0.22); font-size:0.58rem; font-weight:700; pointer-events:none; }' +
 
     /* Panel del cintillo */
-    '#mus-cintillo-wrap { flex-shrink:0; height:108px; border-radius:16px; border:1.5px solid rgba(255,255,255,0.12); background:rgba(0,0,0,0.30); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); margin-bottom:10px; display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
+    '#mus-cintillo-wrap { flex-shrink:0; height:108px; border-radius:16px; border:1.5px solid rgba(255,255,255,0.12); background:rgba(0,0,0,0.60); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); margin-bottom:10px; display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
     '#mus-cintillo-wrap::-webkit-scrollbar { display:none; }' +
 
     '.mus-track { flex-shrink:0; width:80px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; scroll-snap-align:start; border-radius:10px; padding:5px 4px; transition:background 0.15s; }' +
