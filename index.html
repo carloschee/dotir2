@@ -661,13 +661,14 @@
     });
 
     const MODULE_REGISTRY = [
-      SaacModule,
-      MemoramaModule,
-      MusicaModule,
-      AjustesModule,
-      LibrosModule,
-      VideosModule,
-    ].filter(m => m.habilitado).sort((a, b) => a.orden - b.orden);
+  SaacModule,           // orden 1
+  MemoramaModule,       // orden 2
+  MusicaModule,         // orden 3
+  TemporizadorModule,   // orden 4
+  LibrosModule,         // orden 5  <- cambia orden a 5
+  VideosModule,         // orden 6  <- cambia orden a 6
+].filter(m => m.habilitado && m.id !== 'ajustes')
+ .sort((a, b) => a.orden - b.orden);
 
     const UI_IMGS = {
       saac: 'assets/ui/btn-comunicador.png',
