@@ -394,128 +394,184 @@ function _formatTiempo() {
   }
   return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
 }
+function _ajustarCanvas() {
+  const canvas = _q('#timer-canvas');
+  if (!canvas) return;
+  const wrap = _q('#timer-canvas-wrap');
+  const ww = wrap.offsetWidth  || 340;
+  const wh = wrap.offsetHeight || 340;
+  const size = Math.min(ww, wh, 500);
+  canvas.width  = size;
+  canvas.height = size;
+  _dibujar();
+}
 
 function _dibujar() {
   const canvas = _q('#timer-canvas');
   if (!canvas) return;
-  const ctx  = canvas.getContext('2d');
-  const W    = canvas.width;
-  const H    = canvas.height;
-  const cx   = W / 2;
-  const cy   = H / 2;
-  const R    = W * 0.46;
-  const Ri   = W * 0.34;
+  const ctx = canvas.getContext('2d');
+  const W   = canvas.width;
+  const H   = canvas.height;
+  const cx  = W / 2;
+  const cy  = H / 2;
+  const R   = W * 0.46;   // radio exterior del arco
+  const Ri  = W * 0.30;   // radio interior (grosor del arco)
+  const lw  = R - Ri;     // grosor
 
   ctx.clearRect(0, 0, W, H);
 
-  // Fondo esfera
-  const bgGrad = ctx.createRadialGradient(cx, cy - R * 0.2, R * 0.1, cx, cy, R);
+  // ── Fondo esfera ────────────────────────────────────────────
+  const bgGrad = ctx.createRadialGradient(cx, cy - R * 0.15, R * 0.05, cx, cy, R);
   bgGrad.addColorStop(0, '#2a2a4a');
-  bgGrad.addColorStop(1, '#0f0f1e');
+  bgGrad.addColorStop(1, '#0d0d1e');
   ctx.beginPath();
   ctx.arc(cx, cy, R, 0, Math.PI * 2);
   ctx.fillStyle = bgGrad;
   ctx.fill();
 
-  // Borde exterior
+  // borde exterior
   ctx.beginPath();
   ctx.arc(cx, cy, R, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  ctx.lineWidth = W * 0.012;
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+  ctx.lineWidth   = W * 0.010;
   ctx.stroke();
 
-  // Marcas del reloj
+  // ── Marcas y numeros ────────────────────────────────────────
   for (let i = 0; i < 60; i++) {
-    const ang = (i / 60) * Math.PI * 2 - Math.PI / 2;
-    const esMayor = i % 5 === 0;
-    const r1 = R * (esMayor ? 0.88 : 0.92);
-    const r2 = R * 0.96;
+    const ang    = (i / 60) * Math.PI * 2 - Math.PI / 2;
+    const mayor  = i % 5 === 0;
+    const r1     = R * (mayor ? 0.86 : 0.91);
+    const r2     = R * 0.96;
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(ang) * r1, cy + Math.sin(ang) * r1);
     ctx.lineTo(cx + Math.cos(ang) * r2, cy + Math.sin(ang) * r2);
-    ctx.strokeStyle = esMayor ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)';
-    ctx.lineWidth = esMayor ? W * 0.008 : W * 0.004;
+    ctx.strokeStyle = mayor ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.12)';
+    ctx.lineWidth   = mayor ? W * 0.007 : W * 0.003;
     ctx.stroke();
   }
-
-  // Numeros cada 5 min
-  ctx.fillStyle = 'rgba(255,255,255,0.55)';
-  ctx.font = `bold ${W * 0.055}px system-ui`;
-  ctx.textAlign = 'center';
+  ctx.font         = 'bold ' + (W * 0.052) + 'px system-ui';
+  ctx.textAlign    = 'center';
   ctx.textBaseline = 'middle';
+  ctx.fillStyle    = 'rgba(255,255,255,0.45)';
   for (let i = 0; i < 12; i++) {
     const num = i * 5;
     const ang = (num / 60) * Math.PI * 2 - Math.PI / 2;
-    const r   = R * 0.78;
+    const r   = R * 0.76;
     ctx.fillText(String(num), cx + Math.cos(ang) * r, cy + Math.sin(ang) * r);
   }
 
-  // Arco de tiempo restante
+  // ── Arco de arcoiris decreciente ────────────────────────────
   if (_totalSeg > 0) {
-    const progreso = _restaSeg / _totalSeg;
+    const progreso  = Math.max(0, _restaSeg / _totalSeg);
     const angInicio = -Math.PI / 2;
     const angFin    = angInicio + progreso * Math.PI * 2;
+    const arcR      = (R + Ri) / 2;
 
-    // Color: verde -> amarillo -> rojo segun tiempo restante
-    let color;
-    if (progreso > 0.5)      color = '#22c55e';
-    else if (progreso > 0.25) color = '#f59e0b';
-    else                      color = '#ef4444';
+    // Colores del arcoiris: rojo -> naranja -> amarillo -> verde -> azul -> violeta
+    const colores = [
+      '#EF4444', // rojo
+      '#F97316', // naranja
+      '#EAB308', // amarillo
+      '#22C55E', // verde
+      '#3B82F6', // azul
+      '#8B5CF6', // violeta
+    ];
 
-    // Sombra glow del arco
-    ctx.shadowColor = color;
-    ctx.shadowBlur  = W * 0.04;
+    const totalAng = progreso * Math.PI * 2;
+    const segmentos = colores.length;
 
-    const arcGrad = ctx.createConicalGradient
-      ? null // no disponible en todos los browsers
-      : null;
-
+    // Fondo gris del arco completo (tiempo transcurrido)
     ctx.beginPath();
-    ctx.arc(cx, cy, (R + Ri) / 2, angInicio, angFin);
-    ctx.strokeStyle = color;
-    ctx.lineWidth   = (R - Ri);
-    ctx.lineCap     = 'round';
+    ctx.arc(cx, cy, arcR, angInicio, angInicio + Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth   = lw;
+    ctx.lineCap     = 'butt';
     ctx.stroke();
 
-    ctx.shadowBlur = 0;
-    ctx.lineCap    = 'butt';
+    // Sombra glow debajo del arco
+    ctx.shadowColor = 'rgba(255,255,255,0.15)';
+    ctx.shadowBlur  = lw * 0.6;
 
-    // Punta del arco (indicador)
+    // Dibujar cada segmento de color del arcoiris
+    for (let s = 0; s < segmentos; s++) {
+      const a0 = angInicio + (s / segmentos) * totalAng;
+      const a1 = angInicio + ((s + 1) / segmentos) * totalAng;
+      if (a1 <= a0) continue;
+      ctx.beginPath();
+      ctx.arc(cx, cy, arcR, a0, a1);
+      ctx.strokeStyle = colores[s];
+      ctx.lineWidth   = lw * 0.85;
+      ctx.lineCap     = 'butt';
+      ctx.stroke();
+    }
+
+    ctx.shadowBlur = 0;
+
+    // Separadores entre segmentos (lineas sutiles)
+    if (progreso > 0.02) {
+      for (let s = 1; s < segmentos; s++) {
+        const ang = angInicio + (s / segmentos) * totalAng;
+        const x1  = cx + Math.cos(ang) * Ri;
+        const y1  = cy + Math.sin(ang) * Ri;
+        const x2  = cx + Math.cos(ang) * R;
+        const y2  = cy + Math.sin(ang) * R;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+        ctx.lineWidth   = W * 0.004;
+        ctx.stroke();
+      }
+    }
+
+    // Indicador blanco en la punta del arco
     if (progreso > 0.01) {
       ctx.beginPath();
       ctx.arc(
-        cx + Math.cos(angFin) * (R + Ri) / 2,
-        cy + Math.sin(angFin) * (R + Ri) / 2,
-        (R - Ri) * 0.55, 0, Math.PI * 2
+        cx + Math.cos(angFin) * arcR,
+        cy + Math.sin(angFin) * arcR,
+        lw * 0.52, 0, Math.PI * 2
       );
-      ctx.fillStyle = 'white';
-      ctx.shadowColor = 'rgba(255,255,255,0.8)';
-      ctx.shadowBlur  = W * 0.03;
+      ctx.fillStyle   = 'white';
+      ctx.shadowColor = 'rgba(255,255,255,0.9)';
+      ctx.shadowBlur  = lw * 0.5;
       ctx.fill();
       ctx.shadowBlur = 0;
     }
   }
 
-  // Centro interior (hub)
-  const hubGrad = ctx.createRadialGradient(cx, cy - Ri * 0.1, Ri * 0.05, cx, cy, Ri);
-  hubGrad.addColorStop(0, '#1e1e3a');
+  // ── Centro interior (hub) ────────────────────────────────────
+  const hubGrad = ctx.createRadialGradient(cx, cy - Ri * 0.08, Ri * 0.04, cx, cy, Ri * 0.98);
+  hubGrad.addColorStop(0, '#252540');
   hubGrad.addColorStop(1, '#0a0a18');
   ctx.beginPath();
   ctx.arc(cx, cy, Ri, 0, Math.PI * 2);
   ctx.fillStyle = hubGrad;
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-  ctx.lineWidth   = W * 0.006;
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth   = W * 0.005;
   ctx.stroke();
 
-  // Actualizar texto
+  // boton central (hub fisico)
+  const hubBtn = ctx.createRadialGradient(cx, cy - Ri * 0.15, Ri * 0.05, cx, cy, Ri * 0.35);
+  hubBtn.addColorStop(0, '#3a3a5c');
+  hubBtn.addColorStop(1, '#1a1a2e');
+  ctx.beginPath();
+  ctx.arc(cx, cy, Ri * 0.22, 0, Math.PI * 2);
+  ctx.fillStyle = hubBtn;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth   = W * 0.005;
+  ctx.stroke();
+
+  // ── Texto ────────────────────────────────────────────────────
   const tiempo = _q('#timer-tiempo');
   const estado = _q('#timer-estado');
   if (tiempo) tiempo.textContent = _formatTiempo();
   if (estado) {
-    if (_totalSeg === 0)   estado.textContent = 'Configura el tiempo';
-    else if (_corriendo)   estado.textContent = 'En curso';
-    else if (_restaSeg <= 0) estado.textContent = 'Terminado';
-    else                   estado.textContent = 'Pausado';
+    if (_totalSeg === 0)      estado.textContent = 'Configura el tiempo';
+    else if (_corriendo)      estado.textContent = 'En curso';
+    else if (_restaSeg <= 0)  estado.textContent = 'Terminado';
+    else                      estado.textContent = 'Pausado';
   }
 }
