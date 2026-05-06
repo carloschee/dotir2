@@ -16,7 +16,7 @@ async function _buildCache() {
 
 export default {
   id: 'videos', label: 'Videos', desc: 'Reproductor video',
-  emoji: '\u{1F3AC}', color: '#EF4444', orden: 5,
+  emoji: '\u{1F3AC}', color: '#EF4444', orden: 6,
   habilitado: true, requierePin: false,
   init, destroy, onEnter, onLeave, pause, resume,
   cache: [],
