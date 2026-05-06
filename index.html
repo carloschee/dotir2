@@ -661,12 +661,13 @@
     });
 
     const MODULE_REGISTRY = [
-  SaacModule,           // orden 1
-  MemoramaModule,       // orden 2
-  MusicaModule,         // orden 3
-  TemporizadorModule,   // orden 4
-  LibrosModule,         // orden 5  <- cambia orden a 5
-  VideosModule,         // orden 6  <- cambia orden a 6
+  SaacModule,
+  MemoramaModule,
+  MusicaModule,
+  TemporizadorModule,
+  LibrosModule,
+  VideosModule,
+  AjustesModule,
 ].filter(m => m.habilitado && m.id !== 'ajustes')
  .sort((a, b) => a.orden - b.orden);
 
