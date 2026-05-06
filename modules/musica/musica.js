@@ -1,10 +1,7 @@
-/* Dotir 2 - modules/musica/musica.js
-   El boton Detener es global (montado en core/audio.js)
-   y persiste en toda la app - este modulo ya no lo gestiona.
-*/
+/* Dotir 2 - modules/musica/musica.js */
 
 import { fetchTimeout } from '../../core/offline.js';
-import AudioManager     from '../../core/audio.js';
+import AudioManager from '../../core/audio.js';
 
 const DATA_URL   = './data/audios.json';
 const AUDIO_BASE = './assets/audio/';
@@ -29,11 +26,10 @@ export async function init(container) {
   _iniciarAnimacion();
   AudioManager.onPlay(idx => _marcarCintillo(idx));
   AudioManager.onStop(() => {
-    if (_container) {
-      const titulo = _q('#mus-titulo');
-      if (titulo) titulo.textContent = 'Toca una cancion para reproducir';
-      _marcarCintillo(-1);
-    }
+    if (!_container) return;
+    const t = _q('#mus-titulo');
+    if (t) t.textContent = 'Toca una cancion para reproducir';
+    _marcarCintillo(-1);
   });
 }
 
@@ -42,16 +38,13 @@ export function destroy() {
   _container = null;
 }
 
-export function onEnter() {
-  _iniciarAnimacion();
-}
-
-export function onLeave() {
-  _detenerAnimacion();
-}
+export function onEnter() { _iniciarAnimacion(); }
+export function onLeave() { _detenerAnimacion(); }
 
 export function pause() {
   _detenerAnimacion();
+  const acc = document.getElementById('modulo-acciones');
+  if (acc) acc.replaceChildren();
 }
 
 export async function resume(container) {
@@ -65,7 +58,7 @@ async function _cargarCanciones() {
     const r = await fetchTimeout(DATA_URL, 6000);
     if (!r.ok) throw new Error('audios.json ' + r.status);
     return await r.json();
-  } catch (e) {
+  } catch(e) {
     console.error('[Musica]', e);
     return [];
   }
@@ -74,25 +67,35 @@ async function _cargarCanciones() {
 function _renderShell() {
   _container.innerHTML =
     '<style>' +
-    '#mus-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:transparent; position:relative; }' +
-    '#mus-viz-area { flex:1; min-height:0; position:relative; }' +
+    '#mus-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:transparent; padding:10px 10px 0; gap:10px; }' +
+
+    /* Panel del visualizador */
+    '#mus-viz-marco { flex:1; min-height:0; border-radius:20px; border:1.5px solid rgba(255,255,255,0.25); background:rgba(0,0,0,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); overflow:hidden; position:relative; }' +
+
     '#mus-canvas { position:absolute; inset:0; width:100%; height:100%; }' +
-    '#mus-portada-bg { position:absolute; inset:0; background-size:cover; background-position:center; opacity:0.12; transition:background-image 0.6s; }' +
+    '#mus-portada-bg { position:absolute; inset:0; background-size:cover; background-position:center; opacity:0.10; transition:background-image 0.6s; border-radius:20px; }' +
+
     '#mus-info { position:absolute; bottom:16px; left:0; right:0; text-align:center; pointer-events:none; padding:0 24px; }' +
-    '#mus-titulo { color:white; font-size:1.15rem; font-weight:900; text-shadow:0 2px 16px rgba(0,0,0,0.8); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }' +
-    '#mus-artista { color:rgba(255,255,255,0.55); font-size:0.82rem; font-weight:700; margin-top:4px; }' +
-    '#mus-hint { position:absolute; top:8px; right:12px; color:rgba(255,255,255,0.25); font-size:0.6rem; font-weight:700; pointer-events:none; }' +
-    '#mus-cintillo-wrap { flex-shrink:0; height:108px; background:rgba(0,0,0,0.55); border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
+    '#mus-titulo { color:white; font-size:1.1rem; font-weight:900; text-shadow:0 2px 16px rgba(0,0,0,0.8); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }' +
+    '#mus-artista { color:rgba(255,255,255,0.55); font-size:0.78rem; font-weight:700; margin-top:3px; }' +
+
+    '#mus-hint { position:absolute; top:10px; right:14px; color:rgba(255,255,255,0.22); font-size:0.58rem; font-weight:700; pointer-events:none; }' +
+
+    /* Panel del cintillo */
+    '#mus-cintillo-wrap { flex-shrink:0; height:108px; border-radius:16px; border:1.5px solid rgba(255,255,255,0.12); background:rgba(0,0,0,0.30); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); margin-bottom:10px; display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; gap:8px; padding:0 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }' +
     '#mus-cintillo-wrap::-webkit-scrollbar { display:none; }' +
+
     '.mus-track { flex-shrink:0; width:80px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; scroll-snap-align:start; border-radius:10px; padding:5px 4px; transition:background 0.15s; }' +
     '.mus-track:active { background:rgba(255,255,255,0.08); }' +
-    '.mus-track.activa { background:rgba(124,58,237,0.4); outline:2px solid rgba(124,58,237,0.8); }' +
-    '.mus-track-img { width:60px; height:60px; border-radius:8px; object-fit:cover; background:#1a1a2e; flex-shrink:0; }' +
+    '.mus-track.activa { background:rgba(124,58,237,0.40); outline:2px solid rgba(124,58,237,0.8); }' +
+
+    '.mus-track-img { width:60px; height:60px; border-radius:8px; object-fit:cover; background:rgba(255,255,255,0.08); flex-shrink:0; }' +
     '.mus-track-titulo { color:white; font-size:0.58rem; font-weight:800; text-align:center; line-height:1.2; max-width:76px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }' +
     '.mus-track-artista { color:rgba(255,255,255,0.4); font-size:0.52rem; font-weight:700; text-align:center; }' +
     '</style>' +
+
     '<div id="mus-wrap">' +
-      '<div id="mus-viz-area">' +
+      '<div id="mus-viz-marco">' +
         '<div id="mus-portada-bg"></div>' +
         '<canvas id="mus-canvas"></canvas>' +
         '<div id="mus-hint">Desliza para cambiar vista</div>' +
@@ -104,7 +107,7 @@ function _renderShell() {
       '<div id="mus-cintillo-wrap"></div>' +
     '</div>';
 
-  const viz = _q('#mus-viz-area');
+  const viz = _q('#mus-viz-marco');
   viz.addEventListener('touchstart', e => { _touchX0 = e.touches[0].clientX; }, { passive: true });
   viz.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - _touchX0;
@@ -132,8 +135,8 @@ function _renderCintillo() {
     div.className = 'mus-track' + (i === idxActual ? ' activa' : '');
     div.innerHTML =
       '<img class="mus-track-img" src="' + IMG_BASE + c.archivo + '.jpg" alt="' + c.titulo + '" onerror="this.style.opacity=\'0.15\'">' +
-      '<span class="mus-track-titulo">'  + c.titulo  + '</span>' +
-      '<span class="mus-track-artista">' + c.artista + '</span>';
+      '<span class="mus-track-titulo">' + c.titulo  + '</span>' +
+      '<span class="mus-track-artista">' + (c.artista || '') + '</span>';
 
     div.addEventListener('click', () => {
       AudioManager.play(i, AUDIO_BASE + c.archivo + '.mp3');
@@ -153,7 +156,7 @@ function _actualizarInfo(c) {
   const artista = _q('#mus-artista');
   const bg      = _q('#mus-portada-bg');
   if (titulo)  titulo.textContent  = c.titulo;
-  if (artista) artista.textContent = c.artista;
+  if (artista) artista.textContent = c.artista || '';
   if (bg)      bg.style.backgroundImage = 'url(' + IMG_BASE + c.archivo + '.jpg)';
 }
 
@@ -179,7 +182,7 @@ function _iniciarAnimacion() {
     _rafId = requestAnimationFrame(draw);
     const W = canvas.offsetWidth;
     const H = canvas.offsetHeight;
-    if (canvas.width !== W)  canvas.width  = W;
+    if (canvas.width  !== W) canvas.width  = W;
     if (canvas.height !== H) canvas.height = H;
 
     if (AudioManager.analyser) {
