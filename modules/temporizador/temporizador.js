@@ -1,7 +1,7 @@
 /* Dotir 2 - modules/temporizador/temporizador.js */
 
-import { TTS } from ‘../../core/tts.js’;
-import { lanzarConfeti } from ‘../../core/ui.js’;
+import { TTS } from '../../core/tts.js';
+import { lanzarConfeti } from '../../core/ui.js';
 
 const LS_MODO = ‘dotir2-timer-modo’;
 
