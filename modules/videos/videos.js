@@ -12,7 +12,6 @@ const VID_BASE = './assets/videos/';
 
 let _container = null;
 let _videos    = [];
-let _touchX0   = 0;
 
 const _q = sel => _container && _container.querySelector(sel);
 
