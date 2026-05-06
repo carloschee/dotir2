@@ -297,21 +297,6 @@ function _toggleConfig() {
   _q('#timer-hint').style.display = _configAbierta ? 'none' : '';
 }
 
-function _ajustarCanvas() {
-  const canvas = _q('#timer-canvas');
-  if (!canvas) return;
-  const wrap = _q('#timer-wrap');
-  if (!wrap) return;
-  const size = Math.min(
-    wrap.offsetWidth  * 0.85,
-    wrap.offsetHeight * 0.75,
-    500
-  );
-  canvas.width  = Math.floor(size);
-  canvas.height = Math.floor(size);
-  _dibujar();
-}
-
 function _iniciar(totalSeg) {
   _detener();
   _totalSeg  = totalSeg;
@@ -394,17 +379,22 @@ function _formatTiempo() {
   }
   return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
 }
+
 function _ajustarCanvas() {
   const canvas = _q('#timer-canvas');
   if (!canvas) return;
-  const wrap = _q('#timer-canvas-wrap');
-  const ww = wrap.offsetWidth  || 340;
-  const wh = wrap.offsetHeight || 340;
-  const size = Math.min(ww, wh, 500);
-  canvas.width  = size;
-  canvas.height = size;
+  const wrap = _q('#timer-wrap');
+  if (!wrap) return;
+  const size = Math.min(
+    wrap.offsetWidth  * 0.85,
+    wrap.offsetHeight * 0.75,
+    500
+  );
+  canvas.width  = Math.floor(size);
+  canvas.height = Math.floor(size);
   _dibujar();
 }
+
 
 function _dibujar() {
   const canvas = _q('#timer-canvas');
