@@ -63,11 +63,9 @@ export function pause() {
 
 export async function resume(container) {
   _container = container;
-  // Los datos ya estan en memoria — solo re-renderizar
   _renderShell();
   _renderCategorias();
   _renderGrid();
-  // Restaurar frase si habia algo escrito
   if (_frase.length) _renderFrase();
 }
 
@@ -90,15 +88,18 @@ function _renderShell() {
       #saac-wrap {
         display: flex; flex-direction: column;
         height: 100%; overflow: hidden;
-        background: var(--d-bg, #F0F4FA);
+        background: transparent;
       }
 
+      /* Barra de frase */
       #saac-frase-bar {
         display: flex; align-items: center; gap: 8px;
-        padding: 8px 12px;
-        background: var(--d-surface, white);
-        border-bottom: 1px solid var(--d-border, rgba(0,0,0,0.08));
-        flex-shrink: 0; min-height: 88px;
+        padding: 8px 12px; flex-shrink: 0;
+        min-height: 88px;
+        background: rgba(0,0,0,0.35);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
       }
       #saac-frase-scroll {
         flex: 1; display: flex; gap: 8px;
@@ -111,63 +112,82 @@ function _renderShell() {
       .frase-item {
         display: flex; flex-direction: column; align-items: center;
         gap: 3px; cursor: pointer; flex-shrink: 0;
-        padding: 4px; border-radius: 10px;
+        padding: 6px; border-radius: 12px;
         transition: background 0.15s;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
       }
-      .frase-item:active { background: #fee2e2; }
+      .frase-item:active { background: rgba(239,68,68,0.25); }
       .frase-item img {
-        width: 52px; height: 52px; object-fit: contain;
-        border-radius: 8px; background: #f1f5f9;
+        width: 52px; height: 52px;
+        object-fit: contain; border-radius: 8px;
+        pointer-events: none;
+        background: rgba(255,255,255,0.06);
       }
       .frase-item span {
         font-size: 0.6rem; font-weight: 700;
-        color: #475569; max-width: 60px;
-        text-align: center; line-height: 1.1;
+        color: rgba(255,255,255,0.75);
+        text-align: center; max-width: 60px;
+        line-height: 1.1; pointer-events: none;
       }
 
       .saac-btn-accion {
-        flex-shrink: 0; width: 48px; height: 48px;
-        border-radius: 14px; border: none;
-        background: #f1f5f9; font-size: 1.2rem;
-        cursor: pointer; display: flex;
-        align-items: center; justify-content: center;
-        transition: background 0.15s, transform 0.1s;
+        flex-shrink: 0; border: none;
+        border-radius: 50%; color: white;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; font-size: 1.2rem;
+        transition: transform 0.12s, filter 0.12s;
       }
-      .saac-btn-accion:active { background: #e2e8f0; transform: scale(0.93); }
+      .saac-btn-accion:active { transform: scale(0.9); filter: brightness(0.8); }
+      #btn-saac-hablar    { width: 58px; height: 58px; background: #22c55e; font-size: 1.5rem; }
+      #btn-saac-borrar    { width: 42px; height: 42px; background: #ef4444; font-size: 1rem; }
+      #btn-saac-historial { width: 38px; height: 38px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); font-size: 0.9rem; }
 
+      /* Categorias */
       #saac-cats {
-        display: flex; gap: 8px; overflow-x: auto;
-        padding: 10px 12px; flex-shrink: 0;
+        display: flex; gap: 6px; overflow-x: auto;
+        padding: 8px 12px; flex-shrink: 0;
+        background: rgba(0,0,0,0.25);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-bottom: 1px solid rgba(255,255,255,0.07);
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        border-bottom: 1px solid var(--d-border, rgba(0,0,0,0.06));
-        background: var(--d-surface, white);
       }
       #saac-cats::-webkit-scrollbar { display: none; }
 
       .cat-chip {
-        flex-shrink: 0; padding: 7px 14px;
-        border-radius: 20px; border: none;
-        font-size: 0.82rem; font-weight: 800;
-        cursor: pointer; white-space: nowrap;
-        opacity: 0.55; transition: opacity 0.15s, transform 0.12s;
+        display: flex; align-items: center; gap: 5px;
+        padding: 6px 14px; border-radius: 20px;
+        border: 2px solid transparent;
+        font-size: 0.78rem; font-weight: 700;
+        white-space: nowrap; cursor: pointer;
+        transition: all 0.15s; flex-shrink: 0;
+        opacity: 0.6;
       }
-      .cat-chip.activa { opacity: 1; transform: scale(1.05); }
+      .cat-chip.activa { opacity: 1; transform: scale(1.05); border-color: rgba(255,255,255,0.4); }
+      .cat-chip:active { opacity: 0.8; transform: scale(0.96); }
 
+      /* Busqueda */
       #saac-busqueda-wrap {
         padding: 8px 12px; flex-shrink: 0;
-        background: var(--d-surface, white);
-        border-bottom: 1px solid var(--d-border, rgba(0,0,0,0.06));
+        background: rgba(0,0,0,0.20);
+        border-bottom: 1px solid rgba(255,255,255,0.07);
       }
       #saac-busqueda {
-        width: 100%; padding: 10px 14px;
-        border-radius: 14px; border: 1.5px solid #e2e8f0;
-        font-size: 0.9rem; font-family: inherit;
-        outline: none; background: #f8fafc;
-        color: #1e293b;
+        width: 100%; padding: 10px 16px;
+        border-radius: 14px;
+        border: 1.5px solid rgba(255,255,255,0.15);
+        font-size: 0.88rem; font-family: inherit;
+        outline: none;
+        background: rgba(255,255,255,0.08);
+        color: white;
+        -webkit-appearance: none;
       }
-      #saac-busqueda:focus { border-color: #a855f7; }
+      #saac-busqueda::placeholder { color: rgba(255,255,255,0.35); }
+      #saac-busqueda:focus { border-color: rgba(168,85,247,0.7); }
 
+      /* Grid */
       #saac-grid-wrap {
         flex: 1; overflow-y: auto; overflow-x: hidden;
         padding: 10px 8px;
@@ -177,73 +197,92 @@ function _renderShell() {
       #saac-grid {
         display: grid; gap: 8px;
       }
-      #saac-grid.tam-S { grid-template-columns: repeat(auto-fill, minmax(72px,  1fr)); }
-      #saac-grid.tam-M { grid-template-columns: repeat(auto-fill, minmax(96px,  1fr)); }
-      #saac-grid.tam-L { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+      #saac-grid.tam-S { grid-template-columns: repeat(auto-fill, minmax(82px,  1fr)); }
+      #saac-grid.tam-M { grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); }
+      #saac-grid.tam-L { grid-template-columns: repeat(auto-fill, minmax(138px, 1fr)); }
 
       .picto-card {
+        border-radius: 14px; padding: 10px 6px 8px;
         display: flex; flex-direction: column;
-        align-items: center; gap: 4px;
-        padding: 8px 4px; border-radius: 14px;
+        align-items: center; gap: 6px;
         cursor: pointer; position: relative;
-        border: 2px solid transparent;
-        transition: transform 0.12s, box-shadow 0.12s;
-        user-select: none;
+        border-bottom: 4px solid rgba(0,0,0,0.25);
+        transition: transform 0.12s;
+        user-select: none; -webkit-user-select: none;
       }
-      .picto-card:active { transform: scale(0.93); box-shadow: none; }
+      .picto-card:active { transform: scale(0.93); }
       .picto-card img {
-        width: 100%; aspect-ratio: 1;
-        object-fit: contain; border-radius: 8px;
+        object-fit: contain; pointer-events: none;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.12);
       }
+      #saac-grid.tam-S .picto-card img { width: 58px;  height: 58px; }
+      #saac-grid.tam-M .picto-card img { width: 78px;  height: 78px; }
+      #saac-grid.tam-L .picto-card img { width: 100px; height: 100px; }
+
       .picto-label {
-        font-size: 0.65rem; font-weight: 800;
-        text-align: center; line-height: 1.1;
-        max-width: 100%;
+        font-weight: 700; text-align: center; line-height: 1.15;
+        pointer-events: none;
       }
+      #saac-grid.tam-S .picto-label { font-size: 0.68rem; }
+      #saac-grid.tam-M .picto-label { font-size: 0.75rem; }
+      #saac-grid.tam-L .picto-label { font-size: 0.82rem; }
+
       .fav-dot {
-        position: absolute; top: 4px; right: 4px;
-        font-size: 0.7rem; opacity: 0;
-        transition: opacity 0.15s;
+        position: absolute; top: 5px; right: 6px;
+        font-size: 0.75rem; opacity: 0;
+        transition: opacity 0.2s;
       }
       .picto-card.es-fav .fav-dot { opacity: 1; }
 
+      /* Estado vacio */
       #saac-vacio {
         display: none; flex-direction: column;
         align-items: center; justify-content: center;
         gap: 12px; padding: 40px 20px;
-        color: #94a3b8; text-align: center;
+        color: rgba(255,255,255,0.35); text-align: center;
       }
       #saac-vacio.visible { display: flex; }
       #saac-vacio span { font-size: 3rem; }
       #saac-vacio p { font-size: 0.9rem; font-weight: 600; }
 
+      /* Panel historial */
       #saac-historial-panel {
         position: absolute; bottom: 0; left: 0; right: 0;
-        background: white; border-radius: 20px 20px 0 0;
-        padding: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
-        z-index: 50; transform: translateY(100%);
+        background: rgba(15,8,36,0.96);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 20px 20px 0 0;
+        border-top: 1px solid rgba(255,255,255,0.12);
+        padding: 16px; z-index: 50;
+        transform: translateY(100%);
         transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
         max-height: 55%; overflow-y: auto;
       }
       #saac-historial-panel.visible { transform: translateY(0); }
       #saac-historial-panel h3 {
-        font-size: 0.9rem; font-weight: 800; color: #475569;
-        margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em;
+        font-size: 0.9rem; font-weight: 800;
+        color: rgba(255,255,255,0.5);
+        margin-bottom: 10px;
+        text-transform: uppercase; letter-spacing: 0.05em;
       }
       .historial-item {
         display: flex; align-items: center; gap: 10px;
-        padding: 10px 4px; border-bottom: 1px solid #f1f5f9;
+        padding: 10px 4px;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
         cursor: pointer; border-radius: 8px;
         transition: background 0.15s;
       }
-      .historial-item:active { background: #f0f4fa; }
+      .historial-item:active { background: rgba(255,255,255,0.06); }
       .historial-item .h-texto {
-        flex: 1; font-size: 0.85rem; font-weight: 600; color: #334155;
+        flex: 1; font-size: 0.85rem; font-weight: 600;
+        color: rgba(255,255,255,0.85);
       }
       .historial-item .h-btn {
         border: none; border-radius: 50%;
-        width: 32px; height: 32px; color: white; font-size: 0.8rem;
-        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        width: 32px; height: 32px; color: white;
+        font-size: 0.8rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
       }
     </style>
 
@@ -354,16 +393,13 @@ function _renderFrase() {
   _frase.forEach((item, i) => {
     const el = document.createElement('div');
     el.className = 'frase-item';
-    el.title     = 'Toca para borrar esta palabra';
+    el.title     = 'Toca para borrar';
     el.innerHTML =
       '<img src="' + PICS_BASE + item.id + '.png"' +
       ' onerror="this.style.opacity=\'0.15\'"' +
       ' alt="' + item.label + '">' +
       '<span>' + item.label + '</span>';
-    el.addEventListener('click', () => {
-      _frase.splice(i, 1);
-      _renderFrase();
-    });
+    el.addEventListener('click', () => { _frase.splice(i, 1); _renderFrase(); });
     scroll.appendChild(el);
   });
   requestAnimationFrame(() => { scroll.scrollLeft = scroll.scrollWidth; });
@@ -409,7 +445,7 @@ function _renderHistorial() {
   const lista = _container.querySelector('#saac-historial-lista');
   lista.innerHTML = '';
   if (!_historial.length) {
-    lista.innerHTML = '<p style="color:#94a3b8;font-size:0.85rem;padding:8px 0;">Aun no hay frases guardadas.</p>';
+    lista.innerHTML = '<p style="color:rgba(255,255,255,0.35);font-size:0.85rem;padding:8px 0;">Aun no hay frases guardadas.</p>';
     return;
   }
   _historial.forEach((texto, i) => {
@@ -435,7 +471,8 @@ function _renderHistorial() {
   btnBorrarTodo.textContent = 'Borrar todo';
   btnBorrarTodo.style.cssText =
     'margin-top:12px;width:100%;padding:10px;border-radius:12px;border:none;' +
-    'background:#fee2e2;color:#991b1b;font-weight:800;font-size:0.85rem;cursor:pointer;';
+    'background:rgba(239,68,68,0.2);color:#fca5a5;font-weight:800;' +
+    'font-size:0.85rem;cursor:pointer;border:1px solid rgba(239,68,68,0.3);';
   btnBorrarTodo.addEventListener('click', () => {
     _historial = [];
     _guardarHistorial();
