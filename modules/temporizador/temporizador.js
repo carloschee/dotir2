@@ -10,12 +10,18 @@ let _totalSeg   = 0;
 let _restaSeg   = 0;
 let _corriendo  = false;
 let _intervalo  = null;
+let _rafId      = null;
 let _modo       = localStorage.getItem(LS_MODO) || 'min';
 let _audioCtx   = null;
 
+// Animacion fluida
+let _progresoActual = 0;   // valor que se dibuja (interpolado)
+let _progresoMeta   = 0;   // valor objetivo (calculado desde _restaSeg)
+let _ultimoTimestamp = 0;
+
 const _q = sel => _container?.querySelector(sel);
 
-//── AudioContext — se inicializa en el primer toque ───────────
+// ── AudioContext ───────────────────────────────────────────────
 function _getAudioCtx() {
   if (!_audioCtx) {
     _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -53,7 +59,7 @@ export async function resume(container) {
   _ajustarCanvas();
 }
 
-// ── Navegación ────────────────────────────────────────────────
+// ── Navegación ─────────────────────────────────────────────────
 function _renderNavAcciones() {
   const acc = document.getElementById('modulo-acciones');
   if (!acc) return;
@@ -94,10 +100,9 @@ function _setModo(m) {
   _modo = m;
   localStorage.setItem(LS_MODO, m);
   _renderNavAcciones();
-  _dibujar();
 }
 
-// ── Shell HTML ────────────────────────────────────────────────
+// ── Shell HTML ─────────────────────────────────────────────────
 function _renderShell() {
   _container.innerHTML = `
     <style>
@@ -369,51 +374,84 @@ function _ajustarCanvas() {
   );
   canvas.width  = Math.floor(size);
   canvas.height = Math.floor(size);
-  _dibujar();
+  _dibujar(_progresoActual);
 }
 
-// ── Control del temporizador ──────────────────────────────────
+// ── Control del temporizador ───────────────────────────────────
 
 function _iniciar(totalSeg) {
   _detener();
-  _totalSeg  = totalSeg;
-  _restaSeg  = totalSeg;
-  _corriendo = true;
+  _totalSeg       = totalSeg;
+  _restaSeg       = totalSeg;
+  _corriendo      = true;
+  _progresoActual = 1.0;
+  _progresoMeta   = 1.0;
+  _ultimoTimestamp = performance.now();
+
   const fin = _q('#timer-fin');
   if (fin) fin.classList.remove('visible');
-  _dibujar();
+
   _intervalo = setInterval(_tick, 1000);
+  _iniciarRAF();
 }
 
 function _pausar() {
   _detener();
-  _dibujar();
+  _dibujar(_progresoActual);
 }
 
 function _reanudar() {
   if (_restaSeg <= 0) return;
   _detener();
   _corriendo = true;
-  _dibujar();
+  _ultimoTimestamp = performance.now();
   _intervalo = setInterval(_tick, 1000);
+  _iniciarRAF();
 }
 
 function _detener() {
   clearInterval(_intervalo);
   _intervalo = null;
   _corriendo = false;
+  if (_rafId) { cancelAnimationFrame(_rafId); _rafId = null; }
 }
 
 function _tick() {
   _restaSeg--;
-  _dibujar();
+  // La meta retrocede un segundo completo de forma instantanea;
+  // el RAF se encarga de animar suavemente hasta ella.
+  _progresoMeta = Math.max(0, _restaSeg / _totalSeg);
   if (_restaSeg <= 0) _terminar();
+}
+
+// ── Loop de animacion a 60fps ──────────────────────────────────
+
+const VELOCIDAD = 4.5; // qué tan rápido alcanza la meta (mayor = más rápido)
+
+function _iniciarRAF() {
+  if (_rafId) cancelAnimationFrame(_rafId);
+
+  function loop(ts) {
+    if (!_corriendo) return;
+    const dt = Math.min((ts - _ultimoTimestamp) / 1000, 0.1); // delta en segundos, capped
+    _ultimoTimestamp = ts;
+
+    // Interpolacion exponencial (ease-out): se acerca a la meta suavemente
+    _progresoActual += (_progresoMeta - _progresoActual) * Math.min(1, VELOCIDAD * dt);
+
+    _dibujar(_progresoActual);
+    _rafId = requestAnimationFrame(loop);
+  }
+
+  _rafId = requestAnimationFrame(loop);
 }
 
 function _terminar() {
   _detener();
-  _restaSeg = 0;
-  _dibujar();
+  _progresoActual = 0;
+  _progresoMeta   = 0;
+  _restaSeg       = 0;
+  _dibujar(0);
   _sonarFin();
   lanzarConfeti({ count: 60, container: _q('#timer-wrap') });
   const fin = _q('#timer-fin');
@@ -441,17 +479,17 @@ function _sonarFin() {
   } catch(e) {}
 }
 
-// ── Formato de tiempo ─────────────────────────────────────────
+// ── Formato de tiempo ──────────────────────────────────────────
 function _formatTiempo() {
   if (_totalSeg === 0) return '--:--';
   const min = Math.floor(_restaSeg / 60);
   const seg = _restaSeg % 60;
   if (_modo === 'min') return min + ' min';
-  return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
+  return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0'));
 }
 
-// ── Dibujo en canvas ──────────────────────────────────────────
-function _dibujar() {
+// ── Dibujo en canvas ───────────────────────────────────────────
+function _dibujar(progreso = _progresoActual) {
   const canvas = _q('#timer-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -474,7 +512,6 @@ function _dibujar() {
   const RMax   = W * 0.47;
   const RMin   = W * 0.16;
   const grosor = (RMax - RMin) / arcoiris.length;
-  const progreso = _totalSeg > 0 ? Math.max(0, _restaSeg / _totalSeg) : 0;
 
   const angInicio = -Math.PI / 2;
   const angFin    = angInicio + progreso * Math.PI * 2;
