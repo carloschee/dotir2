@@ -5,7 +5,7 @@ import { fetchTimeout } from '../../core/offline.js';
 import { toast        } from '../../core/ui.js';
 
 const DATA_URL     = './data/saac.json';
-const PICS_BASE    = './assets/pics/';
+const PICS_BASE    = './assets/saac/';
 const LS_FAVS      = 'dotir2-saac-favs';
 const LS_HISTORIAL = 'dotir2-saac-historial';
 const LS_TAMANO    = 'dotir2-saac-tamano';
