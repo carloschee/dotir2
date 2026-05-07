@@ -255,9 +255,11 @@ async function _actualizarEstadoConexion() {
   }
   try {
     const res = await fetchTimeout('./manifest.json', 4000, { method: 'HEAD', cache: 'no-store' });
+    if (!_container) return;                          // guard
     dot.style.background = res.ok ? '#22c55e' : '#ef4444';
     texto.textContent    = res.ok ? 'En linea' : 'Sin conexion';
   } catch {
+    if (!_container) return;                          // guard
     dot.style.background = '#ef4444';
     texto.textContent    = 'Sin conexion';
   }
@@ -268,6 +270,7 @@ async function _descargarTodo() {
   const wrap = _q('#aj-progreso-wrap');
   const bar  = _q('#aj-progreso-bar');
   const txt  = _q('#aj-progreso-txt');
+  if (!btn || !wrap || !bar || !txt) return;         // guard inicial
 
   btn.disabled = true;
   wrap.classList.add('visible');
@@ -275,43 +278,40 @@ async function _descargarTodo() {
   txt.textContent = 'Recopilando recursos...';
 
   const urls = new Set([
-    // Shell
     './index.html', './manifest.json', './sw.js',
     './core/tts.js', './core/offline.js', './core/ui.js', './core/audio.js',
-    // UI
     './assets/ui/btn-comunicador.png', './assets/ui/btn-memorama.png',
     './assets/ui/btn-musica.png', './assets/ui/btn-libros.png',
     './assets/ui/btn-videos.png', './assets/ui/btn-ajustes.png',
     './assets/ui/btn-inicio.png', './assets/ui/favicon.png',
-    // Modulos
     './modules/saac/module.js',      './modules/saac/saac.js',
     './modules/memorama/module.js',  './modules/memorama/memorama.js',
     './modules/musica/module.js',    './modules/musica/musica.js',
     './modules/libros/module.js',    './modules/libros/libros.js',
     './modules/videos/module.js',    './modules/videos/videos.js',
     './modules/ajustes/module.js',   './modules/ajustes/ajustes.js',
-    // Datos base
     './data/saac.json',
     './data/audios.json', './data/videos.json', './data/libros.json',
     './data/memorama-temas.json',
   ]);
 
-  // Llamar buildCache() en cada modulo que lo tenga
   const registry = window.DotirApp?.MODULE_REGISTRY || [];
   for (const mod of registry) {
     try {
       const cache = mod.buildCache
         ? await mod.buildCache()
         : (mod.cache || []);
+      if (!_container) return;                        // guard
       cache.forEach(u => urls.add(u));
     } catch (_) {}
   }
 
-  // Imagenes de pictogramas del SAAC
   try {
     const r = await fetchTimeout('./data/saac.json', 6000);
+    if (!_container) return;                          // guard
     if (r.ok) {
       const data = await r.json();
+      if (!_container) return;                        // guard
       const cats = data.categorias || data;
       (Array.isArray(cats) ? cats : Object.values(cats)).forEach(cat => {
         (cat.items || []).forEach(item => {
@@ -321,17 +321,20 @@ async function _descargarTodo() {
     }
   } catch (_) {}
 
-  // Imagenes del memorama
   try {
     const r = await fetchTimeout('./data/memorama-temas.json', 5000);
+    if (!_container) return;                          // guard
     if (r.ok) {
       const temas = await r.json();
+      if (!_container) return;                        // guard
       for (const meta of temas) {
         urls.add('./' + meta.archivo);
         try {
           const r2 = await fetchTimeout('./' + meta.archivo, 5000);
+          if (!_container) return;                    // guard
           if (r2.ok) {
             const tema = await r2.json();
+            if (!_container) return;                  // guard
             tema.items?.forEach(item => {
               if (tema.carpeta_img && item.imagen)
                 urls.add('./' + tema.carpeta_img + item.imagen);
@@ -342,13 +345,18 @@ async function _descargarTodo() {
     }
   } catch (_) {}
 
+  if (!_container) return;                            // guard antes de precachear
+
   const { ok, total } = await precachear([...urls], {
     onProgress: (d, t) => {
+      if (!_container) return;                        // guard dentro del callback
       const pct = Math.round((d / t) * 100);
       bar.style.width = pct + '%';
       txt.textContent = d + ' de ' + t + ' archivos...';
     }
   });
+
+  if (!_container) return;                            // guard post-precache
 
   bar.style.width      = '100%';
   bar.style.background = ok === total ? '#22c55e' : '#f59e0b';

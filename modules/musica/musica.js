@@ -12,6 +12,8 @@ let _rafId     = null;
 let _vizMode   = 0;
 let _touchX0   = 0;
 let _hue       = 0;
+let _cbPlay = null;
+let _cbStop = null;
 
 const _q = sel => _container && _container.querySelector(sel);
 
@@ -19,22 +21,32 @@ export async function init(container) {
   _container = container;
   if (!AudioManager.canciones.length) {
     const list = await _cargarCanciones();
+    if (!_container) return;                          // guard post-await
     AudioManager.setCanciones(list);
   }
   _renderShell();
   _renderCintillo();
   _iniciarAnimacion();
-  AudioManager.onPlay(idx => _marcarCintillo(idx));
-  AudioManager.onStop(() => {
+
+  _cbPlay = idx => {
+    if (!_container) return;
+    _marcarCintillo(idx);
+  };
+  _cbStop = () => {
     if (!_container) return;
     const t = _q('#mus-titulo');
     if (t) t.textContent = 'Toca una cancion para reproducir';
     _marcarCintillo(-1);
-  });
+  };
+
+  AudioManager.onPlay(_cbPlay);
+  AudioManager.onStop(_cbStop);
 }
 
 export function destroy() {
   _detenerAnimacion();
+  if (_cbPlay) { AudioManager.offPlay(_cbPlay); _cbPlay = null; }
+  if (_cbStop) { AudioManager.offStop(_cbStop); _cbStop = null; }
   _container = null;
 }
 

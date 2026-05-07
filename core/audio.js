@@ -77,8 +77,8 @@ const AudioManager = (() => {
   let _source   = null;
   let _idx      = -1;
   let _canciones  = [];
-  let _onPlayCb   = null;
-  let _onStopCb   = null;
+  let _onPlayCbs  = [];
+  let _onStopCbs  = [];
 
   function _init() {
     if (_audio) return;
@@ -102,8 +102,8 @@ const AudioManager = (() => {
 
   function _notificar() {
     const playing = _audio && !_audio.paused;
-    if (playing  && _onPlayCb) _onPlayCb(_idx, _canciones[_idx]);
-    if (!playing && _onStopCb) _onStopCb();
+    if (playing)  _onPlayCbs.forEach(cb => cb(_idx, _canciones[_idx]));
+    if (!playing) _onStopCbs.forEach(cb => cb());
     MediaStop._actualizar();
   }
 
@@ -139,8 +139,10 @@ const AudioManager = (() => {
       _notificar();
     },
 
-    onPlay(cb)  { _onPlayCb  = cb; },
-    onStop(cb)  { _onStopCb  = cb; },
+    onPlay(cb)  { if (!_onPlayCbs.includes(cb))  _onPlayCbs.push(cb); },
+    onStop(cb)  { if (!_onStopCbs.includes(cb))  _onStopCbs.push(cb); },
+    offPlay(cb) { _onPlayCbs = _onPlayCbs.filter(f => f !== cb); },
+    offStop(cb) { _onStopCbs = _onStopCbs.filter(f => f !== cb); },
   };
 })();
 

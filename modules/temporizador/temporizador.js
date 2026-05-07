@@ -400,7 +400,7 @@ function _terminar() {
   const fin = _q('#timer-fin');
   if (fin) fin.classList.add('visible');
   TTS.speak('Tiempo terminado', { lang: 'es-MX', pitch: 1.2, rate: 0.9, delay: 800 });
-  setTimeout(() => { if (fin) fin.classList.remove('visible'); }, 4000);
+  setTimeout(() => { if (!_container || !fin) return; fin.classList.remove('visible'); }, 4000);
 }
 
 function _sonarFin() {

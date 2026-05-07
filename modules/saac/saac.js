@@ -20,6 +20,7 @@ let _catActiva = 'favs';
 let _busqueda  = '';
 let _tamano    = localStorage.getItem(LS_TAMANO) || 'M';
 let _container = null;
+let _lpActivo = null;
 
 const _guardarFavs      = () => localStorage.setItem(LS_FAVS,      JSON.stringify([..._favs]));
 const _guardarHistorial = () => localStorage.setItem(LS_HISTORIAL, JSON.stringify(_historial));
@@ -46,18 +47,17 @@ export async function init(container) {
   _renderGrid();
 }
 
+export function pause() {
+  if (_lpActivo) { clearTimeout(_lpActivo); _lpActivo = null; }
+  _container = null;
+}
+
 export function destroy() {
+  if (_lpActivo) { clearTimeout(_lpActivo); _lpActivo = null; }
   _frase     = [];
   _busqueda  = '';
   _catActiva = 'favs';
   _datos     = null;
-  _container = null;
-}
-
-export function onEnter() {}
-export function onLeave() { TTS.stop(); }
-
-export function pause() {
   _container = null;
 }
 
@@ -345,8 +345,10 @@ function _renderCategorias() {
 }
 
 function _renderGrid() {
+  if (!_container) return;                            // guard
   const grid  = _container.querySelector('#saac-grid');
   const vacio = _container.querySelector('#saac-vacio');
+  if (!grid || !vacio) return;
   grid.innerHTML = '';
   const normQ = _norm(_busqueda.trim());
   const items = _datos.vocabulario.filter(v => {
@@ -370,12 +372,18 @@ function _renderGrid() {
     let _lp;
     card.addEventListener('pointerdown', () => {
       _lp = setTimeout(() => {
+        _lpActivo = null;
+        if (!_container) return;                      // guard
         _toggleFav(item.id, item.label);
         card.classList.toggle('es-fav', _favs.has(item.id));
       }, LONGPRESS_MS);
+      _lpActivo = _lp;
     });
     ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev =>
-      card.addEventListener(ev, () => clearTimeout(_lp))
+      card.addEventListener(ev, () => {
+        clearTimeout(_lp);
+        if (_lpActivo === _lp) _lpActivo = null;
+      })
     );
     grid.appendChild(card);
   });
