@@ -83,6 +83,7 @@ export function setTamano(t) {
 export function getTamano() { return _tamano; }
 
 export function onEnter() {}
+export function onLeave() {}
 
 function _renderShell() {
   _container.innerHTML = `
