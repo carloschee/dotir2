@@ -36,7 +36,7 @@ function _renderShell() {
         background: rgba(0, 0, 0, 0.75);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255,255,255,0.16);
+        border: 1px solid rgba(255,255,255,0.25);
         border-radius: 24px;
         padding: 18px;
         display: flex; flex-direction: column; gap: 14px;
@@ -45,7 +45,7 @@ function _renderShell() {
       .aj-titulo {
         font-size: .72rem; font-weight: 900;
         text-transform: uppercase; letter-spacing: .1em;
-        color: rgba(255,255,255,0.45);
+        color: rgba(255,255,255,0.85);
       }
       .aj-fila {
         display: flex; align-items: center;
@@ -53,7 +53,7 @@ function _renderShell() {
       }
       .aj-fila-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
       .aj-label { font-size: .92rem; font-weight: 800; color: white; }
-      .aj-desc  { font-size: .72rem; color: rgba(255,255,255,0.45); font-weight: 600; }
+      .aj-desc  { font-size: .72rem; color: rgba(255,255,255,0.65); font-weight: 600; }
       .aj-btn {
         border: none; border-radius: 14px; padding: 10px 18px;
         font-weight: 800; font-size: .82rem; cursor: pointer;
