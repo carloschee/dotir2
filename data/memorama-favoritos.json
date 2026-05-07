@@ -1,0 +1,144 @@
+{
+  "id": "favoritos",
+  "titulo": "Favoritos",
+  "icono": "favoritos-icono.png",
+  "carpeta_img": "assets/memorama/favoritos/",
+  "items": [
+    {
+      "id": 401,
+      "imagen": "ejea.png",
+      "es-MX": "iiyei",
+      "en-US": "ejea",
+      "fr-FR": "ejea",
+      "zh-CN": "ejea"
+    },
+    {
+      "id": 402,
+      "imagen": "audrey-nuna.png",
+      "es-MX": "audri nuna",
+      "en-US": "audrey nuna",
+      "fr-FR": "audrey nuna",
+      "zh-CN": "audrey nuna"
+    },
+    {
+      "id": 403,
+      "imagen": "rei-ami.png",
+      "es-MX": "rei ami",
+      "en-US": "rei ami",
+      "fr-FR": "rei ami",
+      "zh-CN": "rei ami"
+    },
+    {
+      "id": 404,
+      "imagen": "pastelito.png",
+      "es-MX": "pastelito",
+      "en-US": "cupcake",
+      "fr-FR": "cupcake",
+      "zh-CN": "纸杯蛋糕"
+    },
+    {
+      "id": 405,
+      "imagen": "globo-aerostatico.png",
+      "es-MX": "globo aerostático",
+      "en-US": "hot air balloon",
+      "fr-FR": "montgolfière",
+      "zh-CN": "热气球"
+    },
+    {
+      "id": 406,
+      "imagen": "submarino.png",
+      "es-MX": "submarino",
+      "en-US": "submarine",
+      "fr-FR": "sous-marin",
+      "zh-CN": "潜水艇"
+    },
+    {
+      "id": 407,
+      "imagen": "helicoptero.png",
+      "es-MX": "helicóptero",
+      "en-US": "helicopter",
+      "fr-FR": "hélicoptère",
+      "zh-CN": "直升机"
+    },
+    {
+      "id": 408,
+      "imagen": "sandia.png",
+      "es-MX": "sandía",
+      "en-US": "watermelon",
+      "fr-FR": "pastèque",
+      "zh-CN": "西瓜"
+    },
+    {
+      "id": 409,
+      "imagen": "vestido.png",
+      "es-MX": "vestido",
+      "en-US": "dress",
+      "fr-FR": "robe",
+      "zh-CN": "连衣裙"
+    },
+    {
+      "id": 410,
+      "imagen": "pijama.png",
+      "es-MX": "pijama",
+      "en-US": "pajamas",
+      "fr-FR": "pyjama",
+      "zh-CN": "睡衣"
+    },
+    {
+      "id": 411,
+      "imagen": "avion.png",
+      "es-MX": "avión",
+      "en-US": "airplane",
+      "fr-FR": "avion",
+      "zh-CN": "飞机"
+    },
+    {
+      "id": 412,
+      "imagen": "cepillo-dientes.png",
+      "es-MX": "cepillo de dientes",
+      "en-US": "toothbrush",
+      "fr-FR": "brosse à dents",
+      "zh-CN": "牙刷"
+    },
+    {
+      "id": 413,
+      "imagen": "pasta-dientes.png",
+      "es-MX": "pasta de dientes",
+      "en-US": "toothpaste",
+      "fr-FR": "dentifrice",
+      "zh-CN": "牙膏"
+    },
+    {
+      "id": 414,
+      "imagen": "arcoiris.png",
+      "es-MX": "arcoíris",
+      "en-US": "rainbow",
+      "fr-FR": "arc-en-ciel",
+      "zh-CN": "彩虹"
+    },
+    {
+      "id": 415,
+      "imagen": "lluvia.png",
+      "es-MX": "lluvia",
+      "en-US": "rain",
+      "fr-FR": "pluie",
+      "zh-CN": "雨"
+    },
+    {
+      "id": 416,
+      "imagen": "nube.png",
+      "es-MX": "nube",
+      "en-US": "cloud",
+      "fr-FR": "nuage",
+      "zh-CN": "云"
+    },
+    {
+      "id": 417,
+      "imagen": "sol.png",
+      "es-MX": "sol",
+      "en-US": "sun",
+      "fr-FR": "soleil",
+      "zh-CN": "太阳"
+    }
+  ]
+}

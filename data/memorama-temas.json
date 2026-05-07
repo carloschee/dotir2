@@ -16,5 +16,11 @@
     "titulo": "Vegetales",
     "icono": "vegetales-icono.png",
     "archivo": "data/memorama-vegetales.json"
+  },
+  {
+    "id": "favoritos",
+    "titulo": "Favoritos",
+    "icono": "favoritos-icono.png",
+    "archivo": "data/memorama-favoritos.json"
   }
 ]
