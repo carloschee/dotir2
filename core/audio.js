@@ -166,7 +166,7 @@ const MediaStop = {
       'width:32px;height:32px;border-radius:50%;border:none;' +
       'background:rgba(239,68,68,0.20);' +
       'cursor:pointer;transition:background .15s, transform .12s;' +
-      'flex-shrink:0;';
+      'flex-shrink:0;margin-right:15px;'
     btn.innerHTML =
       '<svg width="14" height="14" viewBox="0 0 14 14" fill="none">' +
       '<rect x="2" y="2" width="10" height="10" rx="2" fill="white" fill-opacity="0.9"/>' +
