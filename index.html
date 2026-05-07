@@ -854,7 +854,7 @@
 const btnAjustes = document.createElement('button');
 btnAjustes.id = 'btn-ajustes-header';
 btnAjustes.title = 'Ajustes';
-btnAjustes.style.cssText = 'padding-right:15px;width:32px;height:32px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);font-size:1.1rem;flex-shrink:0;transition:color .15s;';
+btnAjustes.style.cssText = 'padding-left:15px;padding-right:15px;width:32px;height:32px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);font-size:1.1rem;flex-shrink:0;transition:color .15s;';
 btnAjustes.innerHTML = '&#9881;&#65039;';
 btnAjustes.addEventListener('click', () => { abrirPin(AjustesModule); });
 document.getElementById('header-derecha')?.insertBefore(btnAjustes, document.getElementById('indicador-offline'));
