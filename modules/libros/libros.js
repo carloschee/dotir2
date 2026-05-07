@@ -81,7 +81,7 @@ function _renderShell() {
     '<style>' +
     '#lib-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; background:transparent; padding:10px 10px 0; gap:10px; }' +
 
-    '#lib-visor-marco { flex:1; min-height:0; border-radius:20px; border:1.5px solid rgba(255,255,255,0.25); background:rgba(0,0,0,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }' +
+    '#lib-visor-marco { flex:1; min-height:0; border-radius:20px; border:1.5px solid rgba(255,255,255,0.25); background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }' +
 
     '#lib-canvas { max-width:100%; max-height:100%; display:none; border-radius:4px; }' +
 
