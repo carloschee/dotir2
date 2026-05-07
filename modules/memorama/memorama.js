@@ -449,7 +449,10 @@ function _renderListaTemas() {
     btn.appendChild(iconoEl);
     btn.appendChild(info);
     btn.appendChild(flecha);
-    btn.addEventListener('click', () => { _activarTema(meta); });
+    btn.addEventListener('click', () => {
+      TTS.speak(meta.titulo, { lang: 'es-MX', pitch: 1.2, rate: .95 });
+      _activarTema(meta);
+    });
     lista.appendChild(btn);
   });
 }
@@ -460,17 +463,15 @@ let _introTimeout = null;
 async function _activarTema(meta) {
   if (_introTimeout) { clearTimeout(_introTimeout); _introTimeout = null; }
   _cerrarModal();
-  // Esperar a que la animación de cierre del modal termine (350ms)
-  // antes de cargar y renderizar el tema
   await new Promise(r => setTimeout(r, 360));
-  if (!_container) return;   // guard: pudo haberse destruido mientras esperaba
+  if (!_container) return;
   try {
     const datos = await _cargarTema(meta);
-    if (!_container) return;   // guard: pudo destruirse durante el fetch
+    if (!_container) return;
     _temaActivo = datos;
     _itemMap = {};
     datos.items.forEach(item => { _itemMap[item.id] = item; });
-    TTS.speak(datos.titulo, { lang: 'es-MX', pitch: 1.2, rate: .95 });
+    // TTS ya se llamó desde el gesto directo del usuario
     _mostrarIntro();
   } catch (e) {
     console.error('[Memorama]', e);
