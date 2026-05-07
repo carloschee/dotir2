@@ -9,6 +9,7 @@ const PICS_BASE = './';
 const MAX_PARES = 12;
 const COLS = 8;
 const FILAS = 3;
+const TEMAS_IMG_BASE = './assets/memorama/temas/';
 
 const IDIOMAS = [
   { id: 'es-MX', bandera: '\u{1F1F2}\u{1F1FD}', lang: 'es-MX' },
@@ -418,13 +419,37 @@ function _renderListaTemas() {
   _temas.forEach(meta => {
     const btn = document.createElement('button');
     btn.className = 'mem-tema-btn';
-    btn.innerHTML =
-      '<span class="mt-emoji">' + (TEMA_EMOJIS[meta.id] || '\u{1F3B4}') + '</span>' +
-      '<div style="flex:1"><div class="mt-titulo">' + meta.titulo + '</div></div>' +
-      '<span style="color:rgba(255,255,255,.3);font-size:1.2rem">›</span>';
-    btn.addEventListener('click', () => {
-      _activarTema(meta);   // ya no hace await aquí, y _cerrarModal está dentro
-    });
+
+    const emoji = TEMA_EMOJIS[meta.id] || '\u{1F3B4}';
+    const iconoEl = document.createElement('div');
+    iconoEl.className = 'mt-emoji';
+
+    if (meta.icono) {
+      const img = document.createElement('img');
+      img.src = TEMAS_IMG_BASE + meta.icono;
+      img.alt = meta.titulo;
+      img.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:8px;';
+      img.onerror = () => {
+        iconoEl.removeChild(img);
+        iconoEl.textContent = emoji;
+      };
+      iconoEl.appendChild(img);
+    } else {
+      iconoEl.textContent = emoji;
+    }
+
+    const info = document.createElement('div');
+    info.style.flex = '1';
+    info.innerHTML = '<div class="mt-titulo">' + meta.titulo + '</div>';
+
+    const flecha = document.createElement('span');
+    flecha.style.cssText = 'color:rgba(255,255,255,.3);font-size:1.2rem';
+    flecha.textContent = '›';
+
+    btn.appendChild(iconoEl);
+    btn.appendChild(info);
+    btn.appendChild(flecha);
+    btn.addEventListener('click', () => { _activarTema(meta); });
     lista.appendChild(btn);
   });
 }
