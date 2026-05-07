@@ -82,6 +82,8 @@ export function setTamano(t) {
 
 export function getTamano() { return _tamano; }
 
+export function onEnter() {}
+
 function _renderShell() {
   _container.innerHTML = `
     <style>
