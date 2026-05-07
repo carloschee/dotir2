@@ -1,28 +1,28 @@
 /* Dotir 2 - modules/saac/saac.js */
 
-import { TTS         } from '../../core/tts.js';
+import { TTS } from '../../core/tts.js';
 import { fetchTimeout } from '../../core/offline.js';
-import { toast        } from '../../core/ui.js';
+import { toast } from '../../core/ui.js';
 
-const DATA_URL     = './data/saac.json';
-const PICS_BASE    = './assets/saac/';
-const LS_FAVS      = 'dotir2-saac-favs';
+const DATA_URL = './data/saac.json';
+const PICS_BASE = './assets/saac/';
+const LS_FAVS = 'dotir2-saac-favs';
 const LS_HISTORIAL = 'dotir2-saac-historial';
-const LS_TAMANO    = 'dotir2-saac-tamano';
+const LS_TAMANO = 'dotir2-saac-tamano';
 const HISTORIAL_MAX = 10;
-const LONGPRESS_MS  = 500;
+const LONGPRESS_MS = 500;
 
-let _datos     = null;
-let _favs      = new Set(JSON.parse(localStorage.getItem(LS_FAVS) || '[]'));
+let _datos = null;
+let _favs = new Set(JSON.parse(localStorage.getItem(LS_FAVS) || '[]'));
 let _historial = JSON.parse(localStorage.getItem(LS_HISTORIAL) || '[]');
-let _frase     = [];
+let _frase = [];
 let _catActiva = 'favs';
-let _busqueda  = '';
-let _tamano    = localStorage.getItem(LS_TAMANO) || 'M';
+let _busqueda = '';
+let _tamano = localStorage.getItem(LS_TAMANO) || 'M';
 let _container = null;
 let _lpActivo = null;
 
-const _guardarFavs      = () => localStorage.setItem(LS_FAVS,      JSON.stringify([..._favs]));
+const _guardarFavs = () => localStorage.setItem(LS_FAVS, JSON.stringify([..._favs]));
 const _guardarHistorial = () => localStorage.setItem(LS_HISTORIAL, JSON.stringify(_historial));
 const _norm = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
@@ -54,10 +54,10 @@ export function pause() {
 
 export function destroy() {
   if (_lpActivo) { clearTimeout(_lpActivo); _lpActivo = null; }
-  _frase     = [];
-  _busqueda  = '';
+  _frase = [];
+  _busqueda = '';
   _catActiva = 'favs';
-  _datos     = null;
+  _datos = null;
   _container = null;
 }
 
@@ -82,8 +82,8 @@ export function setTamano(t) {
 
 export function getTamano() { return _tamano; }
 
-export function onEnter() {}
-export function onLeave() {}
+export function onEnter() { }
+export function onLeave() { TTS.stop(); }
 
 function _renderShell() {
   _container.innerHTML = `
@@ -333,12 +333,12 @@ function _renderCategorias() {
     const chip = document.createElement('button');
     chip.className = 'cat-chip' + (_catActiva === cat.id ? ' activa' : '');
     chip.style.background = cat.color;
-    chip.style.color      = cat.colorTexto;
-    chip.textContent      = cat.emoji + ' ' + cat.label;
-    chip.dataset.id       = cat.id;
+    chip.style.color = cat.colorTexto;
+    chip.textContent = cat.emoji + ' ' + cat.label;
+    chip.dataset.id = cat.id;
     chip.addEventListener('click', () => {
       _catActiva = cat.id;
-      _busqueda  = '';
+      _busqueda = '';
       _container.querySelector('#saac-busqueda').value = '';
       _renderCategorias();
       _renderGrid();
@@ -349,7 +349,7 @@ function _renderCategorias() {
 
 function _renderGrid() {
   if (!_container) return;                            // guard
-  const grid  = _container.querySelector('#saac-grid');
+  const grid = _container.querySelector('#saac-grid');
   const vacio = _container.querySelector('#saac-vacio');
   if (!grid || !vacio) return;
   grid.innerHTML = '';
@@ -399,12 +399,14 @@ function _seleccionarPicto(item) {
 }
 
 function _renderFrase() {
+  if (!_container) return;
   const scroll = _container.querySelector('#saac-frase-scroll');
+  if (!scroll) return;
   scroll.innerHTML = '';
   _frase.forEach((item, i) => {
     const el = document.createElement('div');
     el.className = 'frase-item';
-    el.title     = 'Toca para borrar';
+    el.title = 'Toca para borrar';
     el.innerHTML =
       '<img src="' + PICS_BASE + item.id + '.png"' +
       ' onerror="this.style.opacity=\'0.15\'"' +
@@ -453,7 +455,9 @@ function _cerrarHistorial() {
 }
 
 function _renderHistorial() {
+  if (!_container) return;
   const lista = _container.querySelector('#saac-historial-lista');
+  if (!lista) return;
   lista.innerHTML = '';
   if (!_historial.length) {
     lista.innerHTML = '<p style="color:rgba(255,255,255,0.35);font-size:0.85rem;padding:8px 0;">Aun no hay frases guardadas.</p>';
