@@ -20,5 +20,6 @@ export default {
     './data/memorama-frutas.json',
     './data/memorama-transportes.json',
     './data/memorama-vegetales.json',
+    './data/memorama-favoritos.json',
   ],
 };
