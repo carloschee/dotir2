@@ -97,7 +97,7 @@ function _renderShell() {
     '.lib-tile { flex-shrink:0; width:72px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; scroll-snap-align:start; border-radius:10px; padding:5px 4px; transition:background 0.15s; }' +
     '.lib-tile:active { background:rgba(255,255,255,0.08); }' +
     '.lib-tile.activo { background:rgba(16,185,129,0.35); outline:2px solid rgba(16,185,129,0.7); }' +
-    '.lib-tile-img { width:56px; height:72px; border-radius:6px; background:rgba(255,255,255,0.08); flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }' +
+    '.lib-tile-img { width:72px; height:72px; border-radius:6px; background:rgba(255,255,255,0.08); flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }' +
     '.lib-tile-img img { width:100%; height:100%; object-fit:cover; border-radius:6px; }' +
     '.lib-tile-ico { font-size:1.8rem; }' +
     '.lib-tile-titulo { color:white; font-size:0.56rem; font-weight:800; text-align:center; line-height:1.2; max-width:68px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }' +
