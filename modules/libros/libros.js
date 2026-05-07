@@ -143,9 +143,14 @@ function _renderCintillo() {
 }
 
 async function _abrirLibro(lib, idx) {
-  _q('#lib-vacio').style.display  = 'none';
-  _q('#lib-canvas').style.display = 'block';
-  _q('#lib-loading').classList.add('visible');
+  const vacio   = _q('#lib-vacio');
+  const canvas  = _q('#lib-canvas');
+  const loading = _q('#lib-loading');
+  if (!vacio || !canvas || !loading) return;
+
+  vacio.style.display  = 'none';
+  canvas.style.display = 'block';
+  loading.classList.add('visible');
 
   _container.querySelectorAll('.lib-tile').forEach((el, i) => {
     el.classList.toggle('activo', i === idx);
@@ -153,31 +158,42 @@ async function _abrirLibro(lib, idx) {
 
   try {
     const pdfjs = await _cargarPdfJS();
-    const url   = PDF_BASE + lib.archivo + '.pdf';
+    if (!_container) return;                          // guard
+
+    const url = PDF_BASE + lib.archivo + '.pdf';
     _cancelarRender();
     _pdfActual = await pdfjs.getDocument(url).promise;
+    if (!_container) return;                          // guard
+
     _totalPags = _pdfActual.numPages;
     _pagActual = 1;
     await _renderPagina(_pagActual);
+    if (!_container) return;                          // guard
+
     _renderNavAcciones();
   } catch(e) {
     console.error('[Libros]', e);
-    _q('#lib-loading').classList.remove('visible');
+    if (_container) _q('#lib-loading')?.classList.remove('visible');
   }
 }
 
 async function _renderPagina(num) {
-  if (!_pdfActual) return;
-  _q('#lib-loading').classList.add('visible');
+  if (!_pdfActual || !_container) return;
+
+  _q('#lib-loading')?.classList.add('visible');
   _cancelarRender();
 
-  const page   = await _pdfActual.getPage(num);
+  const page = await _pdfActual.getPage(num);
+  if (!_container) return;                            // guard
+
   const canvas = _q('#lib-canvas');
   const marco  = _q('#lib-visor-marco');
-  const maxW   = marco.offsetWidth  - 24;
-  const maxH   = marco.offsetHeight - 24;
-  const vp0    = page.getViewport({ scale: 1 });
-  const scale  = Math.min(maxW / vp0.width, maxH / vp0.height);
+  if (!canvas || !marco) return;                      // guard
+
+  const maxW = marco.offsetWidth  - 24;
+  const maxH = marco.offsetHeight - 24;
+  const vp0  = page.getViewport({ scale: 1 });
+  const scale = Math.min(maxW / vp0.width, maxH / vp0.height);
   const viewport = page.getViewport({ scale });
 
   canvas.width  = viewport.width;
@@ -194,7 +210,8 @@ async function _renderPagina(num) {
     if (e?.name !== 'RenderingCancelledException') console.error('[Libros]', e);
   }
 
-  _q('#lib-loading').classList.remove('visible');
+  if (!_container) return;                            // guard post-render
+  _q('#lib-loading')?.classList.remove('visible');
   _actualizarNavAcciones();
 }
 
