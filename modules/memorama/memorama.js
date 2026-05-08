@@ -68,14 +68,14 @@ function _buildDorsoStyle(id) {
   const d = _dorso(id);
   // Si ya sabemos que la imagen cargó, usarla
   if (_dorsoCache[id] === 'ok') {
-    return 'background:' + d.bg + ';background-image:url(' + DORSOS_IMG_BASE + id + '.png);background-size:cover;background-position:center;';
+    return 'background:' + d.bg + ';background-image:url(' + DORSOS_IMG_BASE + id + '.png);background-size:auto;background-repeat:repeat;';
   }
   // Si ya sabemos que falló, usar gradiente
   if (_dorsoCache[id] === 'err') {
     return 'background:' + d.bg + ';';
   }
   // Primera vez: intentar imagen, con onerror como fallback
-  return 'background:' + d.bg + ';background-image:url(' + DORSOS_IMG_BASE + id + '.png);background-size:cover;background-position:center;';
+  return 'background:' + d.bg + ';background-image:url(' + DORSOS_IMG_BASE + id + '.png);background-size:auto;background-repeat:repeat;';
 }
 
 async function _cargarTemas() {
