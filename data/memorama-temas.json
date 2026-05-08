@@ -22,5 +22,11 @@
     "titulo": "Favoritos",
     "icono": "favoritos-icono.png",
     "archivo": "data/memorama-favoritos.json"
+  },
+  {
+    "id": "loteria",
+    "titulo": "Lotería",
+    "icono": "loteria-icono.png",
+    "archivo": "data/memorama-loteria.json"
   }
 ]
