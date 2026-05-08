@@ -1,0 +1,440 @@
+{
+  "id": "loteria",
+  "titulo": "Lotería",
+  "icono": "loteria-icono.png",
+  "carpeta_img": "assets/memorama/loteria/",
+  "items": [
+    {
+      "id": 501,
+      "imagen": "1.jpg",
+      "es-MX": "el gallo",
+      "en-US": "the rooster",
+      "fr-FR": "le coq",
+      "zh-CN": "公鸡"
+    },
+    {
+      "id": 502,
+      "imagen": "2.jpg",
+      "es-MX": "el diablito",
+      "en-US": "the little devil",
+      "fr-FR": "le petit diable",
+      "zh-CN": "小恶魔"
+    },
+    {
+      "id": 503,
+      "imagen": "3.jpg",
+      "es-MX": "la dama",
+      "en-US": "the lady",
+      "fr-FR": "la dame",
+      "zh-CN": "女士"
+    },
+    {
+      "id": 504,
+      "imagen": "4.jpg",
+      "es-MX": "el catrín",
+      "en-US": "the dandy",
+      "fr-FR": "el catrín",
+      "zh-CN": "花花公子"
+    },
+    {
+      "id": 505,
+      "imagen": "5.jpg",
+      "es-MX": "el paraguas",
+      "en-US": "the umbrella",
+      "fr-FR": "le parapluie",
+      "zh-CN": "雨伞"
+    },
+    {
+      "id": 506,
+      "imagen": "6.jpg",
+      "es-MX": "la sirena",
+      "en-US": "the mermaid",
+      "fr-FR": "la sirène",
+      "zh-CN": "美人鱼"
+    },
+    {
+      "id": 507,
+      "imagen": "7.jpg",
+      "es-MX": "la escalera",
+      "en-US": "the ladder",
+      "fr-FR": "l'échelle",
+      "zh-CN": "梯子"
+    },
+    {
+      "id": 508,
+      "imagen": "8.jpg",
+      "es-MX": "la botella",
+      "en-US": "the bottle",
+      "fr-FR": "la bouteille",
+      "zh-CN": "瓶子"
+    },
+    {
+      "id": 509,
+      "imagen": "9.jpg",
+      "es-MX": "el barril",
+      "en-US": "the barrel",
+      "fr-FR": "le baril",
+      "zh-CN": "桶"
+    },
+    {
+      "id": 510,
+      "imagen": "10.jpg",
+      "es-MX": "el árbol",
+      "en-US": "the tree",
+      "fr-FR": "l'arbre",
+      "zh-CN": "树"
+    },
+    {
+      "id": 511,
+      "imagen": "11.jpg",
+      "es-MX": "el melón",
+      "en-US": "the melon",
+      "fr-FR": "le melon",
+      "zh-CN": "甜瓜"
+    },
+    {
+      "id": 512,
+      "imagen": "12.jpg",
+      "es-MX": "el valiente",
+      "en-US": "the brave man",
+      "fr-FR": "el valiente",
+      "zh-CN": "勇敢的人"
+    },
+    {
+      "id": 513,
+      "imagen": "13.jpg",
+      "es-MX": "el gorrito",
+      "en-US": "the little bonnet",
+      "fr-FR": "le petit bonnet",
+      "zh-CN": "小帽子"
+    },
+    {
+      "id": 514,
+      "imagen": "14.jpg",
+      "es-MX": "la muerte",
+      "en-US": "death",
+      "fr-FR": "la mort",
+      "zh-CN": "死亡"
+    },
+    {
+      "id": 515,
+      "imagen": "15.jpg",
+      "es-MX": "la pera",
+      "en-US": "the pear",
+      "fr-FR": "la poire",
+      "zh-CN": "梨"
+    },
+    {
+      "id": 516,
+      "imagen": "16.jpg",
+      "es-MX": "la bandera",
+      "en-US": "the flag",
+      "fr-FR": "le drapeau",
+      "zh-CN": "旗帜"
+    },
+    {
+      "id": 517,
+      "imagen": "17.jpg",
+      "es-MX": "el bandolón",
+      "en-US": "the mandolin",
+      "fr-FR": "le bandolón",
+      "zh-CN": "曼陀林"
+    },
+    {
+      "id": 518,
+      "imagen": "18.jpg",
+      "es-MX": "el violoncello",
+      "en-US": "the cello",
+      "fr-FR": "le violoncelle",
+      "zh-CN": "大提琴"
+    },
+    {
+      "id": 519,
+      "imagen": "19.jpg",
+      "es-MX": "la garza",
+      "en-US": "the heron",
+      "fr-FR": "le héron",
+      "zh-CN": "鹭"
+    },
+    {
+      "id": 520,
+      "imagen": "20.jpg",
+      "es-MX": "el pájaro",
+      "en-US": "the bird",
+      "fr-FR": "l'oiseau",
+      "zh-CN": "鸟"
+    },
+    {
+      "id": 521,
+      "imagen": "21.jpg",
+      "es-MX": "la mano",
+      "en-US": "the hand",
+      "fr-FR": "la main",
+      "zh-CN": "手"
+    },
+    {
+      "id": 522,
+      "imagen": "22.jpg",
+      "es-MX": "la bota",
+      "en-US": "the boot",
+      "fr-FR": "la botte",
+      "zh-CN": "靴子"
+    },
+    {
+      "id": 523,
+      "imagen": "23.jpg",
+      "es-MX": "la luna",
+      "en-US": "the moon",
+      "fr-FR": "la lune",
+      "zh-CN": "月亮"
+    },
+    {
+      "id": 524,
+      "imagen": "24.jpg",
+      "es-MX": "el cotorro",
+      "en-US": "the parrot",
+      "fr-FR": "le perroquet",
+      "zh-CN": "鹦鹉"
+    },
+    {
+      "id": 525,
+      "imagen": "25.jpg",
+      "es-MX": "el borracho",
+      "en-US": "the drunkard",
+      "fr-FR": "l'ivrogne",
+      "zh-CN": "酒鬼"
+    },
+    {
+      "id": 526,
+      "imagen": "26.jpg",
+      "es-MX": "el negrito",
+      "en-US": "the little black man",
+      "fr-FR": "el negrito",
+      "zh-CN": "黑人小伙"
+    },
+    {
+      "id": 527,
+      "imagen": "27.jpg",
+      "es-MX": "el corazón",
+      "en-US": "the heart",
+      "fr-FR": "le coeur",
+      "zh-CN": "心"
+    },
+    {
+      "id": 528,
+      "imagen": "28.jpg",
+      "es-MX": "la sandía",
+      "en-US": "the watermelon",
+      "fr-FR": "la pastèque",
+      "zh-CN": "西瓜"
+    },
+    {
+      "id": 529,
+      "imagen": "29.jpg",
+      "es-MX": "el tambor",
+      "en-US": "the drum",
+      "fr-FR": "le tambour",
+      "zh-CN": "鼓"
+    },
+    {
+      "id": 530,
+      "imagen": "30.jpg",
+      "es-MX": "el camarón",
+      "en-US": "the shrimp",
+      "fr-FR": "la crevette",
+      "zh-CN": "虾"
+    },
+    {
+      "id": 531,
+      "imagen": "31.jpg",
+      "es-MX": "las jaras",
+      "en-US": "the arrows",
+      "fr-FR": "les flèches",
+      "zh-CN": "箭"
+    },
+    {
+      "id": 532,
+      "imagen": "32.jpg",
+      "es-MX": "el músico",
+      "en-US": "the musician",
+      "fr-FR": "le musicien",
+      "zh-CN": "音乐家"
+    },
+    {
+      "id": 533,
+      "imagen": "33.jpg",
+      "es-MX": "la araña",
+      "en-US": "the spider",
+      "fr-FR": "l'araignée",
+      "zh-CN": "蜘蛛"
+    },
+    {
+      "id": 534,
+      "imagen": "34.jpg",
+      "es-MX": "el soldado",
+      "en-US": "the soldier",
+      "fr-FR": "le soldat",
+      "zh-CN": "士兵"
+    },
+    {
+      "id": 535,
+      "imagen": "35.jpg",
+      "es-MX": "la estrella",
+      "en-US": "the star",
+      "fr-FR": "l'étoile",
+      "zh-CN": "星星"
+    },
+    {
+      "id": 536,
+      "imagen": "36.jpg",
+      "es-MX": "el cazo",
+      "en-US": "the saucepan",
+      "fr-FR": "la casserole",
+      "zh-CN": "锅"
+    },
+    {
+      "id": 537,
+      "imagen": "37.jpg",
+      "es-MX": "el mundo",
+      "en-US": "the world",
+      "fr-FR": "le monde",
+      "zh-CN": "世界"
+    },
+    {
+      "id": 538,
+      "imagen": "38.jpg",
+      "es-MX": "el apache",
+      "en-US": "the apache",
+      "fr-FR": "l'apache",
+      "zh-CN": "阿帕奇人"
+    },
+    {
+      "id": 539,
+      "imagen": "39.jpg",
+      "es-MX": "el nopal",
+      "en-US": "the prickly pear cactus",
+      "fr-FR": "le nopal",
+      "zh-CN": "仙人掌"
+    },
+    {
+      "id": 540,
+      "imagen": "40.jpg",
+      "es-MX": "el alacrán",
+      "en-US": "the scorpion",
+      "fr-FR": "le scorpion",
+      "zh-CN": "蝎子"
+    },
+    {
+      "id": 541,
+      "imagen": "41.jpg",
+      "es-MX": "la rosa",
+      "en-US": "the rose",
+      "fr-FR": "la rose",
+      "zh-CN": "玫瑰"
+    },
+    {
+      "id": 542,
+      "imagen": "42.jpg",
+      "es-MX": "la calavera",
+      "en-US": "the skull",
+      "fr-FR": "le crâne",
+      "zh-CN": "骷髅"
+    },
+    {
+      "id": 543,
+      "imagen": "43.jpg",
+      "es-MX": "la campana",
+      "en-US": "the bell",
+      "fr-FR": "la cloche",
+      "zh-CN": "钟"
+    },
+    {
+      "id": 544,
+      "imagen": "44.jpg",
+      "es-MX": "el cantarito",
+      "en-US": "the little water pitcher",
+      "fr-FR": "la petite cruche",
+      "zh-CN": "小水罐"
+    },
+    {
+      "id": 545,
+      "imagen": "45.jpg",
+      "es-MX": "el venado",
+      "en-US": "the deer",
+      "fr-FR": "le cerf",
+      "zh-CN": "鹿"
+    },
+    {
+      "id": 546,
+      "imagen": "46.jpg",
+      "es-MX": "el sol",
+      "en-US": "the sun",
+      "fr-FR": "le soleil",
+      "zh-CN": "太阳"
+    },
+    {
+      "id": 547,
+      "imagen": "47.jpg",
+      "es-MX": "la corona",
+      "en-US": "the crown",
+      "fr-FR": "la couronne",
+      "zh-CN": "皇冠"
+    },
+    {
+      "id": 548,
+      "imagen": "48.jpg",
+      "es-MX": "la chalupa",
+      "en-US": "the canoe",
+      "fr-FR": "la chaloupe",
+      "zh-CN": "小船"
+    },
+    {
+      "id": 549,
+      "imagen": "49.jpg",
+      "es-MX": "el pino",
+      "en-US": "the pine tree",
+      "fr-FR": "le pin",
+      "zh-CN": "松树"
+    },
+    {
+      "id": 550,
+      "imagen": "50.jpg",
+      "es-MX": "el pescado",
+      "en-US": "the fish",
+      "fr-FR": "le poisson",
+      "zh-CN": "鱼"
+    },
+    {
+      "id": 551,
+      "imagen": "51.jpg",
+      "es-MX": "la palma",
+      "en-US": "the palm tree",
+      "fr-FR": "le palmier",
+      "zh-CN": "棕榈树"
+    },
+    {
+      "id": 552,
+      "imagen": "52.jpg",
+      "es-MX": "la maceta",
+      "en-US": "the flowerpot",
+      "fr-FR": "le pot de fleurs",
+      "zh-CN": "花盆"
+    },
+    {
+      "id": 553,
+      "imagen": "53.jpg",
+      "es-MX": "el arpa",
+      "en-US": "the harp",
+      "fr-FR": "la harpe",
+      "zh-CN": "竖琴"
+    },
+    {
+      "id": 554,
+      "imagen": "54.jpg",
+      "es-MX": "la rana",
+      "en-US": "the frog",
+      "fr-FR": "la grenouille",
+      "zh-CN": "青蛙"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ const MAX_PARES = 12;
 const COLS = 8;
 const FILAS = 3;
 const TEMAS_IMG_BASE = './assets/memorama/temas/';
+const DORSOS_IMG_BASE = './assets/memorama/dorsos/';
 
 const IDIOMAS = [
   { id: 'es-MX', bandera: '\u{1F1F2}\u{1F1FD}', lang: 'es-MX' },
@@ -56,9 +57,26 @@ let _idiomasActivos = new Set(
 const _q = sel => _container?.querySelector(sel);
 const _idiomaAl = () => { const a = [..._idiomasActivos]; return a[Math.floor(Math.random() * a.length)]; };
 const _nombre = (item, idioma) => item[idioma] || item['es-MX'] || String(item.id);
-const _dorso = id => DORSOS[id] || DORSOS.default;
+const _dorsoCache = {};
+function _dorso(id) {
+  return DORSOS[id] || DORSOS.default;
+}
 const _imgUrl = item => (_temaActivo?.carpeta_img && item?.imagen)
   ? `${PICS_BASE}${_temaActivo.carpeta_img}${item.imagen}` : null;
+
+function _buildDorsoStyle(id) {
+  const d = _dorso(id);
+  // Si ya sabemos que la imagen cargó, usarla
+  if (_dorsoCache[id] === 'ok') {
+    return 'background:' + d.bg + ';background-image:url(' + DORSOS_IMG_BASE + id + '.png);background-size:cover;background-position:center;';
+  }
+  // Si ya sabemos que falló, usar gradiente
+  if (_dorsoCache[id] === 'err') {
+    return 'background:' + d.bg + ';';
+  }
+  // Primera vez: intentar imagen, con onerror como fallback
+  return 'background:' + d.bg + ';background-image:url(' + DORSOS_IMG_BASE + id + '.png);background-size:cover;background-position:center;';
+}
 
 async function _cargarTemas() {
   if (_temas.length) return;
@@ -542,6 +560,14 @@ function _renderGrid() {
   const grid = _q('#mem-grid');
   if (!grid) return;   // guard
   grid.innerHTML = '';
+  // Probar si existe la imagen del dorso
+  const temaId = _temaActivo?.id;
+  if (temaId && _dorsoCache[temaId] === undefined) {
+    const probe = new Image();
+    probe.onload  = () => { _dorsoCache[temaId] = 'ok'; };
+    probe.onerror = () => { _dorsoCache[temaId] = 'err'; };
+    probe.src = DORSOS_IMG_BASE + temaId + '.png';
+  }
   const dorso = _dorso(_temaActivo?.id);
   _cartas.forEach((carta, i) => {
     const item = _itemMap[carta.itemId];
@@ -550,9 +576,10 @@ function _renderGrid() {
     const celda = document.createElement('div');
     celda.className = 'mem-celda';
     celda.style.animationDelay = (i * 0.025) + 's';
+    const dorsoStyle = _buildDorsoStyle(_temaActivo?.id);
     celda.innerHTML =
       '<div class="mem-carta" data-idx="' + i + '">' +
-      '<div class="mem-cara mem-dorso" style="background:' + dorso.bg + '">' + dorso.svg + '</div>' +
+      '<div class="mem-cara mem-dorso" style="' + dorsoStyle + '">' + dorso.svg + '</div>' +
       '<div class="mem-cara mem-frente">' +
       (url
         ? '<img src="' + url + '" alt="' + nombre + '" onerror="this.style.opacity=\'.15\'">'
