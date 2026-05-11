@@ -2,6 +2,7 @@
 
 import { borrarCache, precachear, fetchTimeout } from '../../core/offline.js';
 import { toast, lanzarConfeti } from '../../core/ui.js';
+import { Perfiles } from '../../core/perfiles.js';
 
 const LS_TAMANO = 'dotir2-saac-tamano';
 
@@ -106,6 +107,111 @@ function _renderShell() {
         text-align: center; font-size: .7rem; font-weight: 700;
         color: rgba(255,255,255,0.25); padding-bottom: 8px;
       }
+
+      /* Perfiles */
+      .aj-perfil-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+      }
+      .aj-perfil-item:last-child { border-bottom: none; }
+      .aj-perfil-avatar {
+        width: 44px; height: 44px; border-radius: 50%;
+        object-fit: cover; flex-shrink: 0;
+        background: rgba(255,255,255,0.1);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem; overflow: hidden;
+      }
+      .aj-perfil-avatar img { width: 100%; height: 100%; object-fit: cover; }
+      .aj-perfil-info { flex: 1; min-width: 0; }
+      .aj-perfil-apodo {
+        color: white; font-size: .92rem; font-weight: 800;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .aj-perfil-meta {
+        color: rgba(255,255,255,0.45); font-size: .7rem; font-weight: 600;
+        margin-top: 2px;
+      }
+      .aj-perfil-activo-badge {
+        font-size: .62rem; font-weight: 900; padding: 2px 8px;
+        border-radius: 20px; background: #A855F7; color: white;
+        flex-shrink: 0;
+      }
+      .aj-perfil-btns { display: flex; gap: 6px; flex-shrink: 0; }
+      .aj-perfil-btn {
+        width: 32px; height: 32px; border-radius: 50%;
+        border: none; cursor: pointer; font-size: .85rem;
+        display: flex; align-items: center; justify-content: center;
+        transition: transform .12s;
+      }
+      .aj-perfil-btn:active { transform: scale(.88); }
+      .aj-perfil-btn-activar { background: rgba(168,85,247,0.25); color: #c084fc; }
+      .aj-perfil-btn-editar  { background: rgba(255,255,255,0.12); color: white; }
+      .aj-perfil-btn-exportar { background: rgba(34,197,94,0.2); color: #4ade80; }
+      .aj-perfil-btn-eliminar { background: rgba(239,68,68,0.2); color: #f87171; }
+
+      /* Modal de perfil */
+      #aj-modal-perfil {
+        display: none; position: fixed; inset: 0; z-index: 100;
+        background: rgba(10,8,30,0.85);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        align-items: center; justify-content: center; padding: 20px;
+      }
+      #aj-modal-perfil.visible { display: flex; }
+      #aj-modal-perfil-box {
+        background: rgba(30,30,58,0.98);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 28px; padding: 24px;
+        width: 100%; max-width: 420px;
+        display: flex; flex-direction: column; gap: 16px;
+        max-height: 90vh; overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      }
+      #aj-modal-perfil-box h3 { color: white; font-size: 1rem; font-weight: 900; }
+      .aj-modal-label {
+        color: rgba(255,255,255,0.45); font-size: .7rem;
+        font-weight: 900; text-transform: uppercase; letter-spacing: .08em;
+        margin-bottom: 4px; display: block;
+      }
+      .aj-modal-input {
+        width: 100%; padding: 12px 14px; border-radius: 14px;
+        border: 1.5px solid rgba(255,255,255,0.15);
+        background: rgba(255,255,255,0.07); color: white;
+        font-size: .92rem; font-weight: 700; font-family: inherit;
+        outline: none; -webkit-appearance: none;
+      }
+      .aj-modal-input:focus { border-color: #A855F7; }
+      .aj-modal-textarea {
+        width: 100%; padding: 12px 14px; border-radius: 14px;
+        border: 1.5px solid rgba(255,255,255,0.15);
+        background: rgba(255,255,255,0.07); color: white;
+        font-size: .88rem; font-weight: 600; font-family: inherit;
+        outline: none; resize: none; height: 90px;
+        -webkit-appearance: none;
+      }
+      .aj-modal-textarea:focus { border-color: #A855F7; }
+      #aj-avatar-preview {
+        width: 72px; height: 72px; border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2.2rem; overflow: hidden; flex-shrink: 0;
+        border: 2px solid rgba(255,255,255,0.15);
+      }
+      #aj-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+      .aj-avatar-row { display: flex; align-items: center; gap: 14px; }
+      .aj-avatar-acciones { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+      .aj-modal-btns { display: flex; gap: 10px; }
+      .aj-modal-btns button {
+        flex: 1; padding: 14px; border-radius: 16px; border: none;
+        font-weight: 900; font-size: .92rem; cursor: pointer; font-family: inherit;
+        transition: transform .12s;
+      }
+      .aj-modal-btns button:active { transform: scale(.95); }
+      #btn-modal-guardar { background: #A855F7; color: white; }
+      #btn-modal-cancelar {
+        background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+        border: 1px solid rgba(255,255,255,0.15);
+      }
     </style>
 
     <div id="aj-wrap">
@@ -177,7 +283,58 @@ function _renderShell() {
         </div>
       </div>
 
-      <p id="aj-version">Dotir 2 v2.0</p>
+            <div class="aj-seccion" id="aj-sec-perfiles">
+        <p class="aj-titulo">Perfiles</p>
+        <div id="aj-perfiles-lista"></div>
+        <div class="aj-fila">
+          <div class="aj-fila-info">
+            <span class="aj-label">Nuevo perfil</span>
+            <span class="aj-desc">Crea un perfil para un usuario</span>
+          </div>
+          <button class="aj-btn aj-primary" id="btn-aj-nuevo-perfil">+ Crear</button>
+        </div>
+      </div>
+
+      <p id="aj-versi on">Dotir 2 v2.0</p>
+
+      <div id="aj-modal-perfil">
+  <div id="aj-modal-perfil-box">
+    <h3 id="aj-modal-titulo">Nuevo perfil</h3>
+    <div class="aj-avatar-row">
+      <div id="aj-avatar-preview">🧑</div>
+      <div class="aj-avatar-acciones">
+        <span class="aj-modal-label">Avatar</span>
+        <input class="aj-modal-input" id="input-avatar-emoji"
+               placeholder="Emoji (ej: 🐯)" maxlength="4">
+        <button class="aj-btn aj-neutral" id="btn-avatar-foto"
+                style="font-size:.78rem;padding:8px 12px;">
+          📷 Subir foto
+        </button>
+        <input type="file" id="input-avatar-file"
+               accept="image/*" style="display:none">
+      </div>
+    </div>
+    <div>
+      <span class="aj-modal-label">Apodo</span>
+      <input class="aj-modal-input" id="input-apodo"
+             placeholder="Ej: Tigre" maxlength="24">
+    </div>
+    <div>
+      <span class="aj-modal-label">Fecha de nacimiento</span>
+      <input class="aj-modal-input" id="input-fecha"
+             type="date">
+    </div>
+    <div>
+      <span class="aj-modal-label">Notas</span>
+      <textarea class="aj-modal-textarea" id="input-notas"
+                placeholder="Observaciones generales..."></textarea>
+    </div>
+    <div class="aj-modal-btns">
+      <button id="btn-modal-cancelar">Cancelar</button>
+      <button id="btn-modal-guardar">Guardar</button>
+    </div>
+  </div>
+</div>
 
     </div>
   `;
@@ -326,23 +483,23 @@ async function _descargarTodo() {
     }
   } catch (_) { }
   // Descargar archivos de audio
-try {
-  const r = await fetchTimeout('./data/media.json', 5000);
-  if (!_container) return;
-  if (r.ok) {
-    const media = await r.json();
+  try {
+    const r = await fetchTimeout('./data/media.json', 5000);
     if (!_container) return;
-    media.forEach(item => {
-      if (item.tipo === 'audio') {
-        urls.add('./assets/audio/' + item.archivo + '.mp3');
-        urls.add('./assets/audio/img/' + item.archivo + '.jpg');
-      } else {
-        urls.add('./assets/videos/' + item.archivo + '.mp4');
-        urls.add('./assets/videos/img/' + item.archivo + '.jpg');
-      }
-    });
-  }
-} catch (_) {}
+    if (r.ok) {
+      const media = await r.json();
+      if (!_container) return;
+      media.forEach(item => {
+        if (item.tipo === 'audio') {
+          urls.add('./assets/audio/' + item.archivo + '.mp3');
+          urls.add('./assets/audio/img/' + item.archivo + '.jpg');
+        } else {
+          urls.add('./assets/videos/' + item.archivo + '.mp4');
+          urls.add('./assets/videos/img/' + item.archivo + '.jpg');
+        }
+      });
+    }
+  } catch (_) { }
 
   if (!_container) return;                            // guard antes de precachear
 
@@ -366,4 +523,203 @@ try {
   lanzarConfeti({ count: 40, container: _container });
   toast('Descarga completada', { emoji: '\u{1F4E5}' });
   btn.disabled = false;
+
+  // Listeners de perfiles
+  _q('#btn-aj-nuevo-perfil').addEventListener('click', () => _abrirModal());
+  _q('#btn-modal-cancelar').addEventListener('click', _cerrarModal);
+  _q('#aj-modal-perfil').addEventListener('click', e => {
+    if (e.target === _q('#aj-modal-perfil')) _cerrarModal();
+  });
+  _q('#btn-avatar-foto').addEventListener('click', () => {
+    _q('#input-avatar-file').click();
+  });
+  _q('#input-avatar-file').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      _avatarFotoData = ev.target.result;
+      const prev = _q('#aj-avatar-preview');
+      prev.innerHTML = '<img src="' + _avatarFotoData + '">';
+      _q('#input-avatar-emoji').value = '';
+    };
+    reader.readAsDataURL(file);
+  });
+  _q('#input-avatar-emoji').addEventListener('input', e => {
+    const val = e.target.value.trim();
+    if (val) {
+      _avatarFotoData = null;
+      _q('#aj-avatar-preview').innerHTML = val;
+    }
+  });
+  _q('#btn-modal-guardar').addEventListener('click', _guardarPerfil);
+
+  _renderPerfiles();
+}
+
+let _editandoId = null;
+let _avatarFotoData = null;
+
+function _renderPerfiles() {
+  const lista = _q('#aj-perfiles-lista');
+  if (!lista) return;
+  lista.innerHTML = '';
+  Perfiles.listar().forEach(p => {
+    const esActivo = p.id === Perfiles.activoId;
+    const edad = Perfiles.calcularEdad(p.fechaNacimiento);
+    const item = document.createElement('div');
+    item.className = 'aj-perfil-item';
+
+    // Avatar
+    const avatarEl = document.createElement('div');
+    avatarEl.className = 'aj-perfil-avatar';
+    if (p.avatarFoto) {
+      avatarEl.innerHTML = '<img src="' + p.avatarFoto + '" alt="' + p.apodo + '">';
+    } else {
+      avatarEl.textContent = p.avatar || '🧑';
+    }
+
+    // Info
+    const info = document.createElement('div');
+    info.className = 'aj-perfil-info';
+    info.innerHTML =
+      '<div class="aj-perfil-apodo">' + p.apodo + '</div>' +
+      '<div class="aj-perfil-meta">' +
+      (edad !== null ? edad + ' años' : 'Sin fecha de nacimiento') +
+      '</div>';
+
+    // Badge activo
+    const btns = document.createElement('div');
+    btns.className = 'aj-perfil-btns';
+
+    if (esActivo) {
+      const badge = document.createElement('span');
+      badge.className = 'aj-perfil-activo-badge';
+      badge.textContent = 'Activo';
+      btns.appendChild(badge);
+    } else {
+      const btnActivar = document.createElement('button');
+      btnActivar.className = 'aj-perfil-btn aj-perfil-btn-activar';
+      btnActivar.title = 'Activar perfil';
+      btnActivar.textContent = '▶';
+      btnActivar.addEventListener('click', () => {
+        Perfiles.activar(p.id);
+        _renderPerfiles();
+        toast('Perfil activo: ' + p.apodo, { emoji: '👤' });
+      });
+      btns.appendChild(btnActivar);
+    }
+
+    // Editar
+    const btnEditar = document.createElement('button');
+    btnEditar.className = 'aj-perfil-btn aj-perfil-btn-editar';
+    btnEditar.title = 'Editar';
+    btnEditar.textContent = '✏️';
+    btnEditar.addEventListener('click', () => _abrirModal(p.id));
+    btns.appendChild(btnEditar);
+
+    // Exportar (no para invitado)
+    if (!p.esInvitado) {
+      const btnExp = document.createElement('button');
+      btnExp.className = 'aj-perfil-btn aj-perfil-btn-exportar';
+      btnExp.title = 'Exportar';
+      btnExp.textContent = '⬇️';
+      btnExp.addEventListener('click', () => {
+        Perfiles.exportar(p.id);
+        toast('Perfil exportado', { emoji: '📥' });
+      });
+      btns.appendChild(btnExp);
+    }
+
+    // Eliminar (no para invitado)
+    if (!p.esInvitado) {
+      const btnDel = document.createElement('button');
+      btnDel.className = 'aj-perfil-btn aj-perfil-btn-eliminar';
+      btnDel.title = 'Eliminar';
+      btnDel.textContent = '🗑';
+      btnDel.addEventListener('click', () => {
+        if (!confirm('¿Eliminar el perfil "' + p.apodo + '"? Esta acción no se puede deshacer.')) return;
+        Perfiles.eliminar(p.id);
+        _renderPerfiles();
+        toast('Perfil eliminado', { emoji: '🗑️' });
+      });
+      btns.appendChild(btnDel);
+    }
+
+    item.append(avatarEl, info, btns);
+    lista.appendChild(item);
+  });
+}
+
+function _abrirModal(id) {
+  _editandoId = id || null;
+  _avatarFotoData = null;
+
+  const titulo = _q('#aj-modal-titulo');
+  const inputApodo = _q('#input-apodo');
+  const inputEmoji = _q('#input-avatar-emoji');
+  const inputFecha = _q('#input-fecha');
+  const inputNotas = _q('#input-notas');
+  const preview = _q('#aj-avatar-preview');
+
+  if (id) {
+    const p = Perfiles.listar().find(x => x.id === id);
+    if (!p) return;
+    titulo.textContent = 'Editar perfil';
+    inputApodo.value = p.apodo;
+    inputFecha.value = p.fechaNacimiento || '';
+    inputNotas.value = p.notas || '';
+    if (p.avatarFoto) {
+      _avatarFotoData = p.avatarFoto;
+      preview.innerHTML = '<img src="' + p.avatarFoto + '">';
+      inputEmoji.value = '';
+    } else {
+      preview.textContent = p.avatar || '🧑';
+      inputEmoji.value = p.avatar || '';
+    }
+  } else {
+    titulo.textContent = 'Nuevo perfil';
+    inputApodo.value = '';
+    inputEmoji.value = '';
+    inputFecha.value = '';
+    inputNotas.value = '';
+    preview.textContent = '🧑';
+  }
+
+  _q('#aj-modal-perfil').classList.add('visible');
+}
+
+function _cerrarModal() {
+  _q('#aj-modal-perfil')?.classList.remove('visible');
+  _editandoId = null;
+  _avatarFotoData = null;
+  const fileInput = _q('#input-avatar-file');
+  if (fileInput) fileInput.value = '';
+}
+
+function _guardarPerfil() {
+  const apodo = _q('#input-apodo').value.trim();
+  if (!apodo) {
+    toast('El apodo es requerido', { emoji: '⚠️' });
+    return;
+  }
+  const emoji = _q('#input-avatar-emoji').value.trim();
+  const datos = {
+    apodo,
+    avatar: emoji || '🧑',
+    avatarFoto: _avatarFotoData || null,
+    fechaNacimiento: _q('#input-fecha').value || null,
+    notas: _q('#input-notas').value.trim(),
+  };
+
+  if (_editandoId) {
+    Perfiles.actualizar(_editandoId, datos);
+    toast('Perfil actualizado', { emoji: '✅' });
+  } else {
+    Perfiles.crear(datos);
+    toast('Perfil creado', { emoji: '🎉' });
+  }
+
+  _cerrarModal();
+  _renderPerfiles();
 }

@@ -3,17 +3,17 @@
 import { TTS } from '../../core/tts.js';
 import { fetchTimeout } from '../../core/offline.js';
 import { toast } from '../../core/ui.js';
+import { Perfiles } from '../../core/perfiles.js';
 
 const DATA_URL = './data/saac.json';
 const PICS_BASE = './assets/saac/';
-const LS_FAVS = 'dotir2-saac-favs';
 const LS_HISTORIAL = 'dotir2-saac-historial';
 const LS_TAMANO = 'dotir2-saac-tamano';
 const HISTORIAL_MAX = 10;
 const LONGPRESS_MS = 500;
 
 let _datos = null;
-let _favs = new Set(JSON.parse(localStorage.getItem(LS_FAVS) || '[]'));
+let _favs = Perfiles.getFavs();
 let _historial = JSON.parse(localStorage.getItem(LS_HISTORIAL) || '[]');
 let _frase = [];
 let _catActiva = 'favs';
@@ -22,7 +22,7 @@ let _tamano = localStorage.getItem(LS_TAMANO) || 'M';
 let _container = null;
 let _lpActivo = null;
 
-const _guardarFavs = () => localStorage.setItem(LS_FAVS, JSON.stringify([..._favs]));
+const _guardarFavs = () => Perfiles.setFavs(_favs);
 const _guardarHistorial = () => localStorage.setItem(LS_HISTORIAL, JSON.stringify(_historial));
 const _norm = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
@@ -63,6 +63,7 @@ export function destroy() {
 
 export async function resume(container) {
   _container = container;
+  _favs = Perfiles.getFavs();   // recargar favs del perfil activo
   _renderShell();
   _renderCategorias();
   _renderGrid();
