@@ -410,7 +410,6 @@ function _renderShell() {
   _renderPerfiles();
 
 } // <-- cierre de _renderShell
-}
 
 async function _actualizarEstadoConexion() {
   const dot = _q('#aj-dot');
