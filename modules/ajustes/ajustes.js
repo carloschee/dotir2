@@ -119,13 +119,6 @@ function _renderShell() {
           </div>
           <button class="aj-btn aj-neutral" id="btn-aj-verificar">Verificar</button>
         </div>
-        <div class="aj-fila">
-          <div class="aj-fila-info">
-            <span class="aj-label">Modo avion</span>
-            <span class="aj-desc">Usa solo contenido descargado previamente</span>
-          </div>
-          <button class="aj-btn aj-neutral" id="btn-aj-avion">Activar</button>
-        </div>
       </div>
 
       <div class="aj-seccion">
@@ -190,20 +183,6 @@ function _renderShell() {
   `;
 
   _q('#btn-aj-verificar').addEventListener('click', _actualizarEstadoConexion);
-
-  let _avion = false;
-  _q('#btn-aj-avion').addEventListener('click', () => {
-    _avion = !_avion;
-    const btn = _q('#btn-aj-avion');
-    btn.textContent = _avion ? 'Desactivar' : 'Activar';
-    btn.style.background = _avion ? '#EF4444' : '';
-    btn.style.color = _avion ? 'white' : '';
-    navigator.serviceWorker?.controller?.postMessage({
-      tipo: _avion ? 'forzar-offline' : 'forzar-online'
-    });
-    toast(_avion ? 'Modo avion activado' : 'Modo avion desactivado',
-      { emoji: _avion ? '✈️' : '📶' });
-  });
 
   _q('#btn-aj-descargar').addEventListener('click', _descargarTodo);
 
@@ -346,6 +325,24 @@ async function _descargarTodo() {
       }
     }
   } catch (_) { }
+  // Descargar archivos de audio
+try {
+  const r = await fetchTimeout('./data/media.json', 5000);
+  if (!_container) return;
+  if (r.ok) {
+    const media = await r.json();
+    if (!_container) return;
+    media.forEach(item => {
+      if (item.tipo === 'audio') {
+        urls.add('./assets/audio/' + item.archivo + '.mp3');
+        urls.add('./assets/audio/img/' + item.archivo + '.jpg');
+      } else {
+        urls.add('./assets/videos/' + item.archivo + '.mp4');
+        urls.add('./assets/videos/img/' + item.archivo + '.jpg');
+      }
+    });
+  }
+} catch (_) {}
 
   if (!_container) return;                            // guard antes de precachear
 
