@@ -379,6 +379,37 @@ function _renderShell() {
     toast('Tamano ' + nombre, { emoji: '🔲' });
     window.DotirApp?.MODULE_REGISTRY?.find(m => m.id === 'saac')?.setTamano?.(t);
   });
+  _q('#btn-aj-nuevo-perfil').addEventListener('click', () => _abrirModal());
+  _q('#btn-modal-cancelar').addEventListener('click', _cerrarModal);
+  _q('#aj-modal-perfil').addEventListener('click', e => {
+    if (e.target === _q('#aj-modal-perfil')) _cerrarModal();
+  });
+  _q('#btn-avatar-foto').addEventListener('click', () => {
+    _q('#input-avatar-file').click();
+  });
+  _q('#input-avatar-file').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      _avatarFotoData = ev.target.result;
+      const prev = _q('#aj-avatar-preview');
+      prev.innerHTML = '<img src="' + _avatarFotoData + '">';
+      _q('#input-avatar-emoji').value = '';
+    };
+    reader.readAsDataURL(file);
+  });
+  _q('#input-avatar-emoji').addEventListener('input', e => {
+    const val = e.target.value.trim();
+    if (val) {
+      _avatarFotoData = null;
+      _q('#aj-avatar-preview').innerHTML = val;
+    }
+  });
+  _q('#btn-modal-guardar').addEventListener('click', _guardarPerfil);
+  _renderPerfiles();
+
+} // <-- cierre de _renderShell
 }
 
 async function _actualizarEstadoConexion() {
@@ -523,38 +554,6 @@ async function _descargarTodo() {
   lanzarConfeti({ count: 40, container: _container });
   toast('Descarga completada', { emoji: '\u{1F4E5}' });
   btn.disabled = false;
-
-  // Listeners de perfiles
-  _q('#btn-aj-nuevo-perfil').addEventListener('click', () => _abrirModal());
-  _q('#btn-modal-cancelar').addEventListener('click', _cerrarModal);
-  _q('#aj-modal-perfil').addEventListener('click', e => {
-    if (e.target === _q('#aj-modal-perfil')) _cerrarModal();
-  });
-  _q('#btn-avatar-foto').addEventListener('click', () => {
-    _q('#input-avatar-file').click();
-  });
-  _q('#input-avatar-file').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      _avatarFotoData = ev.target.result;
-      const prev = _q('#aj-avatar-preview');
-      prev.innerHTML = '<img src="' + _avatarFotoData + '">';
-      _q('#input-avatar-emoji').value = '';
-    };
-    reader.readAsDataURL(file);
-  });
-  _q('#input-avatar-emoji').addEventListener('input', e => {
-    const val = e.target.value.trim();
-    if (val) {
-      _avatarFotoData = null;
-      _q('#aj-avatar-preview').innerHTML = val;
-    }
-  });
-  _q('#btn-modal-guardar').addEventListener('click', _guardarPerfil);
-
-  _renderPerfiles();
 }
 
 let _editandoId = null;
