@@ -7,8 +7,10 @@ import { fetchTimeout } from '../../core/offline.js';
 const TEMAS_URL = './data/memorama-temas.json';
 const PICS_BASE = './';
 const MAX_PARES = 12;
-const COLS = 8;
-const FILAS = 3;
+const COLS_DESKTOP = 8;
+const FILAS_DESKTOP = 3;
+const COLS_MOVIL = 4;
+const FILAS_MOVIL = 6;
 const TEMAS_IMG_BASE = './assets/memorama/temas/';
 const DORSOS_IMG_BASE = './assets/memorama/dorsos/';
 
@@ -187,10 +189,16 @@ function _renderShell() {
       #mem-grid {
         width: 100%;
         display: grid;
-        grid-template-columns: repeat(${COLS}, 1fr);
-        grid-template-rows: repeat(${FILAS}, 1fr);
         gap: 5px;
+        grid-template-columns: repeat(8, 1fr);
+        grid-template-rows: repeat(3, 1fr);
       }
+  @media (max-width: 600px) {
+    #mem-grid {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+    }
+}
 
       .mem-celda { perspective: 700px; min-height: 0; }
       .mem-carta {
@@ -564,7 +572,7 @@ function _renderGrid() {
   const temaId = _temaActivo?.id;
   if (temaId && _dorsoCache[temaId] === undefined) {
     const probe = new Image();
-    probe.onload  = () => { _dorsoCache[temaId] = 'ok'; };
+    probe.onload = () => { _dorsoCache[temaId] = 'ok'; };
     probe.onerror = () => { _dorsoCache[temaId] = 'err'; };
     probe.src = DORSOS_IMG_BASE + temaId + '.png';
   }

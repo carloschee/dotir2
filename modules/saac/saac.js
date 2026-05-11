@@ -89,10 +89,11 @@ function _renderShell() {
   _container.innerHTML = `
     <style>
       #saac-wrap {
-        display: flex; flex-direction: column;
-        height: 100%; overflow: hidden;
-        background: transparent;
-      }
+  display: flex; flex-direction: column;
+  height: 100%; overflow: hidden;
+  background: transparent;
+  position: relative;   /* asegurar esto */
+}
 
       /* Barra de frase */
       #saac-frase-bar {
@@ -303,16 +304,15 @@ function _renderShell() {
                autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
       <div id="saac-grid-wrap">
-        <div id="saac-grid" class="tam-${_tamano}"></div>
-        <div id="saac-vacio">
-          <span>&#128269;</span>
-          <p>No se encontraron pictogramas.<br>Prueba otra busqueda.</p>
-        </div>
-        <div id="saac-historial-panel">
-          <h3>Frases recientes</h3>
-          <div id="saac-historial-lista"></div>
-        </div>
-      </div>
+  <div id="saac-grid" class="tam-${_tamano}"></div>
+  <div id="saac-vacio">...</div>
+  <!-- quitar el panel de aquí -->
+</div>
+<!-- ponerlo aquí, hermano de saac-grid-wrap -->
+<div id="saac-historial-panel">
+  <h3>Frases recientes</h3>
+  <div id="saac-historial-lista"></div>
+</div>
     </div>
   `;
 
