@@ -612,6 +612,21 @@
           <h1>Dótir 2</h1>
           <span class="version">v2.0</span>
         </div>
+        <div id="perfil-chip" style="
+  display:flex;align-items:center;gap:6px;
+  padding:4px 10px 4px 6px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
+  cursor:default;
+  max-width:140px;
+">
+          <span id="perfil-chip-avatar" style="font-size:1.1rem;line-height:1;flex-shrink:0;"></span>
+          <span id="perfil-chip-apodo" style="
+    color:rgba(255,255,255,0.75);font-size:0.68rem;font-weight:800;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  "></span>
+        </div>
       </div>
       <div id="modulo-acciones"></div>
       <div id="header-derecha">
@@ -653,6 +668,7 @@
     import LibrosModule from './modules/libros/module.js';
     import MediaModule from './modules/media/module.js';
     import TemporizadorModule from './modules/temporizador/module.js';
+    import { Perfiles } from './core/perfiles.js';
 
     const $ = id => document.getElementById(id);
 
@@ -854,7 +870,30 @@
     }
 
     window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
-    window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
+
+    function _actualizarChipPerfil() {
+      const p = Perfiles.getActivo();
+      const avatar = document.getElementById('perfil-chip-avatar');
+      const apodo = document.getElementById('perfil-chip-apodo');
+      const chip = document.getElementById('perfil-chip');
+      if (!avatar || !apodo || !chip) return;
+
+      if (p.avatarFoto) {
+        avatar.innerHTML =
+          '<img src="' + p.avatarFoto + '" style="width:22px;height:22px;' +
+          'border-radius:50%;object-fit:cover;">';
+      } else {
+        avatar.textContent = p.avatar || '🧑';
+      }
+
+      apodo.textContent = p.esInvitado ? 'Invitado' : p.apodo;
+
+      // El invitado se ve más apagado
+      chip.style.opacity = p.esInvitado ? '0.45' : '1';
+    }
+
+    _actualizarChipPerfil();
+    Perfiles.onChange(_actualizarChipPerfil);
 
     const btnAjustes = document.createElement('button');
     btnAjustes.id = 'btn-ajustes-header';
