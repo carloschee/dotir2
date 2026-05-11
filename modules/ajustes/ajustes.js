@@ -16,7 +16,7 @@ export async function init(container) {
 
 export function destroy() { _container = null; }
 export function onEnter() { _actualizarEstadoConexion(); }
-export function onLeave() {}
+export function onLeave() { }
 
 function _renderShell() {
   const tamano = localStorage.getItem(LS_TAMANO) || 'M';
@@ -177,7 +177,7 @@ function _renderShell() {
           </div>
         </div>
         <div id="aj-tamano-btns">
-          ${['S','M','L'].map(t => `
+          ${['S', 'M', 'L'].map(t => `
             <button class="aj-tam-btn${tamano === t ? ' activo' : ''}" data-tam="${t}">
               ${t === 'S' ? 'Pequeno' : t === 'M' ? 'Mediano' : 'Grande'}
             </button>`).join('')}
@@ -195,9 +195,9 @@ function _renderShell() {
   _q('#btn-aj-avion').addEventListener('click', () => {
     _avion = !_avion;
     const btn = _q('#btn-aj-avion');
-    btn.textContent      = _avion ? 'Desactivar' : 'Activar';
+    btn.textContent = _avion ? 'Desactivar' : 'Activar';
     btn.style.background = _avion ? '#EF4444' : '';
-    btn.style.color      = _avion ? 'white'   : '';
+    btn.style.color = _avion ? 'white' : '';
     navigator.serviceWorker?.controller?.postMessage({
       tipo: _avion ? 'forzar-offline' : 'forzar-online'
     });
@@ -246,33 +246,33 @@ function _renderShell() {
 }
 
 async function _actualizarEstadoConexion() {
-  const dot   = _q('#aj-dot');
+  const dot = _q('#aj-dot');
   const texto = _q('#aj-texto-conexion');
   if (!dot || !texto) return;
   dot.style.background = '#eab308';
-  texto.textContent    = 'Verificando...';
+  texto.textContent = 'Verificando...';
   if (!navigator.onLine) {
     dot.style.background = '#ef4444';
-    texto.textContent    = 'Sin conexion';
+    texto.textContent = 'Sin conexion';
     return;
   }
   try {
     const res = await fetchTimeout('./manifest.json', 4000, { method: 'HEAD', cache: 'no-store' });
     if (!_container) return;                          // guard
     dot.style.background = res.ok ? '#22c55e' : '#ef4444';
-    texto.textContent    = res.ok ? 'En linea' : 'Sin conexion';
+    texto.textContent = res.ok ? 'En linea' : 'Sin conexion';
   } catch {
     if (!_container) return;                          // guard
     dot.style.background = '#ef4444';
-    texto.textContent    = 'Sin conexion';
+    texto.textContent = 'Sin conexion';
   }
 }
 
 async function _descargarTodo() {
-  const btn  = _q('#btn-aj-descargar');
+  const btn = _q('#btn-aj-descargar');
   const wrap = _q('#aj-progreso-wrap');
-  const bar  = _q('#aj-progreso-bar');
-  const txt  = _q('#aj-progreso-txt');
+  const bar = _q('#aj-progreso-bar');
+  const txt = _q('#aj-progreso-txt');
   if (!btn || !wrap || !bar || !txt) return;         // guard inicial
 
   btn.disabled = true;
@@ -287,15 +287,14 @@ async function _descargarTodo() {
     './assets/ui/btn-musica.png', './assets/ui/btn-libros.png',
     './assets/ui/btn-videos.png', './assets/ui/btn-ajustes.png',
     './assets/ui/btn-inicio.png', './assets/ui/favicon.png',
-    './modules/saac/module.js',      './modules/saac/saac.js',
-    './modules/memorama/module.js',  './modules/memorama/memorama.js',
-    './modules/musica/module.js',    './modules/musica/musica.js',
-    './modules/libros/module.js',    './modules/libros/libros.js',
-    './modules/videos/module.js',    './modules/videos/videos.js',
-    './modules/ajustes/module.js',   './modules/ajustes/ajustes.js',
-    './data/saac.json',
-    './data/audios.json', './data/videos.json', './data/libros.json',
+    './modules/saac/module.js', './modules/saac/saac.js',
+    './modules/memorama/module.js', './modules/memorama/memorama.js',
+    './modules/libros/module.js', './modules/libros/libros.js',
+    './modules/ajustes/module.js', './modules/ajustes/ajustes.js',
+    './data/saac.json', './data/libros.json',
     './data/memorama-temas.json',
+    './data/media.json',
+    './modules/media/module.js', './modules/media/media.js',
   ]);
 
   const registry = window.DotirApp?.MODULE_REGISTRY || [];
@@ -306,7 +305,7 @@ async function _descargarTodo() {
         : (mod.cache || []);
       if (!_container) return;                        // guard
       cache.forEach(u => urls.add(u));
-    } catch (_) {}
+    } catch (_) { }
   }
 
   try {
@@ -322,7 +321,7 @@ async function _descargarTodo() {
         });
       });
     }
-  } catch (_) {}
+  } catch (_) { }
 
   try {
     const r = await fetchTimeout('./data/memorama-temas.json', 5000);
@@ -343,10 +342,10 @@ async function _descargarTodo() {
                 urls.add('./' + tema.carpeta_img + item.imagen);
             });
           }
-        } catch (_) {}
+        } catch (_) { }
       }
     }
-  } catch (_) {}
+  } catch (_) { }
 
   if (!_container) return;                            // guard antes de precachear
 
@@ -361,9 +360,9 @@ async function _descargarTodo() {
 
   if (!_container) return;                            // guard post-precache
 
-  bar.style.width      = '100%';
+  bar.style.width = '100%';
   bar.style.background = ok === total ? '#22c55e' : '#f59e0b';
-  txt.textContent      = ok === total
+  txt.textContent = ok === total
     ? ok + ' archivos listos'
     : ok + ' de ' + total + ' descargados';
 

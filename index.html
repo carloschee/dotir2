@@ -227,11 +227,11 @@
 
     #app-header {
       flex-shrink: 0;
-  height: calc(var(--d-nav-h) + var(--safe-top));
-  padding-top: var(--safe-top);
+      height: calc(var(--d-nav-h) + var(--safe-top));
+      padding-top: var(--safe-top);
       display: flex;
       align-items: center;
-      padding:20px 12px 0;
+      padding: 20px 12px 0;
       gap: 8px;
       background: var(--d-nav-bg);
       border-radius: 0 0 20px 20px;
@@ -643,10 +643,9 @@
     import AudioManager, { MediaStop } from './core/audio.js';
     import SaacModule from './modules/saac/module.js';
     import MemoramaModule from './modules/memorama/module.js';
-    import MusicaModule from './modules/musica/module.js';
     import AjustesModule from './modules/ajustes/module.js';
     import LibrosModule from './modules/libros/module.js';
-    import VideosModule from './modules/videos/module.js';
+    import MediaModule from './modules/media/module.js';
     import TemporizadorModule from './modules/temporizador/module.js';
 
     const $ = id => document.getElementById(id);
@@ -661,15 +660,14 @@
     });
 
     const MODULE_REGISTRY = [
-  SaacModule,
-  MemoramaModule,
-  MusicaModule,
-  TemporizadorModule,
-  LibrosModule,
-  VideosModule,
-  AjustesModule,
-].filter(m => m.habilitado && m.id !== 'ajustes')
- .sort((a, b) => a.orden - b.orden);
+      SaacModule,
+      MemoramaModule,
+      MediaModule,        // reemplaza MusicaModule y VideosModule
+      TemporizadorModule,
+      LibrosModule,
+      AjustesModule,
+    ].filter(m => m.habilitado && m.id !== 'ajustes')
+      .sort((a, b) => a.orden - b.orden);
 
     const UI_IMGS = {
       saac: 'assets/ui/btn-comunicador.png',
@@ -851,15 +849,15 @@
     window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
     window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
 
-const btnAjustes = document.createElement('button');
-btnAjustes.id = 'btn-ajustes-header';
-btnAjustes.title = 'Ajustes';
-btnAjustes.style.cssText = 'margin-right:15px;width:32px;height:32px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);font-size:1.1rem;flex-shrink:0;transition:color .15s;';
-btnAjustes.innerHTML = '&#9881;&#65039;';
-btnAjustes.addEventListener('click', () => { abrirPin(AjustesModule); });
-document.getElementById('header-derecha')?.insertBefore(btnAjustes, document.getElementById('indicador-offline'));
+    const btnAjustes = document.createElement('button');
+    btnAjustes.id = 'btn-ajustes-header';
+    btnAjustes.title = 'Ajustes';
+    btnAjustes.style.cssText = 'margin-right:15px;width:32px;height:32px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);font-size:1.1rem;flex-shrink:0;transition:color .15s;';
+    btnAjustes.innerHTML = '&#9881;&#65039;';
+    btnAjustes.addEventListener('click', () => { abrirPin(AjustesModule); });
+    document.getElementById('header-derecha')?.insertBefore(btnAjustes, document.getElementById('indicador-offline'));
 
-MediaStop.montar();
+    MediaStop.montar();
 
     MediaStop.montar();
 
