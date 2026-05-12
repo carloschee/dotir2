@@ -3,6 +3,13 @@
 import { borrarCache, precachear, fetchTimeout } from '../../core/offline.js';
 import { toast, lanzarConfeti } from '../../core/ui.js';
 import { Perfiles } from '../../core/perfiles.js';
+import { Perfiles } from '../../core/perfiles.js';
+import AjustesModule from './module.js';
+import SaacModule from '../saac/module.js';
+import MemoramaModule from '../memorama/module.js';
+import MediaModule from '../media/module.js';
+import TemporizadorModule from '../temporizador/module.js';
+import LibrosModule from '../libros/module.js';
 
 const LS_TAMANO = 'dotir2-saac-tamano';
 
@@ -1053,16 +1060,22 @@ function _pinchDist(touches) {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
+const _MODULOS_CONFIGURABLES = [
+  SaacModule,
+  MemoramaModule,
+  MediaModule,
+  TemporizadorModule,
+  LibrosModule,
+];
+
 function _renderModulos() {
   const lista = _q('#aj-modulos-lista');
   if (!lista) return;
   lista.innerHTML = '';
 
-  const registry    = window.DotirApp?.MODULE_REGISTRY || [];
   const habilitados = Perfiles.getModulosHabilitados();
 
-  // Todos los módulos excepto ajustes
-  registry.filter(m => m.id !== 'ajustes').forEach(mod => {
+  _MODULOS_CONFIGURABLES.forEach(mod => {
     const activo = habilitados === null || habilitados.includes(mod.id);
 
     const fila = document.createElement('div');
@@ -1085,13 +1098,12 @@ function _renderModulos() {
     label.appendChild(slider);
 
     input.addEventListener('change', () => {
-      const todos     = registry.filter(m => m.id !== 'ajustes').map(m => m.id);
-      const actual    = Perfiles.getModulosHabilitados() || [...todos];
-      const nuevos    = input.checked
+      const todos  = _MODULOS_CONFIGURABLES.map(m => m.id);
+      const actual = Perfiles.getModulosHabilitados() || [...todos];
+      const nuevos = input.checked
         ? [...new Set([...actual, mod.id])]
         : actual.filter(id => id !== mod.id);
-      // Si todos están activos, guardar null (todos por defecto)
-      const sonTodos  = todos.every(id => nuevos.includes(id));
+      const sonTodos = todos.every(id => nuevos.includes(id));
       Perfiles.setModulosHabilitados(sonTodos ? null : nuevos);
     });
 
