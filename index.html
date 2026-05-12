@@ -15,7 +15,6 @@
   <link rel="apple-touch-icon" href="assets/img/icon-192.png">
   <link rel="icon" type="image/png" href="assets/img/icon-192.png">
 
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap">
 
@@ -39,16 +38,13 @@
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    html,
-    body {
+    html, body {
       height: 100%;
       width: 100%;
       overflow: hidden;
@@ -115,123 +111,68 @@
     }
 
     .aurora-blob:nth-child(1) {
-      width: 65vw;
-      height: 65vw;
-      top: 15%;
-      left: 20%;
-      filter: blur(40px);
-      opacity: 0.85;
+      width: 65vw; height: 65vw;
+      top: 15%; left: 20%;
+      filter: blur(40px); opacity: 0.85;
       background: radial-gradient(circle at 50% 50%, #00FF94, #7B00FF, transparent 65%);
       animation: aurora-c 11s ease-in-out infinite alternate;
     }
 
     .aurora-blob:nth-child(2) {
-      width: 55vw;
-      height: 55vw;
-      top: 45%;
-      left: 5%;
-      filter: blur(40px);
-      opacity: 0.80;
+      width: 55vw; height: 55vw;
+      top: 45%; left: 5%;
+      filter: blur(40px); opacity: 0.80;
       background: radial-gradient(circle at 50% 50%, #FF1493, #00CED1, transparent 65%);
       animation: aurora-d 6s ease-in-out infinite alternate;
     }
 
     .aurora-blob:nth-child(3) {
-      width: 45vw;
-      height: 45vw;
-      top: 10%;
-      right: 5%;
-      filter: blur(40px);
-      opacity: 0.75;
+      width: 45vw; height: 45vw;
+      top: 10%; right: 5%;
+      filter: blur(40px); opacity: 0.75;
       background: radial-gradient(circle at 50% 50%, #39FF14, #FF69B4, transparent 65%);
       animation: aurora-e 8s ease-in-out infinite alternate;
     }
 
     @keyframes aurora-a {
-      0% {
-        transform: translate(0, 0) scale(1) rotate(0deg);
-      }
-
-      33% {
-        transform: translate(8vw, 6vh) scale(1.08) rotate(2deg);
-      }
-
-      66% {
-        transform: translate(12vw, 10vh) scale(1.14) rotate(-1deg);
-      }
-
-      100% {
-        transform: translate(16vw, 13vh) scale(1.2) rotate(3deg);
-      }
+      0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+      33%  { transform: translate(8vw, 6vh) scale(1.08) rotate(2deg); }
+      66%  { transform: translate(12vw, 10vh) scale(1.14) rotate(-1deg); }
+      100% { transform: translate(16vw, 13vh) scale(1.2) rotate(3deg); }
     }
 
     @keyframes aurora-b {
-      0% {
-        transform: translate(0, 0) scale(1.1) rotate(0deg);
-      }
-
-      33% {
-        transform: translate(-5vw, -4vh) scale(1.05) rotate(-2deg);
-      }
-
-      66% {
-        transform: translate(-9vw, -7vh) scale(0.96) rotate(1deg);
-      }
-
-      100% {
-        transform: translate(-13vw, -11vh) scale(0.9) rotate(-3deg);
-      }
+      0%   { transform: translate(0, 0) scale(1.1) rotate(0deg); }
+      33%  { transform: translate(-5vw, -4vh) scale(1.05) rotate(-2deg); }
+      66%  { transform: translate(-9vw, -7vh) scale(0.96) rotate(1deg); }
+      100% { transform: translate(-13vw, -11vh) scale(0.9) rotate(-3deg); }
     }
 
     @keyframes aurora-c {
-      0% {
-        transform: translate(0, 0) scale(0.9);
-      }
-
-      50% {
-        transform: translate(-6vw, 9vh) scale(1.05);
-      }
-
-      100% {
-        transform: translate(-11vw, 16vh) scale(1.18);
-      }
+      0%   { transform: translate(0, 0) scale(0.9); }
+      50%  { transform: translate(-6vw, 9vh) scale(1.05); }
+      100% { transform: translate(-11vw, 16vh) scale(1.18); }
     }
 
     @keyframes aurora-d {
-      0% {
-        transform: translate(0, 0) scale(1);
-      }
-
-      50% {
-        transform: translate(7vw, -5vh) scale(1.07);
-      }
-
-      100% {
-        transform: translate(13vw, -9vh) scale(1.13);
-      }
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(7vw, -5vh) scale(1.07); }
+      100% { transform: translate(13vw, -9vh) scale(1.13); }
     }
 
     @keyframes aurora-e {
-      0% {
-        transform: translate(0, 0) scale(1);
-      }
-
-      50% {
-        transform: translate(-8vw, 6vh) scale(1.1);
-      }
-
-      100% {
-        transform: translate(5vw, 12vh) scale(0.92);
-      }
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(-8vw, 6vh) scale(1.1); }
+      100% { transform: translate(5vw, 12vh) scale(0.92); }
     }
 
     #app-header {
       flex-shrink: 0;
-  height: calc(var(--d-nav-h) + var(--safe-top));
-  padding-top: var(--safe-top);
+      height: calc(var(--d-nav-h) + var(--safe-top));
+      padding-top: var(--safe-top);
       display: flex;
       align-items: center;
-      padding:20px 12px 0;
+      padding: 20px 12px 0;
       gap: 8px;
       background: var(--d-nav-bg);
       border-radius: 0 0 20px 20px;
@@ -272,8 +213,7 @@
       display: none;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
+      width: 40px; height: 40px;
       flex-shrink: 0;
       border: none;
       background: transparent;
@@ -283,18 +223,11 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    #btn-volver:active {
-      transform: scale(0.88);
-      filter: brightness(0.8);
-    }
-
-    #btn-volver.visible {
-      display: flex;
-    }
+    #btn-volver:active { transform: scale(0.88); filter: brightness(0.8); }
+    #btn-volver.visible { display: flex; }
 
     #btn-volver img {
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       object-fit: contain;
       filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
     }
@@ -311,42 +244,18 @@
       transition: all 0.3s ease;
     }
 
-    #indicador-offline.online {
-      background: #dcfce7;
-      border-color: #86efac;
-      color: #166534;
-    }
-
-    #indicador-offline.offline {
-      background: #fee2e2;
-      border-color: #fca5a5;
-      color: #991b1b;
-    }
-
-    #indicador-offline.checking {
-      background: #fef9c3;
-      border-color: #fde047;
-      color: #713f12;
-    }
+    #indicador-offline.online  { background: #dcfce7; border-color: #86efac; color: #166534; }
+    #indicador-offline.offline { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+    #indicador-offline.checking { background: #fef9c3; border-color: #fde047; color: #713f12; }
 
     #dot-conexion {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
+      width: 7px; height: 7px;
+      border-radius: 50%; flex-shrink: 0;
     }
 
-    .online #dot-conexion {
-      background: #22c55e;
-    }
-
-    .offline #dot-conexion {
-      background: #ef4444;
-    }
-
-    .checking #dot-conexion {
-      background: #eab308;
-    }
+    .online  #dot-conexion { background: #22c55e; }
+    .offline #dot-conexion { background: #ef4444; }
+    .checking #dot-conexion { background: #eab308; }
 
     #modulo-acciones {
       display: flex;
@@ -393,6 +302,14 @@
       background: transparent;
     }
 
+    @media (max-width: 600px) {
+      #menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+      }
+      .tile-label { font-size: 0.82rem; }
+    }
+
     .module-tile {
       background: transparent;
       border: none;
@@ -409,21 +326,14 @@
       min-height: 0;
     }
 
-    .module-tile:active {
-      transform: scale(0.90);
-    }
+    .module-tile:active { transform: scale(0.90); }
 
     .tile-img {
       width: 72%;
       height: auto;
       object-fit: contain;
-      /*filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.5));*/
       transition: filter 0.15s ease;
     }
-
-    /*.module-tile:active .tile-img {
-      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
-    }*/
 
     .tile-label {
       font-size: 1rem;
@@ -453,21 +363,14 @@
       transition: background 0.15s, transform 0.12s;
     }
 
-    .d-nav-btn:active {
-      background: rgba(255, 255, 255, 0.32);
-      transform: scale(0.93);
-    }
-
-    .d-nav-btn.activo {
-      background: rgba(255, 255, 255, 0.28);
-    }
+    .d-nav-btn:active { background: rgba(255, 255, 255, 0.32); transform: scale(0.93); }
+    .d-nav-btn.activo { background: rgba(255, 255, 255, 0.28); }
 
     .d-lang-btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
+      width: 32px; height: 32px;
       border-radius: var(--r-sm);
       border: 2px solid rgba(255, 255, 255, 0.25);
       background: rgba(255, 255, 255, 0.12);
@@ -477,10 +380,7 @@
       transition: all 0.15s;
     }
 
-    .d-lang-btn.activo {
-      border-color: white;
-      background: rgba(255, 255, 255, 0.28);
-    }
+    .d-lang-btn.activo { border-color: white; background: rgba(255, 255, 255, 0.28); }
 
     #modal-pin {
       position: fixed;
@@ -493,9 +393,7 @@
       backdrop-filter: blur(8px);
     }
 
-    #modal-pin.visible {
-      display: flex;
-    }
+    #modal-pin.visible { display: flex; }
 
     .pin-box {
       background: white;
@@ -508,19 +406,8 @@
       border: 3px solid rgba(168, 85, 247, 0.2);
     }
 
-    .pin-box h3 {
-      font-size: 1.3rem;
-      font-weight: 900;
-      margin-bottom: 8px;
-      color: #2D1B4E;
-    }
-
-    .pin-box p {
-      font-size: 1rem;
-      color: #2D1B4E;
-      margin-bottom: 16px;
-      font-weight: 800;
-    }
+    .pin-box h3 { font-size: 1.3rem; font-weight: 900; margin-bottom: 8px; color: #2D1B4E; }
+    .pin-box p  { font-size: 1rem; color: #2D1B4E; margin-bottom: 16px; font-weight: 800; }
 
     #input-pin {
       width: 100%;
@@ -536,14 +423,9 @@
       font-family: inherit;
     }
 
-    #input-pin:focus {
-      border-color: var(--d-primary);
-    }
+    #input-pin:focus { border-color: var(--d-primary); }
 
-    .pin-btns {
-      display: flex;
-      gap: 10px;
-    }
+    .pin-btns { display: flex; gap: 10px; }
 
     .pin-btns button {
       flex: 1;
@@ -556,15 +438,8 @@
       font-family: inherit;
     }
 
-    #btn-pin-ok {
-      background: var(--d-primary);
-      color: white;
-    }
-
-    #btn-pin-cancel {
-      background: #F3EEFF;
-      color: #2D1B4E;
-    }
+    #btn-pin-ok     { background: var(--d-primary); color: white; }
+    #btn-pin-cancel { background: #F3EEFF; color: #2D1B4E; }
 
     #pin-error {
       color: #C2185B;
@@ -604,7 +479,21 @@
         </button>
         <div class="menu-logo" id="header-logo">
           <h1>Dótir 2</h1>
-          <span class="version">v2.0</span>
+        </div>
+        <div id="perfil-chip" style="
+          display:flex;align-items:center;gap:6px;
+          padding:4px 10px 4px 6px;
+          border-radius:20px;
+          background:rgba(255,255,255,0.08);
+          border:1px solid rgba(255,255,255,0.12);
+          cursor:default;
+          max-width:140px;
+        ">
+          <span id="perfil-chip-avatar" style="font-size:1.1rem;line-height:1;flex-shrink:0;"></span>
+          <span id="perfil-chip-apodo" style="
+            color:rgba(255,255,255,0.75);font-size:0.68rem;font-weight:800;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+          "></span>
         </div>
       </div>
       <div id="modulo-acciones"></div>
@@ -641,12 +530,12 @@
     import { registrarSW, onConexionChange } from './core/offline.js';
     import { toast, animarEntrada } from './core/ui.js';
     import AudioManager, { MediaStop } from './core/audio.js';
+    import { Perfiles } from './core/perfiles.js';
     import SaacModule from './modules/saac/module.js';
     import MemoramaModule from './modules/memorama/module.js';
-    import MusicaModule from './modules/musica/module.js';
     import AjustesModule from './modules/ajustes/module.js';
     import LibrosModule from './modules/libros/module.js';
-    import VideosModule from './modules/videos/module.js';
+    import MediaModule from './modules/media/module.js';
     import TemporizadorModule from './modules/temporizador/module.js';
 
     const $ = id => document.getElementById(id);
@@ -661,44 +550,58 @@
     });
 
     const MODULE_REGISTRY = [
-  SaacModule,
-  MemoramaModule,
-  MusicaModule,
-  TemporizadorModule,
-  LibrosModule,
-  VideosModule,
-  AjustesModule,
-].filter(m => m.habilitado && m.id !== 'ajustes')
- .sort((a, b) => a.orden - b.orden);
+      SaacModule,
+      MemoramaModule,
+      MediaModule,
+      TemporizadorModule,
+      LibrosModule,
+      AjustesModule,
+    ].filter(m => m.habilitado && m.id !== 'ajustes')
+     .sort((a, b) => a.orden - b.orden);
 
     const UI_IMGS = {
-      saac: 'assets/ui/btn-comunicador.png',
-      memorama: 'assets/ui/btn-memorama.png',
-      musica: 'assets/ui/btn-musica.png',
-      libros: 'assets/ui/btn-libros.png',
-      videos: 'assets/ui/btn-videos.png',
-      ajustes: 'assets/ui/btn-ajustes.png',
+      saac:         'assets/ui/btn-comunicador.png',
+      memorama:     'assets/ui/btn-memorama.png',
+      musica:       'assets/ui/btn-musica.png',
+      libros:       'assets/ui/btn-libros.png',
+      videos:       'assets/ui/btn-videos.png',
+      ajustes:      'assets/ui/btn-ajustes.png',
+      media:        'assets/ui/btn-media.png',
       temporizador: 'assets/ui/btn-temporizador.png',
     };
 
-    MODULE_REGISTRY.forEach(mod => {
-      const tile = document.createElement('button');
-      tile.className = 'module-tile';
-      tile.setAttribute('aria-label', mod.label);
-      tile.dataset.id = mod.id;
+    // -- Render del menu grid filtrado por perfil activo ---
+    function _renderMenuGrid() {
+      const grid       = $('menu-grid');
+      const habilitados = Perfiles.getModulosHabilitados();
+      grid.innerHTML   = '';
 
-      const imgSrc = UI_IMGS[mod.id];
-      tile.innerHTML =
-        (imgSrc
-          ? '<img class="tile-img" src="' + imgSrc + '" alt="' + mod.label + '">'
-          : '<span style="font-size:4rem">' + mod.emoji + '</span>') +
-        '<span class="tile-label">' + mod.label + '</span>';
+      MODULE_REGISTRY.forEach(mod => {
+        // Si hay lista explícita, filtrar; ajustes siempre visible
+        if (habilitados && !habilitados.includes(mod.id)) return;
 
-      tile.addEventListener('click', () =>
-        mod.requierePin ? abrirPin(mod) : navegarA(mod)
-      );
-      $('menu-grid').appendChild(tile);
-    });
+        const tile = document.createElement('button');
+        tile.className = 'module-tile';
+        tile.setAttribute('aria-label', mod.label);
+        tile.dataset.id = mod.id;
+
+        const imgSrc = UI_IMGS[mod.id];
+        tile.innerHTML =
+          (imgSrc
+            ? '<img class="tile-img" src="' + imgSrc + '" alt="' + mod.label + '">'
+            : '<span style="font-size:4rem">' + mod.emoji + '</span>') +
+          '<span class="tile-label">' + mod.label + '</span>';
+
+        tile.addEventListener('click', () =>
+          mod.requierePin ? abrirPin(mod) : navegarA(mod)
+        );
+        grid.appendChild(tile);
+      });
+    }
+
+    // Renderizar al inicio y suscribir a cambios de perfil
+    _renderMenuGrid();
+    Perfiles.onChange(_renderMenuGrid);
 
     let _moduloActivo = null;
     const _modulosPausados = {};
@@ -732,13 +635,13 @@
       _modoModulo();
 
       if (_moduloActivo && _moduloActivo.id !== mod.id) {
-        try { _moduloActivo.onLeave?.(); } catch (_) { }
+        try { _moduloActivo.onLeave?.(); } catch (_) {}
         if (_moduloActivo.pause) {
-          try { _moduloActivo.pause(); } catch (_) { }
+          try { _moduloActivo.pause(); } catch (_) {}
           _getContenedor(_moduloActivo.id).style.display = 'none';
           _modulosPausados[_moduloActivo.id] = _moduloActivo;
         } else {
-          try { _moduloActivo.destroy?.(); } catch (_) { }
+          try { _moduloActivo.destroy?.(); } catch (_) {}
           const c = _contenedores[_moduloActivo.id];
           if (c) { c.innerHTML = ''; c.style.display = 'none'; }
         }
@@ -762,7 +665,7 @@
       }
 
       if (_modulosPausados[mod.id] && !mod.resume) {
-        try { _modulosPausados[mod.id].destroy?.(); } catch (_) { }
+        try { _modulosPausados[mod.id].destroy?.(); } catch (_) {}
         delete _modulosPausados[mod.id];
         contenedor.innerHTML = '';
       }
@@ -785,14 +688,14 @@
 
     function volverAlMenu() {
       if (_moduloActivo) {
-        try { _moduloActivo.onLeave?.(); } catch (_) { }
+        try { _moduloActivo.onLeave?.(); } catch (_) {}
         const contenedor = _getContenedor(_moduloActivo.id);
         if (_moduloActivo.pause) {
-          try { _moduloActivo.pause(); } catch (_) { }
+          try { _moduloActivo.pause(); } catch (_) {}
           contenedor.style.display = 'none';
           _modulosPausados[_moduloActivo.id] = _moduloActivo;
         } else {
-          try { _moduloActivo.destroy?.(); } catch (_) { }
+          try { _moduloActivo.destroy?.(); } catch (_) {}
           contenedor.innerHTML = '';
           contenedor.style.display = 'none';
         }
@@ -849,34 +752,51 @@
     }
 
     window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
-    window.DotirApp = { volverAlMenu, navegarA, toast, MODULE_REGISTRY };
 
-const btnAjustes = document.createElement('button');
-btnAjustes.id = 'btn-ajustes-header';
-btnAjustes.title = 'Ajustes';
-btnAjustes.style.cssText = 'margin-right:15px;width:32px;height:32px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);font-size:1.1rem;flex-shrink:0;transition:color .15s;';
-btnAjustes.innerHTML = '&#9881;&#65039;';
-btnAjustes.addEventListener('click', () => { abrirPin(AjustesModule); });
-document.getElementById('header-derecha')?.insertBefore(btnAjustes, document.getElementById('indicador-offline'));
+    // -- Chip de perfil activo ---
+    function _actualizarChipPerfil() {
+      const p      = Perfiles.getActivo();
+      const avatar = $('perfil-chip-avatar');
+      const apodo  = $('perfil-chip-apodo');
+      const chip   = $('perfil-chip');
+      if (!avatar || !apodo || !chip) return;
+      if (p.avatarFoto) {
+        avatar.innerHTML =
+          '<img src="' + p.avatarFoto + '" style="width:22px;height:22px;' +
+          'border-radius:50%;object-fit:cover;">';
+      } else {
+        avatar.textContent = p.avatar || '🧑';
+      }
+      apodo.textContent    = p.esInvitado ? 'Invitado' : p.apodo;
+      chip.style.opacity   = p.esInvitado ? '0.45' : '1';
+    }
 
-MediaStop.montar();
+    _actualizarChipPerfil();
+    Perfiles.onChange(_actualizarChipPerfil);
+
+    // -- Botón de ajustes en header ---
+    const btnAjustes = document.createElement('button');
+    btnAjustes.id = 'btn-ajustes-header';
+    btnAjustes.title = 'Ajustes';
+    btnAjustes.style.cssText =
+      'margin-right:15px;width:32px;height:32px;border:none;background:transparent;' +
+      'cursor:pointer;display:flex;align-items:center;justify-content:center;' +
+      'color:rgba(255,255,255,0.55);font-size:1.1rem;flex-shrink:0;transition:color .15s;';
+    btnAjustes.innerHTML = '&#9881;&#65039;';
+    btnAjustes.addEventListener('click', () => abrirPin(AjustesModule));
+    $('header-derecha')?.insertBefore(btnAjustes, $('indicador-offline'));
 
     MediaStop.montar();
 
-    // ── Wake Lock: mantiene la pantalla encendida ─────────────────
-    // iOS Safari requiere un video mudo real en loop — no acepta Wake Lock API
-    // El video base64 es un MP4 H.264 de 1x1px, 1 segundo, silencioso y valido
-
+    // -- Wake Lock ---
     const _wakeVideo = document.createElement('video');
-    _wakeVideo.loop = true;
-    _wakeVideo.muted = true;
+    _wakeVideo.loop        = true;
+    _wakeVideo.muted       = true;
     _wakeVideo.playsInline = true;
     _wakeVideo.setAttribute('playsinline', '');
     _wakeVideo.setAttribute('webkit-playsinline', '');
     _wakeVideo.style.cssText =
       'position:fixed;width:1px;height:1px;top:0;left:0;opacity:0.01;pointer-events:none;z-index:-1;';
-
-    // MP4 1x1px H.264 valido — generado con ffmpeg, funciona en Safari iOS
     _wakeVideo.src = 'data:video/mp4;base64,' +
       'AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMQAAAAhmcmVlAAAAG21kYXQAAAGzABAHAAABthAd' +
       'AT8LkAAA9oAAAIUGl2aXNhAAAHAm1vb3YAAABsbXZoZAAAAAAAAAAAAAAAAAAAA+gAAAPoAAEAAAEB' +
@@ -894,39 +814,28 @@ MediaStop.montar();
       'AMgAAAAEAAAAUAAAAFAAAABRzdGNvAAAAAAAAAAEAAAAwAAAAYXVkdGEAAABZbWV0YQAAAAAAAAAh' +
       'aGRscgAAAAAAAAAABG1kaXJhcHBsAAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAA' +
       'AQAAAABMYXZM';
-
     document.body.appendChild(_wakeVideo);
 
     let _wakeLock = null;
 
     async function _activarWakeLock() {
-      // 1. Intentar Wake Lock API (Chrome, Edge, algunos Android)
       if ('wakeLock' in navigator) {
         try {
-          if (_wakeLock) return; // ya activo
+          if (_wakeLock) return;
           _wakeLock = await navigator.wakeLock.request('screen');
           _wakeLock.addEventListener('release', () => {
             _wakeLock = null;
-            // Reactivar si la pagina sigue visible
             if (document.visibilityState === 'visible') _activarWakeLock();
           });
           return;
-        } catch (e) {
-          // Wake Lock no disponible, caer al fallback
-        }
+        } catch (e) {}
       }
-
-      // 2. Fallback iOS Safari: video mudo en loop
       if (_wakeVideo.paused) {
-        try {
-          await _wakeVideo.play();
-        } catch (e) {
-          console.warn('[WakeLock] fallback video fallo:', e);
-        }
+        try { await _wakeVideo.play(); }
+        catch (e) { console.warn('[WakeLock] fallback video fallo:', e); }
       }
     }
 
-    // Safari requiere gesto del usuario antes de reproducir cualquier video
     ['touchstart', 'touchend', 'click', 'pointerdown'].forEach(ev => {
       document.addEventListener(ev, function _unlock() {
         _activarWakeLock();
@@ -934,23 +843,21 @@ MediaStop.montar();
       }, { passive: true });
     });
 
-    // Reactivar al volver a primer plano (cuando el usuario regresa a la app)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
-        _wakeLock = null; // el sistema lo libera al cambiar de app
+        _wakeLock = null;
         _activarWakeLock();
       } else {
-        // Pausar el video fallback cuando la app va al fondo
         if (!_wakeVideo.paused) _wakeVideo.pause();
       }
     });
 
-    // Heartbeat al service worker cada 4 minutos
     setInterval(() => {
       if (document.visibilityState === 'visible') {
         navigator.serviceWorker?.controller?.postMessage({ tipo: 'heartbeat' });
       }
     }, 4 * 60 * 1000);
+
   </script>
 </body>
 

@@ -3,17 +3,18 @@
 import { TTS } from '../../core/tts.js';
 import { fetchTimeout } from '../../core/offline.js';
 import { toast } from '../../core/ui.js';
+import { Perfiles } from '../../core/perfiles.js';
+import { Telemetry } from '../../core/telemetry.js';
 
 const DATA_URL = './data/saac.json';
 const PICS_BASE = './assets/saac/';
-const LS_FAVS = 'dotir2-saac-favs';
 const LS_HISTORIAL = 'dotir2-saac-historial';
 const LS_TAMANO = 'dotir2-saac-tamano';
 const HISTORIAL_MAX = 10;
 const LONGPRESS_MS = 500;
 
 let _datos = null;
-let _favs = new Set(JSON.parse(localStorage.getItem(LS_FAVS) || '[]'));
+let _favs = Perfiles.getFavs();
 let _historial = JSON.parse(localStorage.getItem(LS_HISTORIAL) || '[]');
 let _frase = [];
 let _catActiva = 'favs';
@@ -22,7 +23,7 @@ let _tamano = localStorage.getItem(LS_TAMANO) || 'M';
 let _container = null;
 let _lpActivo = null;
 
-const _guardarFavs = () => localStorage.setItem(LS_FAVS, JSON.stringify([..._favs]));
+const _guardarFavs = () => Perfiles.setFavs(_favs);
 const _guardarHistorial = () => localStorage.setItem(LS_HISTORIAL, JSON.stringify(_historial));
 const _norm = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
@@ -63,6 +64,7 @@ export function destroy() {
 
 export async function resume(container) {
   _container = container;
+  _favs = Perfiles.getFavs();   // recargar favs del perfil activo
   _renderShell();
   _renderCategorias();
   _renderGrid();
@@ -89,10 +91,11 @@ function _renderShell() {
   _container.innerHTML = `
     <style>
       #saac-wrap {
-        display: flex; flex-direction: column;
-        height: 100%; overflow: hidden;
-        background: transparent;
-      }
+  display: flex; flex-direction: column;
+  height: 100%; overflow: hidden;
+  background: transparent;
+  position: relative;   /* asegurar esto */
+}
 
       /* Barra de frase */
       #saac-frase-bar {
@@ -303,16 +306,15 @@ function _renderShell() {
                autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
       <div id="saac-grid-wrap">
-        <div id="saac-grid" class="tam-${_tamano}"></div>
-        <div id="saac-vacio">
-          <span>&#128269;</span>
-          <p>No se encontraron pictogramas.<br>Prueba otra busqueda.</p>
-        </div>
-        <div id="saac-historial-panel">
-          <h3>Frases recientes</h3>
-          <div id="saac-historial-lista"></div>
-        </div>
-      </div>
+  <div id="saac-grid" class="tam-${_tamano}"></div>
+  <div id="saac-vacio">...</div>
+  <!-- quitar el panel de aquí -->
+</div>
+<!-- ponerlo aquí, hermano de saac-grid-wrap -->
+<div id="saac-historial-panel">
+  <h3>Frases recientes</h3>
+  <div id="saac-historial-lista"></div>
+</div>
     </div>
   `;
 
@@ -396,6 +398,12 @@ function _seleccionarPicto(item) {
   _frase.push(item);
   _renderFrase();
   TTS.speak(item.label, { lang: 'es-MX', pitch: 1.15, rate: 0.9 });
+  Telemetry.track('picto_seleccionado', {
+    _modulo:   'saac',
+    id:        item.id,
+    label:     item.label,
+    categoria: item.cat || null,
+  });
 }
 
 function _renderFrase() {
@@ -422,6 +430,11 @@ function _hablarFrase() {
   if (!_frase.length) return;
   const texto = _frase.map(i => i.label).join(' ');
   TTS.speak(texto, { lang: 'es-MX', pitch: 1.1, rate: 0.85 });
+  Telemetry.track('frase_hablada', {
+    _modulo:  'saac',
+    texto,
+    cantidad: _frase.length,
+  });
   _historial = [texto, ..._historial.filter(h => h !== texto)].slice(0, HISTORIAL_MAX);
   _guardarHistorial();
 }
@@ -436,9 +449,11 @@ function _toggleFav(id, label) {
   if (_favs.has(id)) {
     _favs.delete(id);
     toast(label + ' quitado de favoritos', { emoji: '&#128148;' });
+    Telemetry.track('fav_quitado', { _modulo: 'saac', id, label });
   } else {
     _favs.add(id);
     toast(label + ' en favoritos', { emoji: '&#11088;' });
+    Telemetry.track('fav_agregado', { _modulo: 'saac', id, label });
   }
   _guardarFavs();
   if (_catActiva === 'favs') _renderGrid();
