@@ -3,7 +3,6 @@
 import { borrarCache, precachear, fetchTimeout } from '../../core/offline.js';
 import { toast, lanzarConfeti } from '../../core/ui.js';
 import { Perfiles } from '../../core/perfiles.js';
-import { Perfiles } from '../../core/perfiles.js';
 import AjustesModule from './module.js';
 import SaacModule from '../saac/module.js';
 import MemoramaModule from '../memorama/module.js';
