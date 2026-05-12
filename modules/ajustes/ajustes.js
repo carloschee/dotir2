@@ -7,15 +7,30 @@ import { Perfiles } from '../../core/perfiles.js';
 const LS_TAMANO = 'dotir2-saac-tamano';
 
 let _container = null;
+let _onPerfilChange = null;
 const _q = sel => _container?.querySelector(sel);
 
 export async function init(container) {
   _container = container;
   _renderShell();
   _actualizarEstadoConexion();
+  Perfiles.onChange(() => {
+    _renderPerfiles();
+    _renderModulos();
+  });
+  _onPerfilChange = () => {
+  if (!_container) return;
+  _renderPerfiles();
+  _renderModulos();
+};
+Perfiles.onChange(_onPerfilChange);
 }
 
-export function destroy() { _container = null; }
+export function destroy() {
+  Perfiles.offChange(_onPerfilChange);
+  _container = null;
+  if (_onPerfilChange) { Perfiles.offChange(_onPerfilChange); _onPerfilChange = null; }
+}
 export function onEnter() { _actualizarEstadoConexion(); }
 export function onLeave() { }
 
@@ -254,6 +269,36 @@ function _renderShell() {
         flex: 1; accent-color: #A855F7;
       }
       .aj-crop-zoom span { color: rgba(255,255,255,0.5); font-size: .8rem; }
+
+      /* Toggles de módulos */
+      .aj-toggle-fila {
+        display: flex; align-items: center;
+        justify-content: space-between; gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+      }
+      .aj-toggle-fila:last-child { border-bottom: none; }
+      .aj-toggle-info { display: flex; align-items: center; gap: 10px; flex: 1; }
+      .aj-toggle-emoji { font-size: 1.3rem; }
+      .aj-toggle-label { color: white; font-size: .88rem; font-weight: 800; }
+      .aj-toggle {
+        position: relative; width: 44px; height: 26px; flex-shrink: 0;
+      }
+      .aj-toggle input { opacity: 0; width: 0; height: 0; }
+      .aj-toggle-slider {
+        position: absolute; inset: 0; border-radius: 26px;
+        background: rgba(255,255,255,0.15); cursor: pointer;
+        transition: background .2s;
+      }
+      .aj-toggle-slider::before {
+        content: ''; position: absolute;
+        width: 20px; height: 20px; border-radius: 50%;
+        background: white; left: 3px; top: 3px;
+        transition: transform .2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      }
+      .aj-toggle input:checked + .aj-toggle-slider { background: #A855F7; }
+      .aj-toggle input:checked + .aj-toggle-slider::before { transform: translateX(18px); }
     </style>
 
     <div id="aj-wrap">
@@ -324,6 +369,14 @@ function _renderShell() {
             </button>`).join('')}
         </div>
       </div>
+
+      <div class="aj-seccion">
+  <p class="aj-titulo">Módulos visibles</p>
+  <p class="aj-desc" style="color:rgba(255,255,255,0.45);font-size:.75rem;">
+    Configura qué módulos ve el perfil activo en el menú principal.
+  </p>
+  <div id="aj-modulos-lista"></div>
+</div>
 
             <div class="aj-seccion" id="aj-sec-perfiles">
         <p class="aj-titulo">Perfiles</p>
@@ -466,6 +519,7 @@ function _renderShell() {
   });
   _q('#btn-modal-guardar').addEventListener('click', _guardarPerfil);
   _renderPerfiles();
+  _renderModulos();
 
 } // <-- cierre de _renderShell
 
@@ -997,4 +1051,52 @@ function _pinchDist(touches) {
   const dx = touches[0].clientX - touches[1].clientX;
   const dy = touches[0].clientY - touches[1].clientY;
   return Math.sqrt(dx * dx + dy * dy);
+}
+
+function _renderModulos() {
+  const lista = _q('#aj-modulos-lista');
+  if (!lista) return;
+  lista.innerHTML = '';
+
+  const registry    = window.DotirApp?.MODULE_REGISTRY || [];
+  const habilitados = Perfiles.getModulosHabilitados();
+
+  // Todos los módulos excepto ajustes
+  registry.filter(m => m.id !== 'ajustes').forEach(mod => {
+    const activo = habilitados === null || habilitados.includes(mod.id);
+
+    const fila = document.createElement('div');
+    fila.className = 'aj-toggle-fila';
+
+    const info = document.createElement('div');
+    info.className = 'aj-toggle-info';
+    info.innerHTML =
+      '<span class="aj-toggle-emoji">' + mod.emoji + '</span>' +
+      '<span class="aj-toggle-label">' + mod.label + '</span>';
+
+    const label  = document.createElement('label');
+    label.className = 'aj-toggle';
+    const input  = document.createElement('input');
+    input.type   = 'checkbox';
+    input.checked = activo;
+    const slider = document.createElement('span');
+    slider.className = 'aj-toggle-slider';
+    label.appendChild(input);
+    label.appendChild(slider);
+
+    input.addEventListener('change', () => {
+      const todos     = registry.filter(m => m.id !== 'ajustes').map(m => m.id);
+      const actual    = Perfiles.getModulosHabilitados() || [...todos];
+      const nuevos    = input.checked
+        ? [...new Set([...actual, mod.id])]
+        : actual.filter(id => id !== mod.id);
+      // Si todos están activos, guardar null (todos por defecto)
+      const sonTodos  = todos.every(id => nuevos.includes(id));
+      Perfiles.setModulosHabilitados(sonTodos ? null : nuevos);
+    });
+
+    fila.appendChild(info);
+    fila.appendChild(label);
+    lista.appendChild(fila);
+  });
 }

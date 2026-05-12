@@ -15,7 +15,7 @@
 */
 
 const LS_PERFILES = 'dotir2-perfiles';
-const LS_ACTIVO   = 'dotir2-perfil-activo';
+const LS_ACTIVO = 'dotir2-perfil-activo';
 const ID_INVITADO = 'invitado';
 
 // -- Utilidades internas ---
@@ -37,15 +37,16 @@ function _guardar(perfiles) {
 
 function _perfilInvitado() {
   return {
-    id:             ID_INVITADO,
-    apodo:          'Invitado',
-    avatar:         '\u{1F468}',
-    avatarFoto:     null,
+    id: ID_INVITADO,
+    apodo: 'Invitado',
+    avatar: '\u{1F468}',
+    avatarFoto: null,
     fechaNacimiento: null,
-    notas:          '',
-    favs:           [],
-    creadoEn:       0,
-    esInvitado:     true,
+    notas: '',
+    favs: [],
+    creadoEn: 0,
+    esInvitado: true,
+    modulosHabilitados: null,  // null = todos habilitados
   };
 }
 
@@ -59,9 +60,9 @@ function _asegurarInvitado(perfiles) {
 
 // -- Estado interno ---
 
-let _perfiles   = _asegurarInvitado(_cargar());
-let _activoId   = localStorage.getItem(LS_ACTIVO) || ID_INVITADO;
-let _listeners  = [];
+let _perfiles = _asegurarInvitado(_cargar());
+let _activoId = localStorage.getItem(LS_ACTIVO) || ID_INVITADO;
+let _listeners = [];
 
 // Si el id guardado ya no existe, caer al invitado
 if (!_perfiles.find(p => p.id === _activoId)) {
@@ -70,7 +71,7 @@ if (!_perfiles.find(p => p.id === _activoId)) {
 }
 
 function _notificar() {
-  _listeners.forEach(cb => { try { cb(); } catch (_) {} });
+  _listeners.forEach(cb => { try { cb(); } catch (_) { } });
 }
 
 // -- API pública ---
@@ -104,15 +105,16 @@ export const Perfiles = {
   crear(datos) {
     if (!datos.apodo?.trim()) throw new Error('El apodo es requerido');
     const perfil = {
-      id:              _uuid(),
-      apodo:           datos.apodo.trim(),
-      avatar:          datos.avatar || '\u{1F9D1}',
-      avatarFoto:      datos.avatarFoto || null,
+      id: _uuid(),
+      apodo: datos.apodo.trim(),
+      avatar: datos.avatar || '\u{1F9D1}',
+      avatarFoto: datos.avatarFoto || null,
       fechaNacimiento: datos.fechaNacimiento || null,
-      notas:           datos.notas || '',
-      favs:            [],
-      creadoEn:        Date.now(),
-      esInvitado:      false,
+      notas: datos.notas || '',
+      favs: [],
+      creadoEn: Date.now(),
+      esInvitado: false,
+      modulosHabilitados: datos.modulosHabilitados || null,
     };
     _perfiles.push(perfil);
     _guardar(_perfiles);
@@ -125,11 +127,11 @@ export const Perfiles = {
     const idx = _perfiles.findIndex(p => p.id === id);
     if (idx === -1) return false;
     const p = _perfiles[idx];
-    if (datos.apodo        !== undefined) p.apodo           = datos.apodo.trim();
-    if (datos.avatar       !== undefined) p.avatar          = datos.avatar;
-    if (datos.avatarFoto   !== undefined) p.avatarFoto      = datos.avatarFoto;
+    if (datos.apodo !== undefined) p.apodo = datos.apodo.trim();
+    if (datos.avatar !== undefined) p.avatar = datos.avatar;
+    if (datos.avatarFoto !== undefined) p.avatarFoto = datos.avatarFoto;
     if (datos.fechaNacimiento !== undefined) p.fechaNacimiento = datos.fechaNacimiento;
-    if (datos.notas        !== undefined) p.notas           = datos.notas;
+    if (datos.notas !== undefined) p.notas = datos.notas;
     _guardar(_perfiles);
     _notificar();
     return true;
@@ -168,19 +170,19 @@ export const Perfiles = {
     const perfil = _perfiles.find(p => p.id === id);
     if (!perfil) return;
     const exportData = {
-      apodo:           perfil.apodo,
-      avatar:          perfil.avatar,
-      avatarFoto:      perfil.avatarFoto,
+      apodo: perfil.apodo,
+      avatar: perfil.avatar,
+      avatarFoto: perfil.avatarFoto,
       fechaNacimiento: perfil.fechaNacimiento,
-      notas:           perfil.notas,
-      favs:            perfil.favs,
-      creadoEn:        perfil.creadoEn,
-      exportadoEn:     new Date().toISOString(),
-      version:         'dotir2-perfil-v1',
+      notas: perfil.notas,
+      favs: perfil.favs,
+      creadoEn: perfil.creadoEn,
+      exportadoEn: new Date().toISOString(),
+      version: 'dotir2-perfil-v1',
     };
-    const json  = JSON.stringify(exportData, null, 2);
-    const blob  = new Blob([json], { type: 'application/json' });
-    const url   = URL.createObjectURL(blob);
+    const json = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
     const fecha = new Date().toISOString().slice(0, 10);
     const nombre = 'dotir2-' + perfil.apodo.toLowerCase().replace(/\s+/g, '-') + '-' + fecha + '.json';
     const a = document.createElement('a');
@@ -201,9 +203,9 @@ export const Perfiles = {
   // Calcula edad en años a partir de fechaNacimiento
   calcularEdad(fechaNacimiento) {
     if (!fechaNacimiento) return null;
-    const hoy  = new Date();
-    const nac  = new Date(fechaNacimiento);
-    let edad   = hoy.getFullYear() - nac.getFullYear();
+    const hoy = new Date();
+    const nac = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - nac.getFullYear();
     const diff = hoy.getMonth() - nac.getMonth();
     if (diff < 0 || (diff === 0 && hoy.getDate() < nac.getDate())) edad--;
     return edad >= 0 ? edad : null;
@@ -216,4 +218,17 @@ export const Perfiles = {
 
   get activoId() { return _activoId; },
   get idInvitado() { return ID_INVITADO; },
+
+  getModulosHabilitados() {
+    const p = this.getActivo();
+    return p.modulosHabilitados || null;  // null = todos
+  },
+
+  setModulosHabilitados(ids) {
+    const idx = _perfiles.findIndex(p => p.id === _activoId);
+    if (idx === -1) return;
+    _perfiles[idx].modulosHabilitados = ids;
+    _guardar(_perfiles);
+    _notificar();
+  },
 };
