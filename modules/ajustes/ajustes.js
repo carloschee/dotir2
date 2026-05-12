@@ -212,6 +212,48 @@ function _renderShell() {
         background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
         border: 1px solid rgba(255,255,255,0.15);
       }
+
+      /* Crop de avatar */
+      #aj-crop-wrap {
+        display: none; position: fixed; inset: 0; z-index: 200;
+        background: rgba(0,0,0,0.92);
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        flex-direction: column; align-items: center; justify-content: center;
+        gap: 16px; padding: 20px;
+      }
+      #aj-crop-wrap.visible { display: flex; }
+      #aj-crop-canvas {
+        border-radius: 16px;
+        touch-action: none;
+        cursor: grab;
+        max-width: 100%;
+        max-height: 60vh;
+      }
+      #aj-crop-canvas:active { cursor: grabbing; }
+      #aj-crop-hint {
+        color: rgba(255,255,255,0.5); font-size: .75rem; font-weight: 700;
+        text-align: center;
+      }
+      #aj-crop-btns { display: flex; gap: 12px; width: 100%; max-width: 340px; }
+      #aj-crop-btns button {
+        flex: 1; padding: 14px; border-radius: 16px; border: none;
+        font-weight: 900; font-size: .92rem; cursor: pointer;
+        font-family: inherit; transition: transform .12s;
+      }
+      #aj-crop-btns button:active { transform: scale(.95); }
+      #btn-crop-confirmar { background: #A855F7; color: white; }
+      #btn-crop-cancelar  {
+        background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+        border: 1px solid rgba(255,255,255,0.15);
+      }
+      .aj-crop-zoom {
+        display: flex; align-items: center; gap: 10px;
+        width: 100%; max-width: 340px;
+      }
+      .aj-crop-zoom input {
+        flex: 1; accent-color: #A855F7;
+      }
+      .aj-crop-zoom span { color: rgba(255,255,255,0.5); font-size: .8rem; }
     </style>
 
     <div id="aj-wrap">
@@ -334,6 +376,21 @@ function _renderShell() {
       <button id="btn-modal-guardar">Guardar</button>
     </div>
   </div>
+  
+  <div id="aj-crop-wrap">
+  <canvas id="aj-crop-canvas" width="320" height="320"></canvas>
+  <div class="aj-crop-zoom">
+    <span>🔍</span>
+    <input type="range" id="aj-crop-zoom-slider" min="0.5" max="3" step="0.01" value="1">
+    <span>🔎</span>
+  </div>
+  <p id="aj-crop-hint">Arrastra para encuadrar · Pinza para zoom</p>
+  <div id="aj-crop-btns">
+    <button id="btn-crop-cancelar">Cancelar</button>
+    <button id="btn-crop-confirmar">Usar foto</button>
+  </div>
+</div>
+
 </div>
 
     </div>
@@ -391,13 +448,14 @@ function _renderShell() {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = ev => {
-      _avatarFotoData = ev.target.result;
-      const prev = _q('#aj-avatar-preview');
-      prev.innerHTML = '<img src="' + _avatarFotoData + '">';
-      _q('#input-avatar-emoji').value = '';
-    };
+    reader.onload = ev => _abrirCrop(ev.target.result);
     reader.readAsDataURL(file);
+  });
+  _q('#btn-crop-confirmar').addEventListener('click', _confirmarCrop);
+  _q('#btn-crop-cancelar').addEventListener('click', _cerrarCrop);
+  _q('#aj-crop-zoom-slider').addEventListener('input', e => {
+    _cropZoom = parseFloat(e.target.value);
+    _dibujarCrop();
   });
   _q('#input-avatar-emoji').addEventListener('input', e => {
     const val = e.target.value.trim();
@@ -720,4 +778,223 @@ function _guardarPerfil() {
 
   _cerrarModal();
   _renderPerfiles();
+}
+
+// -- Crop interactivo ---
+
+let _cropImg       = null;
+let _cropZoom      = 1;
+let _cropOffX      = 0;
+let _cropOffY      = 0;
+let _cropDragging  = false;
+let _cropLastX     = 0;
+let _cropLastY     = 0;
+let _cropPinchDist = 0;
+
+function _abrirCrop(src) {
+  const img = new Image();
+  img.onload = () => {
+    _cropImg  = img;
+    _cropZoom = Math.max(320 / img.width, 320 / img.height);
+    _cropOffX = 0;
+    _cropOffY = 0;
+    _q('#aj-crop-zoom-slider').min   = String(_cropZoom * 0.8);
+    _q('#aj-crop-zoom-slider').max   = String(_cropZoom * 4);
+    _q('#aj-crop-zoom-slider').step  = String(_cropZoom * 0.01);
+    _q('#aj-crop-zoom-slider').value = String(_cropZoom);
+    _dibujarCrop();
+    _q('#aj-crop-wrap').classList.add('visible');
+    _iniciarEventosCrop();
+  };
+  img.src = src;
+}
+
+function _cerrarCrop() {
+  _q('#aj-crop-wrap').classList.remove('visible');
+  _limpiarEventosCrop();
+  _cropImg = null;
+  const fileInput = _q('#input-avatar-file');
+  if (fileInput) fileInput.value = '';
+}
+
+function _confirmarCrop() {
+  const out    = document.createElement('canvas');
+  out.width    = 256;
+  out.height   = 256;
+  const ctx    = out.getContext('2d');
+
+  // Recorte circular
+  ctx.beginPath();
+  ctx.arc(128, 128, 128, 0, Math.PI * 2);
+  ctx.clip();
+
+  // Calcular posicion de la imagen en el canvas de preview (320x320)
+  const canvas  = _q('#aj-crop-canvas');
+  const cx      = canvas.width  / 2;
+  const cy      = canvas.height / 2;
+  const iw      = _cropImg.width  * _cropZoom;
+  const ih      = _cropImg.height * _cropZoom;
+  const ix      = cx + _cropOffX - iw / 2;
+  const iy      = cy + _cropOffY - ih / 2;
+
+  // Escalar al canvas de salida 256x256
+  const escala  = 256 / 320;
+  ctx.drawImage(_cropImg, ix * escala, iy * escala, iw * escala, ih * escala);
+
+  _avatarFotoData = out.toDataURL('image/jpeg', 0.88);
+  const prev = _q('#aj-avatar-preview');
+  prev.innerHTML = '<img src="' + _avatarFotoData + '">';
+  _q('#input-avatar-emoji').value = '';
+  _cerrarCrop();
+}
+
+function _dibujarCrop() {
+  const canvas = _q('#aj-crop-canvas');
+  if (!canvas || !_cropImg) return;
+  const ctx = canvas.getContext('2d');
+  const W   = canvas.width;
+  const H   = canvas.height;
+  const cx  = W / 2;
+  const cy  = H / 2;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Fondo oscuro
+  ctx.fillStyle = '#111';
+  ctx.fillRect(0, 0, W, H);
+
+  // Imagen
+  const iw = _cropImg.width  * _cropZoom;
+  const ih = _cropImg.height * _cropZoom;
+  const ix = cx + _cropOffX - iw / 2;
+  const iy = cy + _cropOffY - ih / 2;
+  ctx.drawImage(_cropImg, ix, iy, iw, ih);
+
+  // Overlay oscuro fuera del círculo
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, W, H);
+  ctx.arc(cx, cy, W * 0.46, 0, Math.PI * 2, true);
+  ctx.fillStyle = 'rgba(0,0,0,0.62)';
+  ctx.fill();
+  ctx.restore();
+
+  // Borde del círculo
+  ctx.beginPath();
+  ctx.arc(cx, cy, W * 0.46, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(168,85,247,0.9)';
+  ctx.lineWidth   = 2.5;
+  ctx.stroke();
+}
+
+function _clampOffset() {
+  if (!_cropImg) return;
+  const canvas = _q('#aj-crop-canvas');
+  const radio  = canvas.width * 0.46;
+  const iw     = _cropImg.width  * _cropZoom;
+  const ih     = _cropImg.height * _cropZoom;
+  const maxX   = Math.max(0, iw / 2 - radio);
+  const maxY   = Math.max(0, ih / 2 - radio);
+  _cropOffX    = Math.max(-maxX, Math.min(maxX, _cropOffX));
+  _cropOffY    = Math.max(-maxY, Math.min(maxY, _cropOffY));
+}
+
+// -- Eventos de drag y pinch ---
+
+function _iniciarEventosCrop() {
+  const canvas = _q('#aj-crop-canvas');
+  if (!canvas) return;
+
+  canvas.addEventListener('mousedown',  _onCropMouseDown);
+  canvas.addEventListener('mousemove',  _onCropMouseMove);
+  canvas.addEventListener('mouseup',    _onCropMouseUp);
+  canvas.addEventListener('mouseleave', _onCropMouseUp);
+  canvas.addEventListener('wheel',      _onCropWheel,      { passive: false });
+  canvas.addEventListener('touchstart', _onCropTouchStart, { passive: false });
+  canvas.addEventListener('touchmove',  _onCropTouchMove,  { passive: false });
+  canvas.addEventListener('touchend',   _onCropTouchEnd);
+}
+
+function _limpiarEventosCrop() {
+  const canvas = _q('#aj-crop-canvas');
+  if (!canvas) return;
+  canvas.removeEventListener('mousedown',  _onCropMouseDown);
+  canvas.removeEventListener('mousemove',  _onCropMouseMove);
+  canvas.removeEventListener('mouseup',    _onCropMouseUp);
+  canvas.removeEventListener('mouseleave', _onCropMouseUp);
+  canvas.removeEventListener('wheel',      _onCropWheel);
+  canvas.removeEventListener('touchstart', _onCropTouchStart);
+  canvas.removeEventListener('touchmove',  _onCropTouchMove);
+  canvas.removeEventListener('touchend',   _onCropTouchEnd);
+}
+
+function _onCropMouseDown(e) {
+  _cropDragging = true;
+  _cropLastX    = e.clientX;
+  _cropLastY    = e.clientY;
+}
+
+function _onCropMouseMove(e) {
+  if (!_cropDragging) return;
+  _cropOffX += e.clientX - _cropLastX;
+  _cropOffY += e.clientY - _cropLastY;
+  _cropLastX = e.clientX;
+  _cropLastY = e.clientY;
+  _clampOffset();
+  _dibujarCrop();
+}
+
+function _onCropMouseUp() { _cropDragging = false; }
+
+function _onCropWheel(e) {
+  e.preventDefault();
+  const delta  = e.deltaY > 0 ? -0.08 : 0.08;
+  const slider = _q('#aj-crop-zoom-slider');
+  _cropZoom    = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), _cropZoom + delta * _cropZoom));
+  slider.value = String(_cropZoom);
+  _clampOffset();
+  _dibujarCrop();
+}
+
+function _onCropTouchStart(e) {
+  e.preventDefault();
+  if (e.touches.length === 1) {
+    _cropDragging = true;
+    _cropLastX    = e.touches[0].clientX;
+    _cropLastY    = e.touches[0].clientY;
+  } else if (e.touches.length === 2) {
+    _cropDragging   = false;
+    _cropPinchDist  = _pinchDist(e.touches);
+  }
+}
+
+function _onCropTouchMove(e) {
+  e.preventDefault();
+  if (e.touches.length === 1 && _cropDragging) {
+    _cropOffX += e.touches[0].clientX - _cropLastX;
+    _cropOffY += e.touches[0].clientY - _cropLastY;
+    _cropLastX = e.touches[0].clientX;
+    _cropLastY = e.touches[0].clientY;
+    _clampOffset();
+    _dibujarCrop();
+  } else if (e.touches.length === 2) {
+    const dist   = _pinchDist(e.touches);
+    const delta  = dist / _cropPinchDist;
+    const slider = _q('#aj-crop-zoom-slider');
+    _cropZoom    = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), _cropZoom * delta));
+    slider.value = String(_cropZoom);
+    _cropPinchDist = dist;
+    _clampOffset();
+    _dibujarCrop();
+  }
+}
+
+function _onCropTouchEnd(e) {
+  if (e.touches.length === 0) _cropDragging = false;
+}
+
+function _pinchDist(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
 }
