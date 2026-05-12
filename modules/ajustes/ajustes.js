@@ -423,23 +423,23 @@ function _renderShell() {
       </div>
 
       <div class="aj-seccion" id="aj-sec-reporte">
-  <p class="aj-titulo">Reporte de actividad</p>
-  <div id="aj-reporte-contenido"></div>
-  <div class="aj-fila" style="margin-top:4px;">
-    <button class="aj-btn aj-neutral" id="btn-aj-reporte-exportar">⬇️ Exportar</button>
-    <button class="aj-btn aj-danger"  id="btn-aj-reporte-limpiar">🗑 Limpiar</button>
-  </div>
-</div>
+        <p class="aj-titulo">Reporte de actividad</p>
+        <div id="aj-reporte-contenido"></div>
+        <div class="aj-fila" style="margin-top:4px;">
+          <button class="aj-btn aj-neutral" id="btn-aj-reporte-exportar">⬇️ Exportar</button>
+          <button class="aj-btn aj-danger"  id="btn-aj-reporte-limpiar">🗑 Limpiar</button>
+        </div>
+      </div>
 
       <div class="aj-seccion">
-  <p class="aj-titulo">Módulos visibles</p>
-  <p class="aj-desc" style="color:rgba(255,255,255,0.45);font-size:.75rem;">
-    Configura qué módulos ve el perfil activo en el menú principal.
-  </p>
-  <div id="aj-modulos-lista"></div>
-</div>
+        <p class="aj-titulo">Módulos visibles</p>
+        <p class="aj-desc" style="color:rgba(255,255,255,0.45);font-size:.75rem;">
+          Configura qué módulos ve el perfil activo en el menú principal.
+        </p>
+        <div id="aj-modulos-lista"></div>
+      </div>
 
-            <div class="aj-seccion" id="aj-sec-perfiles">
+      <div class="aj-seccion" id="aj-sec-perfiles">
         <p class="aj-titulo">Perfiles</p>
         <div id="aj-perfiles-lista"></div>
         <div class="aj-fila">
@@ -454,28 +454,28 @@ function _renderShell() {
       <p id="aj-versi on">Dotir 2 v2.0</p>
 
       <div id="aj-modal-perfil">
-  <div id="aj-modal-perfil-box">
-    <h3 id="aj-modal-titulo">Nuevo perfil</h3>
-    <div class="aj-avatar-row">
-      <div id="aj-avatar-preview">🧑</div>
-      <div class="aj-avatar-acciones">
-        <span class="aj-modal-label">Avatar</span>
-        <input class="aj-modal-input" id="input-avatar-emoji"
+        <div id="aj-modal-perfil-box">
+          <h3 id="aj-modal-titulo">Nuevo perfil</h3>
+            <div class="aj-avatar-row">
+              <div id="aj-avatar-preview">🧑</div>
+                <div class="aj-avatar-acciones">
+                  <span class="aj-modal-label">Avatar</span>
+                  <input class="aj-modal-input" id="input-avatar-emoji"
                placeholder="Emoji (ej: 🐯)" maxlength="4">
-        <button class="aj-btn aj-neutral" id="btn-avatar-foto"
+                  <button class="aj-btn aj-neutral" id="btn-avatar-foto"
                 style="font-size:.78rem;padding:8px 12px;">
-          📷 Subir foto
-        </button>
-        <input type="file" id="input-avatar-file"
+                    📷 Subir foto
+                  </button>
+                  <input type="file" id="input-avatar-file"
                accept="image/*" style="display:none">
-      </div>
-    </div>
-    <div>
-      <span class="aj-modal-label">Apodo</span>
-      <input class="aj-modal-input" id="input-apodo"
+                  </div>
+                </div>
+              <div>
+                <span class="aj-modal-label">Apodo</span>
+                  <input class="aj-modal-input" id="input-apodo"
              placeholder="Ej: Tigre" maxlength="24">
-    </div>
-    <div>
+            </div>
+          <div>
       <span class="aj-modal-label">Fecha de nacimiento</span>
       <input class="aj-modal-input" id="input-fecha"
              type="date">
@@ -579,6 +579,19 @@ function _renderShell() {
     }
   });
   _q('#btn-modal-guardar').addEventListener('click', _guardarPerfil);
+  _q('#btn-aj-reporte-exportar').addEventListener('click', () => {
+    const p = Perfiles.getActivo();
+    Telemetry.exportar(p.id);
+    toast('Reporte exportado', { emoji: '📥' });
+  });
+  _q('#btn-aj-reporte-limpiar').addEventListener('click', () => {
+    const p = Perfiles.getActivo();
+    if (!confirm('¿Borrar todos los datos de actividad de ' + p.apodo + '?')) return;
+    Telemetry.limpiar(p.id);
+    _renderReporte();
+    toast('Datos borrados', { emoji: '🗑️' });
+  });
+  _renderReporte();
   _renderPerfiles();
   _renderModulos();
 
@@ -730,20 +743,6 @@ async function _descargarTodo() {
 
 let _editandoId = null;
 let _avatarFotoData = null;
-
-_q('#btn-aj-reporte-exportar').addEventListener('click', () => {
-  const p = Perfiles.getActivo();
-  Telemetry.exportar(p.id);
-  toast('Reporte exportado', { emoji: '📥' });
-});
-_q('#btn-aj-reporte-limpiar').addEventListener('click', () => {
-  const p = Perfiles.getActivo();
-  if (!confirm('¿Borrar todos los datos de actividad de ' + p.apodo + '?')) return;
-  Telemetry.limpiar(p.id);
-  _renderReporte();
-  toast('Datos borrados', { emoji: '🗑️' });
-});
-_renderReporte();
 
 function _renderPerfiles() {
   const lista = _q('#aj-perfiles-lista');
