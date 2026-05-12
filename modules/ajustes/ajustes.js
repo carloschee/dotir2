@@ -8,6 +8,7 @@ import MemoramaModule from '../memorama/module.js';
 import MediaModule from '../media/module.js';
 import TemporizadorModule from '../temporizador/module.js';
 import LibrosModule from '../libros/module.js';
+import { Telemetry } from '../../core/telemetry.js';
 
 const LS_TAMANO = 'dotir2-saac-tamano';
 
@@ -24,11 +25,12 @@ export async function init(container) {
     _renderModulos();
   });
   _onPerfilChange = () => {
-  if (!_container) return;
-  _renderPerfiles();
-  _renderModulos();
-};
-Perfiles.onChange(_onPerfilChange);
+    if (!_container) return;
+    _renderPerfiles();
+    _renderModulos();
+    _renderReporte();
+  };
+  Perfiles.onChange(_onPerfilChange);
 }
 
 export function destroy() {
@@ -304,6 +306,51 @@ function _renderShell() {
       }
       .aj-toggle input:checked + .aj-toggle-slider { background: #A855F7; }
       .aj-toggle input:checked + .aj-toggle-slider::before { transform: translateX(18px); }
+
+      /* Reporte de telemetria */
+      .aj-reporte-bloque {
+        display: flex; flex-direction: column; gap: 8px;
+      }
+      .aj-reporte-subtitulo {
+        font-size: .68rem; font-weight: 900; text-transform: uppercase;
+        letter-spacing: .08em; color: rgba(255,255,255,0.45);
+        margin-top: 4px;
+      }
+      .aj-reporte-stat {
+        display: flex; align-items: center;
+        justify-content: space-between; gap: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+      }
+      .aj-reporte-stat:last-child { border-bottom: none; }
+      .aj-reporte-stat-label {
+        color: rgba(255,255,255,0.7); font-size: .82rem; font-weight: 700;
+        flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .aj-reporte-stat-val {
+        color: white; font-size: .82rem; font-weight: 900;
+        flex-shrink: 0;
+      }
+      .aj-reporte-barra-wrap {
+        height: 6px; border-radius: 6px;
+        background: rgba(255,255,255,0.08); overflow: hidden;
+        margin-top: 2px;
+      }
+      .aj-reporte-barra {
+        height: 100%; border-radius: 6px;
+        background: linear-gradient(90deg, #A855F7, #EC4899);
+        transition: width .4s ease;
+      }
+      .aj-reporte-vacio {
+        color: rgba(255,255,255,0.3); font-size: .78rem;
+        font-weight: 700; text-align: center; padding: 8px 0;
+      }
+      .aj-reporte-frase {
+        color: rgba(255,255,255,0.65); font-size: .78rem; font-weight: 600;
+        padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+        line-height: 1.3;
+      }
+      .aj-reporte-frase:last-child { border-bottom: none; }
     </style>
 
     <div id="aj-wrap">
@@ -374,6 +421,15 @@ function _renderShell() {
             </button>`).join('')}
         </div>
       </div>
+
+      <div class="aj-seccion" id="aj-sec-reporte">
+  <p class="aj-titulo">Reporte de actividad</p>
+  <div id="aj-reporte-contenido"></div>
+  <div class="aj-fila" style="margin-top:4px;">
+    <button class="aj-btn aj-neutral" id="btn-aj-reporte-exportar">⬇️ Exportar</button>
+    <button class="aj-btn aj-danger"  id="btn-aj-reporte-limpiar">🗑 Limpiar</button>
+  </div>
+</div>
 
       <div class="aj-seccion">
   <p class="aj-titulo">Módulos visibles</p>
@@ -675,6 +731,20 @@ async function _descargarTodo() {
 let _editandoId = null;
 let _avatarFotoData = null;
 
+_q('#btn-aj-reporte-exportar').addEventListener('click', () => {
+  const p = Perfiles.getActivo();
+  Telemetry.exportar(p.id);
+  toast('Reporte exportado', { emoji: '📥' });
+});
+_q('#btn-aj-reporte-limpiar').addEventListener('click', () => {
+  const p = Perfiles.getActivo();
+  if (!confirm('¿Borrar todos los datos de actividad de ' + p.apodo + '?')) return;
+  Telemetry.limpiar(p.id);
+  _renderReporte();
+  toast('Datos borrados', { emoji: '🗑️' });
+});
+_renderReporte();
+
 function _renderPerfiles() {
   const lista = _q('#aj-perfiles-lista');
   if (!lista) return;
@@ -841,25 +911,25 @@ function _guardarPerfil() {
 
 // -- Crop interactivo ---
 
-let _cropImg       = null;
-let _cropZoom      = 1;
-let _cropOffX      = 0;
-let _cropOffY      = 0;
-let _cropDragging  = false;
-let _cropLastX     = 0;
-let _cropLastY     = 0;
+let _cropImg = null;
+let _cropZoom = 1;
+let _cropOffX = 0;
+let _cropOffY = 0;
+let _cropDragging = false;
+let _cropLastX = 0;
+let _cropLastY = 0;
 let _cropPinchDist = 0;
 
 function _abrirCrop(src) {
   const img = new Image();
   img.onload = () => {
-    _cropImg  = img;
+    _cropImg = img;
     _cropZoom = Math.max(320 / img.width, 320 / img.height);
     _cropOffX = 0;
     _cropOffY = 0;
-    _q('#aj-crop-zoom-slider').min   = String(_cropZoom * 0.8);
-    _q('#aj-crop-zoom-slider').max   = String(_cropZoom * 4);
-    _q('#aj-crop-zoom-slider').step  = String(_cropZoom * 0.01);
+    _q('#aj-crop-zoom-slider').min = String(_cropZoom * 0.8);
+    _q('#aj-crop-zoom-slider').max = String(_cropZoom * 4);
+    _q('#aj-crop-zoom-slider').step = String(_cropZoom * 0.01);
     _q('#aj-crop-zoom-slider').value = String(_cropZoom);
     _dibujarCrop();
     _q('#aj-crop-wrap').classList.add('visible');
@@ -877,10 +947,10 @@ function _cerrarCrop() {
 }
 
 function _confirmarCrop() {
-  const out    = document.createElement('canvas');
-  out.width    = 256;
-  out.height   = 256;
-  const ctx    = out.getContext('2d');
+  const out = document.createElement('canvas');
+  out.width = 256;
+  out.height = 256;
+  const ctx = out.getContext('2d');
 
   // Recorte circular
   ctx.beginPath();
@@ -888,16 +958,16 @@ function _confirmarCrop() {
   ctx.clip();
 
   // Calcular posicion de la imagen en el canvas de preview (320x320)
-  const canvas  = _q('#aj-crop-canvas');
-  const cx      = canvas.width  / 2;
-  const cy      = canvas.height / 2;
-  const iw      = _cropImg.width  * _cropZoom;
-  const ih      = _cropImg.height * _cropZoom;
-  const ix      = cx + _cropOffX - iw / 2;
-  const iy      = cy + _cropOffY - ih / 2;
+  const canvas = _q('#aj-crop-canvas');
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const iw = _cropImg.width * _cropZoom;
+  const ih = _cropImg.height * _cropZoom;
+  const ix = cx + _cropOffX - iw / 2;
+  const iy = cy + _cropOffY - ih / 2;
 
   // Escalar al canvas de salida 256x256
-  const escala  = 256 / 320;
+  const escala = 256 / 320;
   ctx.drawImage(_cropImg, ix * escala, iy * escala, iw * escala, ih * escala);
 
   _avatarFotoData = out.toDataURL('image/jpeg', 0.88);
@@ -911,10 +981,10 @@ function _dibujarCrop() {
   const canvas = _q('#aj-crop-canvas');
   if (!canvas || !_cropImg) return;
   const ctx = canvas.getContext('2d');
-  const W   = canvas.width;
-  const H   = canvas.height;
-  const cx  = W / 2;
-  const cy  = H / 2;
+  const W = canvas.width;
+  const H = canvas.height;
+  const cx = W / 2;
+  const cy = H / 2;
 
   ctx.clearRect(0, 0, W, H);
 
@@ -923,7 +993,7 @@ function _dibujarCrop() {
   ctx.fillRect(0, 0, W, H);
 
   // Imagen
-  const iw = _cropImg.width  * _cropZoom;
+  const iw = _cropImg.width * _cropZoom;
   const ih = _cropImg.height * _cropZoom;
   const ix = cx + _cropOffX - iw / 2;
   const iy = cy + _cropOffY - ih / 2;
@@ -942,20 +1012,20 @@ function _dibujarCrop() {
   ctx.beginPath();
   ctx.arc(cx, cy, W * 0.46, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(168,85,247,0.9)';
-  ctx.lineWidth   = 2.5;
+  ctx.lineWidth = 2.5;
   ctx.stroke();
 }
 
 function _clampOffset() {
   if (!_cropImg) return;
   const canvas = _q('#aj-crop-canvas');
-  const radio  = canvas.width * 0.46;
-  const iw     = _cropImg.width  * _cropZoom;
-  const ih     = _cropImg.height * _cropZoom;
-  const maxX   = Math.max(0, iw / 2 - radio);
-  const maxY   = Math.max(0, ih / 2 - radio);
-  _cropOffX    = Math.max(-maxX, Math.min(maxX, _cropOffX));
-  _cropOffY    = Math.max(-maxY, Math.min(maxY, _cropOffY));
+  const radio = canvas.width * 0.46;
+  const iw = _cropImg.width * _cropZoom;
+  const ih = _cropImg.height * _cropZoom;
+  const maxX = Math.max(0, iw / 2 - radio);
+  const maxY = Math.max(0, ih / 2 - radio);
+  _cropOffX = Math.max(-maxX, Math.min(maxX, _cropOffX));
+  _cropOffY = Math.max(-maxY, Math.min(maxY, _cropOffY));
 }
 
 // -- Eventos de drag y pinch ---
@@ -964,33 +1034,33 @@ function _iniciarEventosCrop() {
   const canvas = _q('#aj-crop-canvas');
   if (!canvas) return;
 
-  canvas.addEventListener('mousedown',  _onCropMouseDown);
-  canvas.addEventListener('mousemove',  _onCropMouseMove);
-  canvas.addEventListener('mouseup',    _onCropMouseUp);
+  canvas.addEventListener('mousedown', _onCropMouseDown);
+  canvas.addEventListener('mousemove', _onCropMouseMove);
+  canvas.addEventListener('mouseup', _onCropMouseUp);
   canvas.addEventListener('mouseleave', _onCropMouseUp);
-  canvas.addEventListener('wheel',      _onCropWheel,      { passive: false });
+  canvas.addEventListener('wheel', _onCropWheel, { passive: false });
   canvas.addEventListener('touchstart', _onCropTouchStart, { passive: false });
-  canvas.addEventListener('touchmove',  _onCropTouchMove,  { passive: false });
-  canvas.addEventListener('touchend',   _onCropTouchEnd);
+  canvas.addEventListener('touchmove', _onCropTouchMove, { passive: false });
+  canvas.addEventListener('touchend', _onCropTouchEnd);
 }
 
 function _limpiarEventosCrop() {
   const canvas = _q('#aj-crop-canvas');
   if (!canvas) return;
-  canvas.removeEventListener('mousedown',  _onCropMouseDown);
-  canvas.removeEventListener('mousemove',  _onCropMouseMove);
-  canvas.removeEventListener('mouseup',    _onCropMouseUp);
+  canvas.removeEventListener('mousedown', _onCropMouseDown);
+  canvas.removeEventListener('mousemove', _onCropMouseMove);
+  canvas.removeEventListener('mouseup', _onCropMouseUp);
   canvas.removeEventListener('mouseleave', _onCropMouseUp);
-  canvas.removeEventListener('wheel',      _onCropWheel);
+  canvas.removeEventListener('wheel', _onCropWheel);
   canvas.removeEventListener('touchstart', _onCropTouchStart);
-  canvas.removeEventListener('touchmove',  _onCropTouchMove);
-  canvas.removeEventListener('touchend',   _onCropTouchEnd);
+  canvas.removeEventListener('touchmove', _onCropTouchMove);
+  canvas.removeEventListener('touchend', _onCropTouchEnd);
 }
 
 function _onCropMouseDown(e) {
   _cropDragging = true;
-  _cropLastX    = e.clientX;
-  _cropLastY    = e.clientY;
+  _cropLastX = e.clientX;
+  _cropLastY = e.clientY;
 }
 
 function _onCropMouseMove(e) {
@@ -1007,9 +1077,9 @@ function _onCropMouseUp() { _cropDragging = false; }
 
 function _onCropWheel(e) {
   e.preventDefault();
-  const delta  = e.deltaY > 0 ? -0.08 : 0.08;
+  const delta = e.deltaY > 0 ? -0.08 : 0.08;
   const slider = _q('#aj-crop-zoom-slider');
-  _cropZoom    = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), _cropZoom + delta * _cropZoom));
+  _cropZoom = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), _cropZoom + delta * _cropZoom));
   slider.value = String(_cropZoom);
   _clampOffset();
   _dibujarCrop();
@@ -1019,11 +1089,11 @@ function _onCropTouchStart(e) {
   e.preventDefault();
   if (e.touches.length === 1) {
     _cropDragging = true;
-    _cropLastX    = e.touches[0].clientX;
-    _cropLastY    = e.touches[0].clientY;
+    _cropLastX = e.touches[0].clientX;
+    _cropLastY = e.touches[0].clientY;
   } else if (e.touches.length === 2) {
-    _cropDragging   = false;
-    _cropPinchDist  = _pinchDist(e.touches);
+    _cropDragging = false;
+    _cropPinchDist = _pinchDist(e.touches);
   }
 }
 
@@ -1037,10 +1107,10 @@ function _onCropTouchMove(e) {
     _clampOffset();
     _dibujarCrop();
   } else if (e.touches.length === 2) {
-    const dist   = _pinchDist(e.touches);
-    const delta  = dist / _cropPinchDist;
+    const dist = _pinchDist(e.touches);
+    const delta = dist / _cropPinchDist;
     const slider = _q('#aj-crop-zoom-slider');
-    _cropZoom    = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), _cropZoom * delta));
+    _cropZoom = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), _cropZoom * delta));
     slider.value = String(_cropZoom);
     _cropPinchDist = dist;
     _clampOffset();
@@ -1085,10 +1155,10 @@ function _renderModulos() {
       '<span class="aj-toggle-emoji">' + mod.emoji + '</span>' +
       '<span class="aj-toggle-label">' + mod.label + '</span>';
 
-    const label  = document.createElement('label');
+    const label = document.createElement('label');
     label.className = 'aj-toggle';
-    const input  = document.createElement('input');
-    input.type   = 'checkbox';
+    const input = document.createElement('input');
+    input.type = 'checkbox';
     input.checked = activo;
     const slider = document.createElement('span');
     slider.className = 'aj-toggle-slider';
@@ -1096,7 +1166,7 @@ function _renderModulos() {
     label.appendChild(slider);
 
     input.addEventListener('change', () => {
-      const todos  = _MODULOS_CONFIGURABLES.map(m => m.id);
+      const todos = _MODULOS_CONFIGURABLES.map(m => m.id);
       const actual = Perfiles.getModulosHabilitados() || [...todos];
       const nuevos = input.checked
         ? [...new Set([...actual, mod.id])]
@@ -1109,4 +1179,144 @@ function _renderModulos() {
     fila.appendChild(label);
     lista.appendChild(fila);
   });
+}
+
+function _renderReporte() {
+  const contenido = _q('#aj-reporte-contenido');
+  if (!contenido) return;
+  contenido.innerHTML = '';
+
+  const p = Perfiles.getActivo();
+  const reporte = Telemetry.getReporte(p.id);
+  const total = Telemetry.contarEventos(p.id);
+
+  if (total === 0) {
+    contenido.innerHTML =
+      '<p class="aj-reporte-vacio">Aun no hay actividad registrada para ' + p.apodo + '.</p>';
+    return;
+  }
+
+  // -- Encabezado general ---
+  const desde = reporte.primerEvento
+    ? reporte.primerEvento.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '—';
+  const hasta = reporte.ultimoEvento
+    ? reporte.ultimoEvento.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '—';
+
+  _aj_stat(contenido, 'Perfil', p.apodo);
+  _aj_stat(contenido, 'Periodo', desde + ' – ' + hasta);
+  _aj_stat(contenido, 'Total de eventos', String(total));
+
+  // -- SAAC ---
+  const s = reporte.saac;
+  if (s.totalPictos > 0 || s.totalFrases > 0) {
+    _aj_subtitulo(contenido, '💬 Comunicador');
+    _aj_stat(contenido, 'Pictogramas usados', String(s.totalPictos));
+    _aj_stat(contenido, 'Frases habladas', String(s.totalFrases));
+    _aj_stat(contenido, 'Favoritos agregados', String(s.totalFavs));
+
+    if (s.topPictos.length > 0) {
+      _aj_subtitulo(contenido, 'Top pictogramas');
+      const maxCount = s.topPictos[0].count;
+      s.topPictos.forEach(item => {
+        const fila = document.createElement('div');
+        fila.className = 'aj-reporte-stat';
+        fila.style.flexDirection = 'column';
+        fila.style.alignItems = 'flex-start';
+        fila.innerHTML =
+          '<div style="display:flex;justify-content:space-between;width:100%">' +
+          '<span class="aj-reporte-stat-label">' + (item.label || item.id) + '</span>' +
+          '<span class="aj-reporte-stat-val">' + item.count + 'x</span>' +
+          '</div>' +
+          '<div class="aj-reporte-barra-wrap" style="width:100%">' +
+          '<div class="aj-reporte-barra" style="width:' + Math.round((item.count / maxCount) * 100) + '%"></div>' +
+          '</div>';
+        contenido.appendChild(fila);
+      });
+    }
+
+    if (s.ultimasFrases.length > 0) {
+      _aj_subtitulo(contenido, 'Ultimas frases');
+      s.ultimasFrases.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'aj-reporte-frase';
+        div.textContent = f.texto;
+        contenido.appendChild(div);
+      });
+    }
+  }
+
+  // -- Memorama ---
+  const m = reporte.memorama;
+  if (m.totalPartidas > 0) {
+    _aj_subtitulo(contenido, '🃏 Memorama');
+    _aj_stat(contenido, 'Partidas iniciadas', String(m.totalPartidas));
+    _aj_stat(contenido, 'Partidas completadas', String(m.partidasComp));
+    if (m.duracionPromSeg !== null) {
+      const min = Math.floor(m.duracionPromSeg / 60);
+      const seg = m.duracionPromSeg % 60;
+      _aj_stat(contenido, 'Tiempo promedio', (min > 0 ? min + 'm ' : '') + seg + 's');
+    }
+    _aj_stat(contenido, 'Parejas encontradas', String(m.totalParejas));
+
+    if (m.temas.length > 0) {
+      _aj_subtitulo(contenido, 'Temas jugados');
+      m.temas.forEach(t => _aj_stat(contenido, t.tema, t.veces + 'x'));
+    }
+
+    const idiomasEntries = Object.entries(m.idiomas);
+    if (idiomasEntries.length > 0) {
+      _aj_subtitulo(contenido, 'Idiomas usados');
+      idiomasEntries
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([lang, count]) => _aj_stat(contenido, lang, count + 'x'));
+    }
+  }
+
+  // -- Multimedia ---
+  const mm = reporte.multimedia;
+  if (mm.totalReproducidos > 0) {
+    _aj_subtitulo(contenido, '▶️ Multimedia');
+    _aj_stat(contenido, 'Reproducciones', String(mm.totalReproducidos));
+
+    if (mm.topMedia.length > 0) {
+      _aj_subtitulo(contenido, 'Mas reproducidos');
+      const maxM = mm.topMedia[0].count;
+      mm.topMedia.forEach(item => {
+        const fila = document.createElement('div');
+        fila.className = 'aj-reporte-stat';
+        fila.style.flexDirection = 'column';
+        fila.style.alignItems = 'flex-start';
+        fila.innerHTML =
+          '<div style="display:flex;justify-content:space-between;width:100%">' +
+          '<span class="aj-reporte-stat-label">' +
+          (item.tipo === 'audio' ? '🎵 ' : '🎬 ') + item.titulo +
+          '</span>' +
+          '<span class="aj-reporte-stat-val">' + item.count + 'x</span>' +
+          '</div>' +
+          '<div class="aj-reporte-barra-wrap" style="width:100%">' +
+          '<div class="aj-reporte-barra" style="width:' + Math.round((item.count / maxM) * 100) + '%"></div>' +
+          '</div>';
+        contenido.appendChild(fila);
+      });
+    }
+  }
+}
+
+// Helpers de render del reporte
+function _aj_stat(parent, label, val) {
+  const div = document.createElement('div');
+  div.className = 'aj-reporte-stat';
+  div.innerHTML =
+    '<span class="aj-reporte-stat-label">' + label + '</span>' +
+    '<span class="aj-reporte-stat-val">' + val + '</span>';
+  parent.appendChild(div);
+}
+
+function _aj_subtitulo(parent, texto) {
+  const p = document.createElement('p');
+  p.className = 'aj-reporte-subtitulo';
+  p.textContent = texto;
+  parent.appendChild(p);
 }
