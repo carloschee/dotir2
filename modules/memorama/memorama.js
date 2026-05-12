@@ -3,6 +3,7 @@
 import { TTS } from '../../core/tts.js';
 import { lanzarConfeti, toast } from '../../core/ui.js';
 import { fetchTimeout } from '../../core/offline.js';
+import { Telemetry } from '../../core/telemetry.js';
 
 const TEMAS_URL = './data/memorama-temas.json';
 const PICS_BASE = './';
@@ -51,6 +52,8 @@ let _cartas = [];
 let _volteadas = [];
 let _bloqueado = false;
 let _parejas = 0;
+let _intentos = 0;
+let _tsInicioJuego = 0;
 
 let _idiomasActivos = new Set(
   JSON.parse(localStorage.getItem(LS_IDIOMAS) || '["es-MX"]')
@@ -499,6 +502,11 @@ async function _activarTema(meta) {
     datos.items.forEach(item => { _itemMap[item.id] = item; });
     // TTS ya se llamó desde el gesto directo del usuario
     _mostrarIntro();
+    _mostrarIntro();
+    Telemetry.track('tema_iniciado', {
+      _modulo: 'memorama',
+      tema: datos.titulo || meta.id,
+    });
   } catch (e) {
     console.error('[Memorama]', e);
     toast('Error al cargar el tema', { emoji: '❌' });
@@ -542,6 +550,10 @@ function _iniciarJuego() {
   if (!_temaActivo) return;
   _cartas = []; _volteadas = [];
   _bloqueado = false; _parejas = 0;
+  _bloqueado = false;
+  _parejas = 0;
+  _intentos = 0;
+  _tsInicioJuego = Date.now();
 
   const items = [..._temaActivo.items].sort(() => Math.random() - 0.5).slice(0, MAX_PARES);
   _cartas = [...items, ...items]
@@ -619,11 +631,18 @@ function _voltear(idx) {
       _q('[data-idx="' + a + '"]').classList.add('encontrada');
       _q('[data-idx="' + b + '"]').classList.add('encontrada');
       _parejas++;
+      Telemetry.track('pareja_encontrada', {
+        _modulo: 'memorama',
+        itemId: _cartas[a].itemId,
+        idioma,
+        tema: _temaActivo?.titulo || _temaActivo?.id || '',
+      });
       _volteadas = []; _bloqueado = false;
       _agregarStack(_cartas[a].itemId, idioma);
       if (_parejas === MAX_PARES) setTimeout(_victoria, 500);
     }, 300);
   } else {
+    _intentos++;
     setTimeout(() => {
       _q('[data-idx="' + a + '"]').classList.remove('volteada');
       _q('[data-idx="' + b + '"]').classList.remove('volteada');
@@ -663,6 +682,13 @@ function _agregarStack(itemId, idioma) {
 }
 
 function _victoria() {
+  const duracion = Math.round((Date.now() - _tsInicioJuego) / 1000);
+  Telemetry.track('partida_completada', {
+    _modulo: 'memorama',
+    tema: _temaActivo?.titulo || _temaActivo?.id || '',
+    duracion_seg: duracion,
+    intentos: _intentos,
+  });
   lanzarConfeti({ container: _q('#mem-wrap') });
   TTS.speak('Muy bien!', { lang: 'es-MX', pitch: 1.3, rate: .9 });
   const vict = _q('#mem-victoria'), trofeo = _q('#mem-trofeo');

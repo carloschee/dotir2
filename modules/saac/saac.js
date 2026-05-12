@@ -4,6 +4,7 @@ import { TTS } from '../../core/tts.js';
 import { fetchTimeout } from '../../core/offline.js';
 import { toast } from '../../core/ui.js';
 import { Perfiles } from '../../core/perfiles.js';
+import { Telemetry } from '../../core/telemetry.js';
 
 const DATA_URL = './data/saac.json';
 const PICS_BASE = './assets/saac/';
@@ -397,6 +398,12 @@ function _seleccionarPicto(item) {
   _frase.push(item);
   _renderFrase();
   TTS.speak(item.label, { lang: 'es-MX', pitch: 1.15, rate: 0.9 });
+  Telemetry.track('picto_seleccionado', {
+    _modulo:   'saac',
+    id:        item.id,
+    label:     item.label,
+    categoria: item.cat || null,
+  });
 }
 
 function _renderFrase() {
@@ -423,6 +430,11 @@ function _hablarFrase() {
   if (!_frase.length) return;
   const texto = _frase.map(i => i.label).join(' ');
   TTS.speak(texto, { lang: 'es-MX', pitch: 1.1, rate: 0.85 });
+  Telemetry.track('frase_hablada', {
+    _modulo:  'saac',
+    texto,
+    cantidad: _frase.length,
+  });
   _historial = [texto, ..._historial.filter(h => h !== texto)].slice(0, HISTORIAL_MAX);
   _guardarHistorial();
 }
@@ -437,9 +449,11 @@ function _toggleFav(id, label) {
   if (_favs.has(id)) {
     _favs.delete(id);
     toast(label + ' quitado de favoritos', { emoji: '&#128148;' });
+    Telemetry.track('fav_quitado', { _modulo: 'saac', id, label });
   } else {
     _favs.add(id);
     toast(label + ' en favoritos', { emoji: '&#11088;' });
+    Telemetry.track('fav_agregado', { _modulo: 'saac', id, label });
   }
   _guardarFavs();
   if (_catActiva === 'favs') _renderGrid();

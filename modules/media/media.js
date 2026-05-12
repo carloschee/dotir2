@@ -2,6 +2,7 @@
 
 import { fetchTimeout } from '../../core/offline.js';
 import AudioManager, { VideoManager, MediaStop } from '../../core/audio.js';
+import { Telemetry } from '../../core/telemetry.js';
 
 const DATA_URL   = './data/media.json';
 const AUDIO_BASE = './assets/audio/';
@@ -212,14 +213,18 @@ function _reproducir(idx) {
   const item = _items[idx];
   if (!item) return;
   if (item.tipo === 'audio') {
-    // Detener video si estaba corriendo
     if (VideoManager.playing) VideoManager.stop();
     _mostrarVisualizador();
     AudioManager.play(idx, AUDIO_BASE + item.archivo + '.mp3');
     _actualizarInfo(item);
     _marcarCintillo(idx);
+    Telemetry.track('media_reproducido', {
+      _modulo: 'multimedia',
+      titulo:  item.titulo,
+      tipo:    'audio',
+      archivo: item.archivo,
+    });
   } else {
-    // Detener audio si estaba corriendo
     if (AudioManager.playing) AudioManager.stop();
     _ocultarVisualizador();
     const marco = _q('#med-marco');
@@ -230,6 +235,12 @@ function _reproducir(idx) {
     }
     _actualizarInfo(item);
     _marcarCintillo(idx);
+    Telemetry.track('media_reproducido', {
+      _modulo: 'multimedia',
+      titulo:  item.titulo,
+      tipo:    'video',
+      archivo: item.archivo,
+    });
   }
 }
 
