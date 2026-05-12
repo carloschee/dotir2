@@ -17,6 +17,7 @@ let _touchX0   = 0;
 let _hue       = 0;
 let _cbPlay    = null;
 let _cbStop    = null;
+let _bloques = [];
 
 const _q = sel => _container && _container.querySelector(sel);
 
@@ -149,7 +150,7 @@ function _renderShell() {
   viz.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - _touchX0;
     if (Math.abs(dx) > 50) {
-      _vizMode = (_vizMode + 1) % 2;
+      _vizMode = (_vizMode + 1) % 3;
     }
   }, { passive: true });
 }
@@ -291,8 +292,9 @@ function _iniciarAnimacion() {
     }
     _hue = (_hue + 0.4) % 360;
     ctx.clearRect(0, 0, W, H);
-    if (_vizMode === 0) _drawBarras(ctx, W, H, freqArr, timeArr, bufLen);
-    else                _drawCircular(ctx, W, H, freqArr, bufLen);
+    if (_vizMode === 0)      _drawBarras(ctx, W, H, freqArr, timeArr, bufLen);
+    else if (_vizMode === 1) _drawCircular(ctx, W, H, freqArr, bufLen);
+    else                     _drawPianoRoll(ctx, W, H, freqArr, bufLen);
   }
   draw();
 }
@@ -360,4 +362,134 @@ function _drawCircular(ctx, W, H, freq, len) {
   ctx.strokeStyle = 'rgba(255,255,255,0.15)';
   ctx.lineWidth   = 1.5;
   ctx.stroke();
+}
+
+// Colores estilo Musanim — uno por carril de frecuencia
+const PIANO_COLORS = [
+  '#FF0000', // rojo        — sub-graves
+  '#FF4400', // rojo-naranja — graves bajos
+  '#FF8800', // naranja      — graves medios
+  '#FFCC00', // amarillo     — graves altos
+  '#AADD00', // lima         — medios bajos
+  '#00CC44', // verde        — medios
+  '#00BBAA', // turquesa     — medios altos
+  '#0088FF', // azul         — presencia
+  '#4444FF', // azul oscuro  — agudos bajos
+  '#8800FF', // violeta      — agudos
+  '#CC00CC', // magenta      — agudos altos
+  '#FF0088', // rosa         — brillo
+];
+
+const PIANO_CARRILES  = PIANO_COLORS.length;
+const PIANO_VELOCIDAD = 120; // px por segundo
+const PIANO_UMBRAL    = 0.18; // intensidad minima para emitir bloque
+const PIANO_GAP       = 3;    // px entre bloques y bordes de carril
+
+let _pianoUltimoTs   = 0;
+let _pianoUltimaEmision = new Array(PIANO_CARRILES).fill(0);
+
+function _drawPianoRoll(ctx, W, H, freq, len) {
+  const ahora   = performance.now();
+  const dt      = Math.min((ahora - _pianoUltimoTs) / 1000, 0.05);
+  _pianoUltimoTs = ahora;
+
+  const alturaCarril = H / PIANO_CARRILES;
+  const binPorCarril = Math.floor(len / PIANO_CARRILES);
+
+  // -- Emitir nuevos bloques ---
+  for (let c = 0; c < PIANO_CARRILES; c++) {
+    // Promedio de intensidad del rango de frecuencias de este carril
+    let suma = 0;
+    const ini = c * binPorCarril;
+    const fin = ini + binPorCarril;
+    for (let b = ini; b < fin; b++) suma += freq[b];
+    const v = (suma / binPorCarril) / 255;
+
+    if (v > PIANO_UMBRAL) {
+      const tiempoDesdeUltima = ahora - _pianoUltimaEmision[c];
+      // Emitir si han pasado al menos 80ms desde el ultimo bloque de este carril
+      if (tiempoDesdeUltima > 80) {
+        _bloques.push({
+          x:      W,
+          carril: c,
+          ancho:  Math.max(12, v * 80),
+          v,
+          color:  PIANO_COLORS[c],
+          alpha:  1,
+        });
+        _pianoUltimaEmision[c] = ahora;
+      }
+    }
+  }
+
+  // -- Mover bloques ---
+  const desplazamiento = PIANO_VELOCIDAD * dt;
+  _bloques = _bloques
+    .map(b => ({ ...b, x: b.x - desplazamiento, alpha: b.alpha }))
+    .filter(b => b.x + b.ancho > 0);
+
+  // -- Fondo ---
+  ctx.fillStyle = 'rgba(0,0,0,0.88)';
+  ctx.fillRect(0, 0, W, H);
+
+  // -- Líneas separadoras de carriles ---
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth   = 1;
+  for (let c = 1; c < PIANO_CARRILES; c++) {
+    const y = c * alturaCarril;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+    ctx.stroke();
+  }
+
+  // -- Etiquetas de carril (lado izquierdo) ---
+  ctx.font         = 'bold 9px system-ui';
+  ctx.textAlign    = 'left';
+  ctx.textBaseline = 'middle';
+  const LABELS = ['Sub','Grave−','Grave','Grave+','Med−','Med','Med+','Pres','Ag−','Agudo','Ag+','Brillo'];
+  for (let c = 0; c < PIANO_CARRILES; c++) {
+    const y = c * alturaCarril + alturaCarril / 2;
+    ctx.fillStyle = PIANO_COLORS[c] + '66';
+    ctx.fillText(LABELS[c] || '', 6, y);
+  }
+
+  // -- Dibujar bloques ---
+  _bloques.forEach(b => {
+    const y   = b.carril * alturaCarril + PIANO_GAP;
+    const h   = alturaCarril - PIANO_GAP * 2;
+    const x   = b.x;
+    const w   = b.ancho;
+
+    // Fade out cuando sale por la izquierda
+    const alpha = b.x < 60 ? b.x / 60 : 1;
+
+    // Glow
+    ctx.shadowColor = b.color;
+    ctx.shadowBlur  = 8 + b.v * 12;
+
+    // Bloque principal
+    ctx.globalAlpha = alpha * (0.7 + b.v * 0.3);
+    ctx.fillStyle   = b.color;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, Math.min(h / 2, 6));
+    ctx.fill();
+
+    // Brillo interior
+    ctx.globalAlpha = alpha * 0.35;
+    ctx.fillStyle   = 'white';
+    ctx.beginPath();
+    ctx.roundRect(x + 2, y + 2, Math.max(w - 4, 2), Math.min(h * 0.35, 6), 3);
+    ctx.fill();
+
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur  = 0;
+  });
+
+  // -- Línea vertical de "ahora" (borde derecho de emisión) ---
+  const gradLine = ctx.createLinearGradient(W - 2, 0, W, 0);
+  gradLine.addColorStop(0, 'rgba(255,255,255,0)');
+  gradLine.addColorStop(1, 'rgba(255,255,255,0.25)');
+  ctx.fillStyle = gradLine;
+  ctx.fillRect(W - 2, 0, 2, H);
 }
