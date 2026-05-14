@@ -1,0 +1,104 @@
+{
+  "id": "familia",
+  "titulo": "Familia",
+  "icono": "familia-icono.png",
+  "carpeta_img": "assets/memorama/familia/",
+  "items": [
+    {
+      "id": 601,
+      "imagen": "alex.png",
+      "es-MX": "Alex",
+      "en-US": "Alex",
+      "fr-FR": "Alex",
+      "zh-CN": "亚历克斯"
+    },
+    {
+      "id": 602,
+      "imagen": "cheque.png",
+      "es-MX": "Cheque",
+      "en-US": "Cheque",
+      "fr-FR": "Cheque",
+      "zh-CN": "切克"
+    },
+    {
+      "id": 603,
+      "imagen": "cuyo.png",
+      "es-MX": "Cuyo",
+      "en-US": "Guinea Pig",
+      "fr-FR": "Cochon d'Inde",
+      "zh-CN": "豚鼠"
+    },
+    {
+      "id": 604,
+      "imagen": "emma-natalia.png",
+      "es-MX": "Emma Natalia",
+      "en-US": "Emma Natalia",
+      "fr-FR": "Emma Natalia",
+      "zh-CN": "艾玛·纳塔利娅"
+    },
+    {
+      "id": 605,
+      "imagen": "mama.png",
+      "es-MX": "Mamá",
+      "en-US": "Mom",
+      "fr-FR": "Maman",
+      "zh-CN": "妈妈"
+    },
+    {
+      "id": 606,
+      "imagen": "nana.png",
+      "es-MX": "Nana",
+      "en-US": "Nana",
+      "fr-FR": "Nana",
+      "zh-CN": "奶奶"
+    },
+    {
+      "id": 607,
+      "imagen": "papa.png",
+      "es-MX": "Papá",
+      "en-US": "Dad",
+      "fr-FR": "Papa",
+      "zh-CN": "爸爸"
+    },
+    {
+      "id": 608,
+      "imagen": "suky.png",
+      "es-MX": "Suky",
+      "en-US": "Suky",
+      "fr-FR": "Suky",
+      "zh-CN": "苏基"
+    },
+    {
+      "id": 609,
+      "imagen": "tata.png",
+      "es-MX": "Tata",
+      "en-US": "Tata",
+      "fr-FR": "Tata",
+      "zh-CN": "姥爷"
+    },
+    {
+      "id": 610,
+      "imagen": "tia-erika.png",
+      "es-MX": "Tía Erika",
+      "en-US": "Aunt Erika",
+      "fr-FR": "Tante Erika",
+      "zh-CN": "艾丽卡阿姨"
+    },
+    {
+      "id": 611,
+      "imagen": "tia-huevo.png",
+      "es-MX": "Tía Huevo",
+      "en-US": "Aunt Huevo",
+      "fr-FR": "Tante Huevo",
+      "zh-CN": "韦沃阿姨"
+    },
+    {
+      "id": 612,
+      "imagen": "tio-julio.png",
+      "es-MX": "Tío Julio",
+      "en-US": "Uncle Julio",
+      "fr-FR": "Oncle Julio",
+      "zh-CN": "胡里奥叔叔"
+    }
+  ]
+}

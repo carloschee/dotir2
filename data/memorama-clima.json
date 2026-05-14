@@ -1,0 +1,112 @@
+{
+  "id": "clima",
+  "titulo": "Clima",
+  "icono": "clima-icono.png",
+  "carpeta_img": "assets/memorama/clima/",
+  "items": [
+    {
+      "id": 701,
+      "imagen": "granizo.png",
+      "es-MX": "Granizo",
+      "en-US": "Hail",
+      "fr-FR": "Grêle",
+      "zh-CN": "冰雹"
+    },
+    {
+      "id": 702,
+      "imagen": "huracan.png",
+      "es-MX": "Huracán",
+      "en-US": "Hurricane",
+      "fr-FR": "Ouragan",
+      "zh-CN": "飓风"
+    },
+    {
+      "id": 703,
+      "imagen": "lluvia-ligera.png",
+      "es-MX": "Llovizna",
+      "en-US": "Drizzle",
+      "fr-FR": "Bruine",
+      "zh-CN": "毛毛雨"
+    },
+    {
+      "id": 704,
+      "imagen": "lluvia.png",
+      "es-MX": "Lluvia",
+      "en-US": "Rain",
+      "fr-FR": "Pluie",
+      "zh-CN": "雨"
+    },
+    {
+      "id": 705,
+      "imagen": "neblina.png",
+      "es-MX": "Neblina",
+      "en-US": "Fog",
+      "fr-FR": "Brouillard",
+      "zh-CN": "雾"
+    },
+    {
+      "id": 706,
+      "imagen": "nieve.png",
+      "es-MX": "Nieve",
+      "en-US": "Snow",
+      "fr-FR": "Neige",
+      "zh-CN": "雪"
+    },
+    {
+      "id": 707,
+      "imagen": "nublado.png",
+      "es-MX": "Nublado",
+      "en-US": "Cloudy",
+      "fr-FR": "Nuageux",
+      "zh-CN": "多云"
+    },
+    {
+      "id": 708,
+      "imagen": "parcialmente-nubla.png",
+      "es-MX": "Parcialmente nublado",
+      "en-US": "Partly cloudy",
+      "fr-FR": "Partiellement nuageux",
+      "zh-CN": "晴间多云"
+    },
+    {
+      "id": 709,
+      "imagen": "rayo.png",
+      "es-MX": "Rayo",
+      "en-US": "Lightning",
+      "fr-FR": "Éclair",
+      "zh-CN": "闪电"
+    },
+    {
+      "id": 710,
+      "imagen": "soleado.png",
+      "es-MX": "Soleado",
+      "en-US": "Sunny",
+      "fr-FR": "Ensoleillé",
+      "zh-CN": "晴天"
+    },
+    {
+      "id": 711,
+      "imagen": "tormenta.png",
+      "es-MX": "Tormenta",
+      "en-US": "Thunderstorm",
+      "fr-FR": "Orage",
+      "zh-CN": "雷暴"
+    },
+    {
+      "id": 712,
+      "imagen": "tornado.png",
+      "es-MX": "Tornado",
+      "en-US": "Tornado",
+      "fr-FR": "Tornade",
+      "zh-CN": "龙卷风"
+    },
+    {
+      "id": 713,
+      "imagen": "viento.png",
+      "es-MX": "Viento",
+      "en-US": "Wind",
+      "fr-FR": "Vent",
+      "zh-CN": "风"
+    }
+  ]
+}

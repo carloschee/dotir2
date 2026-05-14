@@ -28,5 +28,17 @@
     "titulo": "Lotería",
     "icono": "loteria-icono.png",
     "archivo": "data/memorama-loteria.json"
+  },
+  {
+    "id": "familia",
+    "titulo": "Familia",
+    "icono": "familia-icono.png",
+    "archivo": "data/memorama-familia.json"
+  },
+  {
+    "id": "clima",
+    "titulo": "Clima",
+    "icono": "clima-icono.png",
+    "archivo": "data/memorama-clima.json"
   }
 ]
