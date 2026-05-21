@@ -6,8 +6,8 @@
 
 // ── VideoManager ──────────────────────────────────────────────
 const VideoManager = (() => {
-  let _video     = null;
-  let _idx       = -1;
+  let _video = null;
+  let _idx = -1;
   let _onEndedCb = null;
 
   function _init() {
@@ -15,7 +15,7 @@ const VideoManager = (() => {
     _video = document.createElement('video');
     _video.playsInline = true;
     _video.setAttribute('playsinline', '');
-    _video.preload    = 'none';
+    _video.preload = 'none';
     _video.style.cssText =
       'position:absolute;inset:0;width:100%;height:100%;' +
       'object-fit:contain;display:none;pointer-events:none;';
@@ -23,7 +23,7 @@ const VideoManager = (() => {
 
   return {
     get video() { return _video; },
-    get idx()   { return _idx; },
+    get idx() { return _idx; },
     get playing() { return _video && !_video.paused && _video.src; },
 
     init() { _init(); },
@@ -41,7 +41,11 @@ const VideoManager = (() => {
       _idx = idx;
       if (_video.src !== src) {
         _video.src = src;
-        _video.load();
+        try {
+          _video.load();
+        } catch (e) {
+          console.warn('[Video] play/load:', e);
+        }
       }
       _video.play().catch(e => console.warn('[Video] play:', e));
       _video.onended = () => { if (_onEndedCb) _onEndedCb(idx); };
@@ -52,7 +56,11 @@ const VideoManager = (() => {
       if (!_video) return;
       _video.pause();
       _video.removeAttribute('src');
-      _video.load();
+      try {
+        _video.load();
+      } catch (e) {
+        console.warn('[Video] stop/load:', e);
+      }
       _idx = -1;
       MediaStop._actualizar();
     },
@@ -71,28 +79,28 @@ const VideoManager = (() => {
 
 // ── AudioManager ──────────────────────────────────────────────
 const AudioManager = (() => {
-  let _audio    = null;
-  let _actx     = null;
+  let _audio = null;
+  let _actx = null;
   let _analyser = null;
-  let _source   = null;
-  let _idx      = -1;
-  let _canciones  = [];
-  let _onPlayCbs  = [];
-  let _onStopCbs  = [];
+  let _source = null;
+  let _idx = -1;
+  let _canciones = [];
+  let _onPlayCbs = [];
+  let _onStopCbs = [];
 
   function _init() {
     if (_audio) return;
     _audio = new Audio();
     _audio.crossOrigin = 'anonymous';
     _audio.addEventListener('ended', _notificar);
-    _audio.addEventListener('play',  _notificar);
+    _audio.addEventListener('play', _notificar);
     _audio.addEventListener('pause', _notificar);
     try {
-      _actx     = new (window.AudioContext || window.webkitAudioContext)();
+      _actx = new (window.AudioContext || window.webkitAudioContext)();
       _analyser = _actx.createAnalyser();
       _analyser.fftSize = 512;
       _analyser.smoothingTimeConstant = 0.82;
-      _source   = _actx.createMediaElementSource(_audio);
+      _source = _actx.createMediaElementSource(_audio);
       _source.connect(_analyser);
       _analyser.connect(_actx.destination);
     } catch (e) {
@@ -102,7 +110,7 @@ const AudioManager = (() => {
 
   function _notificar() {
     const playing = _audio && !_audio.paused;
-    if (playing)  _onPlayCbs.forEach(cb => cb(_idx, _canciones[_idx]));
+    if (playing) _onPlayCbs.forEach(cb => cb(_idx, _canciones[_idx]));
     if (!playing) _onStopCbs.forEach(cb => cb());
     MediaStop._actualizar();
   }
@@ -112,11 +120,11 @@ const AudioManager = (() => {
   }
 
   return {
-    get audio()    { return _audio; },
+    get audio() { return _audio; },
     get analyser() { return _analyser; },
-    get idx()      { return _idx; },
-    get canciones(){ return _canciones; },
-    get playing()  { return _audio && !_audio.paused; },
+    get idx() { return _idx; },
+    get canciones() { return _canciones; },
+    get playing() { return _audio && !_audio.paused; },
 
     setCanciones(list) { _canciones = list; },
 
@@ -139,8 +147,8 @@ const AudioManager = (() => {
       _notificar();
     },
 
-    onPlay(cb)  { if (!_onPlayCbs.includes(cb))  _onPlayCbs.push(cb); },
-    onStop(cb)  { if (!_onStopCbs.includes(cb))  _onStopCbs.push(cb); },
+    onPlay(cb) { if (!_onPlayCbs.includes(cb)) _onPlayCbs.push(cb); },
+    onStop(cb) { if (!_onStopCbs.includes(cb)) _onStopCbs.push(cb); },
     offPlay(cb) { _onPlayCbs = _onPlayCbs.filter(f => f !== cb); },
     offStop(cb) { _onStopCbs = _onStopCbs.filter(f => f !== cb); },
   };
@@ -159,7 +167,7 @@ const MediaStop = {
     if (!nav) return;
 
     const btn = document.createElement('button');
-    btn.id    = 'media-stop-btn';
+    btn.id = 'media-stop-btn';
     btn.title = 'Detener reproduccion';
     btn.style.cssText =
       'display:flex;align-items:center;justify-content:center;' +
