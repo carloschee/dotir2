@@ -99,6 +99,110 @@
       "en-US": "cable car",
       "fr-FR": "téléphérique",
       "zh-CN": "缆车"
+    },
+    {
+      "id": 213,
+      "imagen": "ambulancia.png",
+      "es-MX": "ambulancia",
+      "en-US": "ambulance",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 214,
+      "imagen": "autobus-dos-pisos.png",
+      "es-MX": "autobús de dos pisos",
+      "en-US": "double decker bus",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 215,
+      "imagen": "camion-bpmberos.png",
+      "es-MX": "camión de bomberos",
+      "en-US": "firetruck",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 216,
+      "imagen": "camion-helados.png",
+      "es-MX": "camión de helados",
+      "en-US": "ice cream truck",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 217,
+      "imagen": "dirigible.png",
+      "es-MX": "dirigible",
+      "en-US": "blimp",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 218,
+      "imagen": "limusina.png",
+      "es-MX": "limusina",
+      "en-US": "limousine",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 219,
+      "imagen": "paracaidas.png",
+      "es-MX": "paracaídas",
+      "en-US": "parachute",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 220,
+      "imagen": "patrulla.png",
+      "es-MX": "patrulla",
+      "en-US": "patrol",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 221,
+      "imagen": "segway.png",
+      "es-MX": "segway",
+      "en-US": "segway",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 222,
+      "imagen": "taxi.png",
+      "es-MX": "taxi",
+      "en-US": "taxi",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 223,
+      "imagen": "todoterreno.png",
+      "es-MX": "todoterreno",
+      "en-US": "all-terrain",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 224,
+      "imagen": "velero.png",
+      "es-MX": "velero",
+      "en-US": "sailboat",
+      "fr-FR": "",
+      "zh-CN": ""
+    },
+    {
+      "id": 225,
+      "imagen": "astronauta.png",
+      "es-MX": "astronauta",
+      "en-US": "astronaut",
+      "fr-FR": "",
+      "zh-CN": ""
     }
   ]
 }

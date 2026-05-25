@@ -107,6 +107,14 @@
       "en-US": "Wind",
       "fr-FR": "Vent",
       "zh-CN": "风"
+    },
+    {
+      "id": 714,
+      "imagen": "mono-nieve.png",
+      "es-MX": "mono de nieve",
+      "en-US": "snowman",
+      "fr-FR": "",
+      "zh-CN": ""
     }
   ]
 }
