@@ -387,8 +387,18 @@ function _drawEspectrograma(ctx, W, H, freq, len) {
 
   const oCtx = _especCanvas.getContext('2d');
 
-  // Desplazar el contenido existente 1px hacia abajo
-  oCtx.drawImage(_especCanvas, 0, 1);
+  // Desplazar el contenido existente 1px hacia abajo.
+  // NOTA: drawImage(self) lanza InvalidStateError en Safari/WebKit;
+  // se usa getImageData/putImageData que es seguro en todos los navegadores.
+  if (H > 1) {
+    try {
+      const imgData = oCtx.getImageData(0, 0, W, H - 1);
+      oCtx.putImageData(imgData, 0, 1);
+    } catch (e) {
+      // Si falla (ej. canvas contaminado), limpiar y continuar
+      oCtx.clearRect(0, 0, W, H);
+    }
+  }
 
   // Dibujar la nueva fila en y=0 con los datos de frecuencia actuales
   const count   = Math.min(len, W);
