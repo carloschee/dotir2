@@ -105,104 +105,192 @@
       "imagen": "ambulancia.png",
       "es-MX": "ambulancia",
       "en-US": "ambulance",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "ambulance",
+      "zh-CN": "救护车"
     },
     {
       "id": 214,
       "imagen": "autobus-dos-pisos.png",
       "es-MX": "autobús de dos pisos",
       "en-US": "double decker bus",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "autobus à impériale",
+      "zh-CN": "双层巴士"
     },
     {
       "id": 215,
       "imagen": "camion-bpmberos.png",
       "es-MX": "camión de bomberos",
       "en-US": "firetruck",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "camion de pompiers",
+      "zh-CN": "消防车"
     },
     {
       "id": 216,
       "imagen": "camion-helados.png",
       "es-MX": "camión de helados",
       "en-US": "ice cream truck",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "camion de glaces",
+      "zh-CN": "冰淇淋车"
     },
     {
       "id": 217,
       "imagen": "dirigible.png",
       "es-MX": "dirigible",
       "en-US": "blimp",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "dirigeable",
+      "zh-CN": "飞艇"
     },
     {
       "id": 218,
       "imagen": "limusina.png",
       "es-MX": "limusina",
       "en-US": "limousine",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "limousine",
+      "zh-CN": "豪华轿车"
     },
     {
       "id": 219,
       "imagen": "paracaidas.png",
       "es-MX": "paracaídas",
       "en-US": "parachute",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "parachute",
+      "zh-CN": "降落伞"
     },
     {
       "id": 220,
       "imagen": "patrulla.png",
       "es-MX": "patrulla",
       "en-US": "patrol",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "voiture de patrouille",
+      "zh-CN": "巡逻车"
     },
     {
       "id": 221,
       "imagen": "segway.png",
       "es-MX": "segway",
       "en-US": "segway",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "segway",
+      "zh-CN": "平衡车"
     },
     {
       "id": 222,
       "imagen": "taxi.png",
       "es-MX": "taxi",
       "en-US": "taxi",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "taxi",
+      "zh-CN": "出租车"
     },
     {
       "id": 223,
       "imagen": "todoterreno.png",
       "es-MX": "todoterreno",
       "en-US": "all-terrain",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "tout-terrain",
+      "zh-CN": "越野车"
     },
     {
       "id": 224,
       "imagen": "velero.png",
       "es-MX": "velero",
       "en-US": "sailboat",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "voilier",
+      "zh-CN": "帆船"
     },
     {
       "id": 225,
       "imagen": "astronauta.png",
       "es-MX": "astronauta",
       "en-US": "astronaut",
-      "fr-FR": "",
-      "zh-CN": ""
+      "fr-FR": "astronaute",
+      "zh-CN": "宇航员"
+    },
+    {
+      "id": 226,
+      "imagen": "autobus-escolar.png",
+      "es-MX": "autobús escolar",
+      "en-US": "school bus",
+      "fr-FR": "autobus scolaire",
+      "zh-CN": "校车"
+    },
+    {
+      "id": 227,
+      "imagen": "avioneta.png",
+      "es-MX": "avioneta",
+      "en-US": "light plane",
+      "fr-FR": "avion léger",
+      "zh-CN": "轻型飞机"
+    },
+    {
+      "id": 228,
+      "imagen": "cohete.png",
+      "es-MX": "cohete espacial",
+      "en-US": "space rocket",
+      "fr-FR": "fusée spatiale",
+      "zh-CN": "太空火箭"
+    },
+    {
+      "id": 229,
+      "imagen": "excavadora.png",
+      "es-MX": "excavadora",
+      "en-US": "excavator",
+      "fr-FR": "pelle mécanique",
+      "zh-CN": "挖掘机"
+    },
+    {
+      "id": 230,
+      "imagen": "jeep.png",
+      "es-MX": "yiip",
+      "en-US": "jeep",
+      "fr-FR": "jeep",
+      "zh-CN": "吉普车"
+    },
+    {
+      "id": 231,
+      "imagen": "kart.png",
+      "es-MX": "kart",
+      "en-US": "kart",
+      "fr-FR": "kart",
+      "zh-CN": "卡丁车"
+    },
+    {
+      "id": 232,
+      "imagen": "kayak.png",
+      "es-MX": "kayak",
+      "en-US": "kayak",
+      "fr-FR": "kayak",
+      "zh-CN": "皮划艇"
+    },
+    {
+      "id": 233,
+      "imagen": "mototaxi.png",
+      "es-MX": "mototaxi",
+      "en-US": "moto taxi",
+      "fr-FR": "moto-taxi",
+      "zh-CN": "三轮摩托车"
+    },
+    {
+      "id": 234,
+      "imagen": "tractor.png",
+      "es-MX": "tractor",
+      "en-US": "tractor",
+      "fr-FR": "tracteur",
+      "zh-CN": "拖拉机"
+    },
+    {
+      "id": 235,
+      "imagen": "trailer.png",
+      "es-MX": "tráiler",
+      "en-US": "trailer",
+      "fr-FR": "semi-remorque",
+      "zh-CN": "挂车"
+    },
+    {
+      "id": 236,
+      "imagen": "transbordador.png",
+      "es-MX": "transbordador espacial",
+      "en-US": "space shuttle",
+      "fr-FR": "navette spatiale",
+      "zh-CN": "航天飞机"
     }
   ]
 }
