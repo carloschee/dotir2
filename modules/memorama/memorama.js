@@ -224,7 +224,8 @@ function _renderShell() {
       .mem-cara {
         position: absolute; inset: 0; border-radius: 9px;
         backface-visibility: hidden; -webkit-backface-visibility: hidden;
-        overflow: hidden; display: flex; align-items: center; justify-content: center;
+        display: flex; align-items: center; justify-content: center;
+        clip-path: inset(0 round 9px);
       }
       .mem-dorso {
         border: 2px solid rgba(255,255,255,0.42);
