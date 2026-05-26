@@ -45,6 +45,7 @@ self.addEventListener('fetch', e => {
         if (!range) return cached;
         const blob  = await cached.blob();
         const m     = /bytes=(\d*)-(\d*)/.exec(range);
+        if (!m) return fetch(request);
         const start = m[1] ? +m[1] : 0;
         const end   = m[2] ? +m[2] : blob.size - 1;
         return new Response(blob.slice(start, end + 1), {
