@@ -3,8 +3,6 @@
 import { TTS } from '../../core/tts.js';
 import { lanzarConfeti } from '../../core/ui.js';
 
-const LS_MODO = 'dotir2-timer-modo';
-
 let _container   = null;
 let _totalMs     = 0;
 let _msRestantes = 0;
@@ -12,7 +10,6 @@ let _tiempoInicio = 0;
 let _tiempoFin    = 0;
 let _corriendo   = false;
 let _rafId       = null;
-let _modo        = localStorage.getItem('dotir2-timer-modo') || 'min';
 let _audioCtx    = null;
 
 const _q = sel => _container?.querySelector(sel);
@@ -37,7 +34,6 @@ export function destroy() {
   window.removeEventListener('resize', _onResize);
   _container = null;
   document.getElementById('modulo-acciones')?.replaceChildren();
-  document.getElementById('timer-nav-style')?.remove();
 }
 
 export function onEnter() { _ajustarCanvas(); }
@@ -60,41 +56,12 @@ function _renderNavAcciones() {
   if (!acc) return;
   acc.innerHTML = '';
 
-  if (!document.getElementById('timer-nav-style')) {
-    const s = document.createElement('style');
-    s.id = 'timer-nav-style';
-    s.textContent =
-      '.timer-modo-btn{display:flex;align-items:center;justify-content:center;' +
-      'height:28px;padding:0 10px;border-radius:10px;' +
-      'border:1.5px solid rgba(255,255,255,0.25);' +
-      'background:rgba(255,255,255,0.12);color:white;' +
-      'font-size:0.72rem;font-weight:800;cursor:pointer;transition:all .15s;}' +
-      '.timer-modo-btn.activo{background:rgba(255,255,255,0.30);border-color:white;}';
-    document.head.appendChild(s);
-  }
-
-  const btnMin = document.createElement('button');
-  btnMin.className = 'timer-modo-btn' + (_modo === 'min' ? ' activo' : '');
-  btnMin.textContent = 'Min';
-  btnMin.addEventListener('click', () => _setModo('min'));
-
-  const btnSeg = document.createElement('button');
-  btnSeg.className = 'timer-modo-btn' + (_modo === 'seg' ? ' activo' : '');
-  btnSeg.textContent = 'Min+Seg';
-  btnSeg.addEventListener('click', () => _setModo('seg'));
-
   const btnConfig = document.createElement('button');
   btnConfig.className = 'd-nav-btn';
-  btnConfig.textContent = '⏱ Configurar';
+  btnConfig.textContent = '\u23F1 Configurar';
   btnConfig.addEventListener('click', _abrirConfig);
 
-  acc.append(btnMin, btnSeg, btnConfig);
-}
-
-function _setModo(m) {
-  _modo = m;
-  localStorage.setItem('dotir2-timer-modo', m);
-  _renderNavAcciones();
+  acc.append(btnConfig);
 }
 
 // -- Shell HTML ---
@@ -428,7 +395,6 @@ function _formatTiempo() {
   const totalSeg = Math.ceil(_msRestantes / 1000);
   const min = Math.floor(totalSeg / 60);
   const seg = totalSeg % 60;
-  if (_modo === 'min') return min + ' min';
   return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
 }
 
@@ -490,16 +456,6 @@ function _dibujar(progreso) {
     ctx.strokeStyle = mayor ? 'rgba(255,255,255,0.50)' : 'rgba(255,255,255,0.15)';
     ctx.lineWidth   = mayor ? W * 0.007 : W * 0.003;
     ctx.stroke();
-  }
-  ctx.font         = 'bold ' + (W * 0.048) + 'px system-ui';
-  ctx.textAlign    = 'center';
-  ctx.textBaseline = 'middle';
-  for (let i = 1; i <= 12; i++) {
-    const num  = i * 5;
-    const ang  = (num / 60) * Math.PI * 2 - Math.PI / 2;
-    const rTxt = RMin * 0.80;
-    ctx.fillStyle = 'rgba(255,255,255,0.40)';
-    ctx.fillText(String(num), cx + Math.cos(ang) * rTxt, cy + Math.sin(ang) * rTxt);
   }
   const hubGrad = ctx.createRadialGradient(cx, cy - RMin * 0.1, RMin * 0.05, cx, cy, RMin);
   hubGrad.addColorStop(0, '#252542');
