@@ -291,6 +291,182 @@
       "en-US": "space shuttle",
       "fr-FR": "navette spatiale",
       "zh-CN": "航天飞机"
+    },
+    {
+      "id": 237,
+      "imagen": "avion-combate.png",
+      "es-MX": "avión de combate",
+      "en-US": "fighter jet",
+      "fr-FR": "avion de chasse",
+      "zh-CN": "战斗机"
+    },
+    {
+      "id": 238,
+      "imagen": "buque-carga.png",
+      "es-MX": "buque de carga",
+      "en-US": "cargo ship",
+      "fr-FR": "cargo",
+      "zh-CN": "货船"
+    },
+    {
+      "id": 239,
+      "imagen": "camion-basura.png",
+      "es-MX": "camión de basura",
+      "en-US": "garbage truck",
+      "fr-FR": "camion-poubelle",
+      "zh-CN": "垃圾车"
+    },
+    {
+      "id": 240,
+      "imagen": "camion-cisterna.png",
+      "es-MX": "camión cisterna",
+      "en-US": "tanker truck",
+      "fr-FR": "camion-citerne",
+      "zh-CN": "油罐车"
+    },
+    {
+      "id": 241,
+      "imagen": "camioneta.png",
+      "es-MX": "camioneta",
+      "en-US": "pickup truck",
+      "fr-FR": "camionnette",
+      "zh-CN": "皮卡车"
+    },
+    {
+      "id": 242,
+      "imagen": "camion-mezclador-cemento.png",
+      "es-MX": "camión mezclador de cemento",
+      "en-US": "cement mixer truck",
+      "fr-FR": "camion malaxeur",
+      "zh-CN": "水泥搅拌车"
+    },
+    {
+      "id": 243,
+      "imagen": "camion-minero.png",
+      "es-MX": "camión minero",
+      "en-US": "mining truck",
+      "fr-FR": "camion minier",
+      "zh-CN": "矿用卡车"
+    },
+    {
+      "id": 244,
+      "imagen": "camion-reparto.png",
+      "es-MX": "camión de reparto",
+      "en-US": "delivery truck",
+      "fr-FR": "camion de livraison",
+      "zh-CN": "送货车"
+    },
+    {
+      "id": 245,
+      "imagen": "camion-volteo.png",
+      "es-MX": "camión de volteo",
+      "en-US": "dump truck",
+      "fr-FR": "camion à benne basculante",
+      "zh-CN": "自卸卡车"
+    },
+    {
+      "id": 246,
+      "imagen": "cargadora-frontal.png",
+      "es-MX": "cargadora frontal",
+      "en-US": "front loader",
+      "fr-FR": "chargeur frontal",
+      "zh-CN": "前端装载机"
+    },
+    {
+      "id": 247,
+      "imagen": "carrito-golf.png",
+      "es-MX": "carrito de golf",
+      "en-US": "golf cart",
+      "fr-FR": "voiturette de golf",
+      "zh-CN": "高尔夫球车"
+    },
+    {
+      "id": 248,
+      "imagen": "convertible.png",
+      "es-MX": "convertible",
+      "en-US": "convertible",
+      "fr-FR": "cabriolet",
+      "zh-CN": "敞篷车"
+    },
+    {
+      "id": 249,
+      "imagen": "furgoneta.png",
+      "es-MX": "furgoneta",
+      "en-US": "van",
+      "fr-FR": "fourgonnette",
+      "zh-CN": "面包车"
+    },
+    {
+      "id": 250,
+      "imagen": "gria.png",
+      "es-MX": "grúa",
+      "en-US": "tow truck",
+      "fr-FR": "dépanneuse",
+      "zh-CN": "拖车"
+    },
+    {
+      "id": 251,
+      "imagen": "helicoptero-rescate.png",
+      "es-MX": "helicóptero de rescate",
+      "en-US": "rescue helicopter",
+      "fr-FR": "hélicoptère de sauvetage",
+      "zh-CN": "救援直升机"
+    },
+    {
+      "id": 252,
+      "imagen": "montacargas.png",
+      "es-MX": "montacargas",
+      "en-US": "forklift",
+      "fr-FR": "chariot élévateur",
+      "zh-CN": "叉车"
+    },
+    {
+      "id": 253,
+      "imagen": "moto-actuatica.png",
+      "es-MX": "moto acuática",
+      "en-US": "jet ski",
+      "fr-FR": "motomarine",
+      "zh-CN": "摩托艇"
+    },
+    {
+      "id": 254,
+      "imagen": "motoniveladora.png",
+      "es-MX": "motoniveladora",
+      "en-US": "motor grader",
+      "fr-FR": "niveleuse",
+      "zh-CN": "平地机"
+    },
+    {
+      "id": 255,
+      "imagen": "quita-nieve.png",
+      "es-MX": "quitanieves",
+      "en-US": "snowplow",
+      "fr-FR": "chasse-neige",
+      "zh-CN": "扫雪车"
+    },
+    {
+      "id": 256,
+      "imagen": "tractor-oruga.png",
+      "es-MX": "tractor oruga",
+      "en-US": "bulldozer",
+      "fr-FR": "bulldozer",
+      "zh-CN": "推土机"
+    },
+    {
+      "id": 257,
+      "imagen": "tren-bala.png",
+      "es-MX": "tren bala",
+      "en-US": "bullet train",
+      "fr-FR": "train à grande vitesse",
+      "zh-CN": "子弹头列车"
+    },
+    {
+      "id": 258,
+      "imagen": "yate.png",
+      "es-MX": "yate",
+      "en-US": "yacht",
+      "fr-FR": "yacht",
+      "zh-CN": "游艇"
     }
   ]
 }
