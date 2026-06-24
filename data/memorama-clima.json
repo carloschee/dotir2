@@ -115,6 +115,38 @@
       "en-US": "snowman",
       "fr-FR": "bonhomme de neige",
       "zh-CN": "雪人"
+    },
+    {
+      "id": 715,
+      "imagen": "primavera.png",
+      "es-MX": "Primavera",
+      "en-US": "Spring",
+      "fr-FR": "Printemps",
+      "zh-CN": "春天"
+    },
+    {
+      "id": 716,
+      "imagen": "verano.png",
+      "es-MX": "Verano",
+      "en-US": "Summer",
+      "fr-FR": "Été",
+      "zh-CN": "夏天"
+    },
+    {
+      "id": 717,
+      "imagen": "otono.png",
+      "es-MX": "Otoño",
+      "en-US": "Autumn",
+      "fr-FR": "Automne",
+      "zh-CN": "秋天"
+    },
+    {
+      "id": 718,
+      "imagen": "invierno.png",
+      "es-MX": "Invierno",
+      "en-US": "Winter",
+      "fr-FR": "Hiver",
+      "zh-CN": "冬天"
     }
   ]
 }
