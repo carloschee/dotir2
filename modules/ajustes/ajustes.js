@@ -19,7 +19,6 @@ const _q = sel => _container?.querySelector(sel);
 export async function init(container) {
   _container = container;
   _renderShell();
-  _actualizarEstadoConexion();
   Perfiles.onChange(() => {
     _renderPerfiles();
     _renderModulos();
@@ -38,7 +37,7 @@ export function destroy() {
   _container = null;
   if (_onPerfilChange) { Perfiles.offChange(_onPerfilChange); _onPerfilChange = null; }
 }
-export function onEnter() { _actualizarEstadoConexion(); }
+export function onEnter() { }
 export function onLeave() { }
 
 function _renderShell() {
@@ -104,11 +103,6 @@ function _renderShell() {
         transition: all .15s; font-family: inherit;
       }
       .aj-tam-btn.activo { background: #A855F7; color: white; border-color: #A855F7; }
-
-      #aj-dot {
-        width: 10px; height: 10px; border-radius: 50%;
-        background: #eab308; flex-shrink: 0; transition: background .3s;
-      }
 
       #aj-progreso-wrap { display: none; flex-direction: column; gap: 6px; }
       #aj-progreso-wrap.visible { display: flex; }
@@ -356,53 +350,24 @@ function _renderShell() {
     <div id="aj-wrap">
 
       <div class="aj-seccion">
-        <p class="aj-titulo">Conexion</p>
-        <div class="aj-fila">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div id="aj-dot"></div>
-            <span id="aj-texto-conexion" class="aj-label">Verificando...</span>
-          </div>
-          <button class="aj-btn aj-neutral" id="btn-aj-verificar">Verificar</button>
-        </div>
-      </div>
-
-      <div class="aj-seccion">
-        <p class="aj-titulo">Uso sin internet</p>
+        <p class="aj-titulo">Aplicacion</p>
         <div id="aj-progreso-wrap">
           <div id="aj-progreso-bg"><div id="aj-progreso-bar"></div></div>
           <p id="aj-progreso-txt">Preparando...</p>
         </div>
         <div class="aj-fila">
           <div class="aj-fila-info">
-            <span class="aj-label">Descargar todo</span>
-            <span class="aj-desc">Guarda la app para usarla sin internet</span>
+            <span class="aj-label">📥 Descargar para uso sin conexion</span>
+            <span class="aj-desc">Descarga pictogramas y audios. Hazlo conectado a WiFi antes de salir.</span>
           </div>
           <button class="aj-btn aj-primary" id="btn-aj-descargar">Descargar</button>
         </div>
         <div class="aj-fila">
           <div class="aj-fila-info">
-            <span class="aj-label">Borrar cache</span>
-            <span class="aj-desc">Libera espacio en el dispositivo</span>
+            <span class="aj-label">🔄 Actualizar app</span>
+            <span class="aj-desc">Borra el cache e instala la ultima version. Tus perfiles no se tocan.</span>
           </div>
-          <button class="aj-btn aj-danger" id="btn-aj-borrar">Borrar</button>
-        </div>
-      </div>
-
-      <div class="aj-seccion">
-        <p class="aj-titulo">Aplicacion</p>
-        <div class="aj-fila">
-          <div class="aj-fila-info">
-            <span class="aj-label">Actualizar app</span>
-            <span class="aj-desc">Aplica la ultima version disponible</span>
-          </div>
-          <button class="aj-btn aj-neutral" id="btn-aj-refresh">Actualizar</button>
-        </div>
-        <div class="aj-fila">
-          <div class="aj-fila-info">
-            <span class="aj-label">Reinicio completo</span>
-            <span class="aj-desc">Borra cache y recarga desde el servidor</span>
-          </div>
-          <button class="aj-btn aj-danger" id="btn-aj-reset">Resetear</button>
+          <button class="aj-btn aj-neutral" id="btn-aj-actualizar">Actualizar</button>
         </div>
       </div>
 
@@ -510,32 +475,17 @@ function _renderShell() {
     </div>
   `;
 
-  _q('#btn-aj-verificar').addEventListener('click', _actualizarEstadoConexion);
-
   _q('#btn-aj-descargar').addEventListener('click', _descargarTodo);
 
-  _q('#btn-aj-borrar').addEventListener('click', async () => {
-    const btn = _q('#btn-aj-borrar');
+  _q('#btn-aj-actualizar').addEventListener('click', async () => {
+    const btn = _q('#btn-aj-actualizar');
     btn.disabled = true;
     await borrarCache();
-    toast('Cache borrada', { emoji: '🗑️' });
-    btn.disabled = false;
-  });
-
-  _q('#btn-aj-refresh').addEventListener('click', async () => {
     const reg = await navigator.serviceWorker?.getRegistration();
     if (reg?.waiting) {
       reg.waiting.postMessage({ tipo: 'skipWaiting' });
-      setTimeout(() => location.reload(), 400);
-    } else {
-      location.reload();
     }
-  });
-
-  _q('#btn-aj-reset').addEventListener('click', async () => {
-    _q('#btn-aj-reset').disabled = true;
-    await borrarCache();
-    location.reload(true);
+    setTimeout(() => location.reload(true), 300);
   });
 
   _q('#aj-tamano-btns').addEventListener('click', e => {
@@ -597,17 +547,6 @@ function _renderShell() {
 
 } // <-- cierre de _renderShell
 
-async function _actualizarEstadoConexion() {
-  const dot = _q('#aj-dot');
-  const texto = _q('#aj-texto-conexion');
-  if (!dot || !texto) return;
-  dot.style.background = '#eab308';
-  texto.textContent = 'Verificando...';
-  if (!navigator.onLine) {
-    dot.style.background = '#ef4444';
-    texto.textContent = 'Sin conexion';
-    return;
-  }
   try {
     const res = await fetchTimeout('./manifest.json', 4000, { method: 'HEAD', cache: 'no-store' });
     if (!_container) return;                          // guard
