@@ -547,17 +547,6 @@ function _renderShell() {
 
 } // <-- cierre de _renderShell
 
-  try {
-    const res = await fetchTimeout('./manifest.json', 4000, { method: 'HEAD', cache: 'no-store' });
-    if (!_container) return;                          // guard
-    dot.style.background = res.ok ? '#22c55e' : '#ef4444';
-    texto.textContent = res.ok ? 'En linea' : 'Sin conexion';
-  } catch {
-    if (!_container) return;                          // guard
-    dot.style.background = '#ef4444';
-    texto.textContent = 'Sin conexion';
-  }
-}
 
 async function _descargarTodo() {
   const btn = _q('#btn-aj-descargar');
