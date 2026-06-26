@@ -407,7 +407,7 @@
     }
 
     .pin-box h3 { font-size: 1.3rem; font-weight: 900; margin-bottom: 8px; color: #2D1B4E; }
-    .pin-box p  { font-size: 1rem; color: #2D1B4E; margin-bottom: 16px; font-weight: 800; }
+    .pin-box p  { font-size: 1.45rem; color: #F59E0B; margin-bottom: 16px; font-weight: 900; }
 
     #input-pin {
       width: 100%;
@@ -623,16 +623,20 @@
       $('btn-volver').classList.remove('visible');
       $('header-logo').style.display = '';
       $('modulo-acciones').innerHTML = '';
+      const btnAj = $('btn-ajustes-header');
+      if (btnAj) btnAj.style.display = '';
     }
 
-    function _modoModulo() {
+    function _modoModulo(modId) {
       $('btn-volver').classList.add('visible');
       $('header-logo').style.display = 'none';
+      const btnAj = $('btn-ajustes-header');
+      if (btnAj) btnAj.style.display = modId === 'ajustes' ? 'none' : '';
     }
 
     async function navegarA(mod) {
       $('vista-menu').style.display = 'none';
-      _modoModulo();
+      _modoModulo(mod.id);
 
       if (_moduloActivo && _moduloActivo.id !== mod.id) {
         try { _moduloActivo.onLeave?.(); } catch (_) {}
