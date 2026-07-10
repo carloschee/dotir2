@@ -19,6 +19,10 @@ const _q = sel => _container?.querySelector(sel);
 export async function init(container) {
   _container = container;
   _renderShell();
+  Perfiles.onChange(() => {
+    _renderPerfiles();
+    _renderModulos();
+  });
   _onPerfilChange = () => {
     if (!_container) return;
     _renderPerfiles();
@@ -29,8 +33,9 @@ export async function init(container) {
 }
 
 export function destroy() {
-  if (_onPerfilChange) { Perfiles.offChange(_onPerfilChange); _onPerfilChange = null; }
+  Perfiles.offChange(_onPerfilChange);
   _container = null;
+  if (_onPerfilChange) { Perfiles.offChange(_onPerfilChange); _onPerfilChange = null; }
 }
 export function onEnter() { }
 export function onLeave() { }
@@ -570,6 +575,9 @@ async function _descargarTodo() {
     './data/memorama-temas.json',
     './data/media.json',
     './modules/media/module.js', './modules/media/media.js',
+    // PDF.js local (vendor) — necesario para Libros sin conexion
+    './assets/vendor/pdf.min.js',
+    './assets/vendor/pdf.worker.min.js',
   ]);
 
   const registry = window.DotirApp?.MODULE_REGISTRY || [];
@@ -845,23 +853,17 @@ let _cropPinchDist = 0;
 function _abrirCrop(src) {
   const img = new Image();
   img.onload = () => {
-    if (!_container) return;
-    const slider = _q('#aj-crop-zoom-slider');
-    if (!slider) return;
     _cropImg = img;
     _cropZoom = Math.max(320 / img.width, 320 / img.height);
     _cropOffX = 0;
     _cropOffY = 0;
-    slider.min = String(_cropZoom * 0.8);
-    slider.max = String(_cropZoom * 4);
-    slider.step = String(_cropZoom * 0.01);
-    slider.value = String(_cropZoom);
+    _q('#aj-crop-zoom-slider').min = String(_cropZoom * 0.8);
+    _q('#aj-crop-zoom-slider').max = String(_cropZoom * 4);
+    _q('#aj-crop-zoom-slider').step = String(_cropZoom * 0.01);
+    _q('#aj-crop-zoom-slider').value = String(_cropZoom);
     _dibujarCrop();
-    _q('#aj-crop-wrap')?.classList.add('visible');
+    _q('#aj-crop-wrap').classList.add('visible');
     _iniciarEventosCrop();
-  };
-  img.onerror = () => {
-    if (_container) toast('No se pudo cargar la imagen', { emoji: '\u26A0\uFE0F' });
   };
   img.src = src;
 }
@@ -875,8 +877,6 @@ function _cerrarCrop() {
 }
 
 function _confirmarCrop() {
-  const canvas = _q('#aj-crop-canvas');
-  if (!_cropImg || !canvas) return;
   const out = document.createElement('canvas');
   out.width = 256;
   out.height = 256;
@@ -888,6 +888,7 @@ function _confirmarCrop() {
   ctx.clip();
 
   // Calcular posicion de la imagen en el canvas de preview (320x320)
+  const canvas = _q('#aj-crop-canvas');
   const cx = canvas.width / 2;
   const cy = canvas.height / 2;
   const iw = _cropImg.width * _cropZoom;

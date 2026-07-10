@@ -14,7 +14,6 @@ let _totalPags = 0;
 let _pdfjsLib  = null;
 let _renderTask= null;
 let _touchX0   = 0;
-let _abrirSeq  = 0;
 
 const _q = sel => _container && _container.querySelector(sel);
 
@@ -27,7 +26,6 @@ export async function init(container) {
 
 export function destroy() {
   _cancelarRender();
-  try { _pdfActual?.destroy?.(); } catch (e) {}
   _container = null;
   _pdfActual = null;
 }
@@ -58,18 +56,21 @@ async function _cargarLibros() {
   }
 }
 
+const PDFJS_LIB    = './assets/vendor/pdf.min.js';
+const PDFJS_WORKER = './assets/vendor/pdf.worker.min.js';
+
 async function _cargarPdfJS() {
   if (_pdfjsLib) return _pdfjsLib;
   return new Promise((resolve, reject) => {
     const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.src = PDFJS_LIB;
     s.onload = () => {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      // Worker relativo al origen de la app (no del script)
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
       _pdfjsLib = window.pdfjsLib;
       resolve(_pdfjsLib);
     };
-    s.onerror = reject;
+    s.onerror = () => reject(new Error('No se pudo cargar pdf.js desde ' + PDFJS_LIB));
     document.head.appendChild(s);
   });
 }
@@ -158,16 +159,14 @@ async function _abrirLibro(lib, idx) {
     el.classList.toggle('activo', i === idx);
   });
 
-  const seq = ++_abrirSeq;
   try {
     const pdfjs = await _cargarPdfJS();
-    if (!_container || seq !== _abrirSeq) return;     // guard
+    if (!_container) return;                          // guard
 
     const url = PDF_BASE + lib.archivo + '.pdf';
     _cancelarRender();
-    const doc = await pdfjs.getDocument(url).promise;
-    if (!_container || seq !== _abrirSeq) { doc.destroy?.(); return; }
-    _pdfActual = doc;
+    _pdfActual = await pdfjs.getDocument(url).promise;
+    if (!_container) return;                          // guard
 
     _totalPags = _pdfActual.numPages;
     _pagActual = 1;
