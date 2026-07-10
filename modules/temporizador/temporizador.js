@@ -3,14 +3,14 @@
 import { TTS } from '../../core/tts.js';
 import { lanzarConfeti } from '../../core/ui.js';
 
-let _container   = null;
-let _totalMs     = 0;
-let _msRestantes = 0;
+let _container    = null;
+let _totalMs      = 0;
+let _msRestantes  = 0;
 let _tiempoInicio = 0;
 let _tiempoFin    = 0;
-let _corriendo   = false;
-let _rafId       = null;
-let _audioCtx    = null;
+let _corriendo    = false;
+let _rafId        = null;
+let _audioCtx     = null;
 
 const _q = sel => _container?.querySelector(sel);
 
@@ -55,12 +55,10 @@ function _renderNavAcciones() {
   const acc = document.getElementById('modulo-acciones');
   if (!acc) return;
   acc.innerHTML = '';
-
   const btnConfig = document.createElement('button');
   btnConfig.className = 'd-nav-btn';
   btnConfig.textContent = '\u23F1 Configurar';
   btnConfig.addEventListener('click', _abrirConfig);
-
   acc.append(btnConfig);
 }
 
@@ -92,12 +90,12 @@ function _renderShell() {
         pointer-events: none;
       }
       #timer-tiempo {
-        font-size: clamp(1.6rem, 6vw, 3.2rem);
+        font-size: clamp(1.4rem, 5.5vw, 3rem);
         font-weight: 900; color: #1a1a2e;
         letter-spacing: -1px; line-height: 1;
       }
       #timer-estado {
-        font-size: clamp(0.6rem, 1.8vw, 0.85rem);
+        font-size: clamp(0.55rem, 1.6vw, 0.8rem);
         font-weight: 700; color: rgba(0,0,0,0.38);
         margin-top: 5px; letter-spacing: .06em;
         text-transform: uppercase;
@@ -330,27 +328,16 @@ function _detener() {
   _corriendo = false;
 }
 
-// -- Loop RAF basado en tiempo real ---
 function _iniciarRAF() {
   if (_rafId) cancelAnimationFrame(_rafId);
-
   function loop() {
     if (!_corriendo) return;
-
     const ahora = performance.now();
     _msRestantes = Math.max(0, _tiempoFin - ahora);
-    const progreso = _msRestantes / _totalMs;
-
-    _dibujar(progreso);
-
-    if (_msRestantes <= 0) {
-      _terminar();
-      return;
-    }
-
+    _dibujar(_msRestantes / _totalMs);
+    if (_msRestantes <= 0) { _terminar(); return; }
     _rafId = requestAnimationFrame(loop);
   }
-
   _rafId = requestAnimationFrame(loop);
 }
 
@@ -394,7 +381,19 @@ function _formatTiempo() {
   return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
 }
 
-// -- Dibujo en canvas (estilo Time Timer) ---
+// ─────────────────────────────────────────────────────────────
+//  DIBUJO  —  estilo imagen de referencia
+//  Capas (abajo → arriba):
+//  1. Bisel / sombra exterior
+//  2. Cara blanca completa
+//  3. Anillo "sol" amarillo (siempre visible bajo el arcoíris)
+//  4. Anillo arcoíris concéntrico — se va consumiendo
+//  5. Marcas de minuto (borde interior del anillo)
+//  6. Números de colores en la cara blanca exterior
+//  7. Borde de bisel
+//  8. Hub central azul-gris
+//  9. Texto MM:SS
+// ─────────────────────────────────────────────────────────────
 function _dibujar(progreso) {
   if (progreso === undefined) progreso = _totalMs > 0 ? _msRestantes / _totalMs : 1;
   const canvas = _q('#timer-canvas');
@@ -407,154 +406,230 @@ function _dibujar(progreso) {
   const cy = H / 2;
   ctx.clearRect(0, 0, W, H);
 
-  // Radios
-  const ROut  = W * 0.47;   // borde exterior del anillo de color
-  const RIn   = W * 0.175;  // borde interior del anillo de color (agujero central)
-  const RFace = W * 0.455;  // cara blanca interior al borde
-  const RHub  = W * 0.10;   // botón central
+  // Geometría principal
+  const RDisco  = W * 0.47;   // radio total de la cara
+  const RAnOut  = W * 0.42;   // borde exterior del anillo arcoíris
+  const RAnIn   = W * 0.195;  // borde interior del anillo arcoíris (= borde exterior del hub+cara)
+  const RHub    = W * 0.115;  // botón central
+  const grosorAnillo = RAnOut - RAnIn;
 
-  // ---- 1. Sombra exterior / bisel ----
-  ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.45)';
-  ctx.shadowBlur  = W * 0.04;
-  ctx.beginPath();
-  ctx.arc(cx, cy, ROut, 0, Math.PI * 2);
-  ctx.fillStyle = '#e8e0d8';
-  ctx.fill();
-  ctx.restore();
-
-  // ---- 2. Anillo arcoiris completo (fondo, siempre visible) ----
-  // Renderizado con conic-gradient simulado: dividimos en segmentos angostos
-  const ARCOIRIS = [
+  // Colores del arcoíris de exterior a interior (igual que la foto)
+  const BANDAS = [
     '#EF4444', // rojo
     '#F97316', // naranja
-    '#EAB308', // amarillo
+    '#EAB308', // amarillo-naranja
     '#22C55E', // verde
     '#3B82F6', // azul
     '#8B5CF6', // violeta
   ];
-  const pasos = 360;
-  for (let s = 0; s < pasos; s++) {
-    const a1 = (s / pasos) * Math.PI * 2 - Math.PI / 2;
-    const a2 = ((s + 1) / pasos) * Math.PI * 2 - Math.PI / 2;
-    // Color interpolado a lo largo del arcoiris
-    const t      = s / pasos;
-    const ci     = t * ARCOIRIS.length;
-    const idx    = Math.floor(ci) % ARCOIRIS.length;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, ROut, a1, a2);
-    ctx.closePath();
-    ctx.fillStyle = ARCOIRIS[idx];
-    ctx.fill();
-  }
 
-  // ---- 3. Cuña blanca que cubre el tiempo TRANSCURRIDO ----
-  // El tiempo restante va de 12 en sentido horario (progreso=1 → cuña=0, progreso=0 → cuña=todo)
-  if (progreso < 1) {
-    const angRestFin = -Math.PI / 2 + progreso * Math.PI * 2;
-    // La cuña blanca ocupa desde el fin del tiempo restante hasta las 12 (vuelta completa)
+  // Colores de los números por posición (rotan con el arcoíris)
+  const NUM_COLORS = [
+    '#EF4444', '#F97316', '#EAB308',
+    '#22C55E', '#3B82F6', '#8B5CF6',
+    '#EF4444', '#F97316', '#EAB308',
+    '#22C55E', '#3B82F6', '#8B5CF6',
+  ];
+
+  // Ángulos: 12 en punto = -PI/2, sentido horario
+  const ANG0    = -Math.PI / 2;
+  const angFin  = ANG0 + progreso * Math.PI * 2; // fin del arco activo
+
+  // ── 1. Sombra / bisel ──
+  ctx.save();
+  ctx.shadowColor   = 'rgba(0,0,0,0.38)';
+  ctx.shadowBlur    = W * 0.045;
+  ctx.shadowOffsetY = W * 0.012;
+  ctx.beginPath();
+  ctx.arc(cx, cy, RDisco, 0, Math.PI * 2);
+  ctx.fillStyle = '#dce8f0';  // azul-gris claro como la foto
+  ctx.fill();
+  ctx.restore();
+
+  // ── 2. Cara blanca ──
+  ctx.beginPath();
+  ctx.arc(cx, cy, RDisco * 0.97, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+
+  // ── 3. Anillo "sol" amarillo — siempre completo debajo ──
+  // Se dibuja como anillo completo (donut); es lo que queda expuesto
+  // cuando el arcoíris se consume
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, RAnOut, 0, Math.PI * 2);
+  ctx.arc(cx, cy, RAnIn, 0, Math.PI * 2, true); // agujero
+  ctx.fillStyle = '#FCD34D';  // amarillo cálido
+  ctx.fill('evenodd');
+  ctx.restore();
+
+  // Segundo pase: gradiente radial sobre el amarillo para darle volumen solar
+  ctx.save();
+  var solGrad = ctx.createRadialGradient(cx, cy - RAnIn * 0.3, RAnIn * 0.5, cx, cy, RAnOut);
+  solGrad.addColorStop(0,   'rgba(255,255,255,0.35)');
+  solGrad.addColorStop(0.4, 'rgba(251,191,36,0.0)');
+  solGrad.addColorStop(1,   'rgba(180,83,9,0.18)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, RAnOut, 0, Math.PI * 2);
+  ctx.arc(cx, cy, RAnIn, 0, Math.PI * 2, true);
+  ctx.fillStyle = solGrad;
+  ctx.fill('evenodd');
+  ctx.restore();
+
+  // ── 4. Anillo arcoíris — sector activo (tiempo restante) ──
+  // Dibujamos N bandas concéntricas, cada una como arco desde ANG0 hasta angFin
+  if (progreso > 0.002) {
+    var nBandas = BANDAS.length;
+    var grosorBanda = grosorAnillo / nBandas;
+    for (var bi = 0; bi < nBandas; bi++) {
+      // exterior a interior: banda 0 = rojo (más exterior)
+      var rExt = RAnOut - bi * grosorBanda;
+      var rInt = RAnOut - (bi + 1) * grosorBanda;
+      var rMed = (rExt + rInt) / 2;
+      var lw   = grosorBanda * 0.92; // pequeña separación entre bandas
+
+      ctx.save();
+      ctx.beginPath();
+      // Dibujar sector como stroke de arco
+      ctx.arc(cx, cy, rMed, ANG0, angFin);
+      ctx.strokeStyle = BANDAS[bi];
+      ctx.lineWidth   = lw;
+      ctx.lineCap     = 'butt';
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Brillo sutil encima de todo el anillo (capa de lustre)
     ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, ROut + 2, angRestFin, -Math.PI / 2 + Math.PI * 2);
-    ctx.closePath();
-    ctx.fillStyle = '#f0ece6';
-    ctx.fill();
+    var lustreGrad = ctx.createLinearGradient(cx, cy - RAnOut, cx, cy + RAnOut);
+    lustreGrad.addColorStop(0,   'rgba(255,255,255,0.22)');
+    lustreGrad.addColorStop(0.5, 'rgba(255,255,255,0.0)');
+    lustreGrad.addColorStop(1,   'rgba(0,0,0,0.08)');
+    for (var bi2 = 0; bi2 < nBandas; bi2++) {
+      var rExt2 = RAnOut - bi2 * grosorBanda;
+      var rInt2 = RAnOut - (bi2 + 1) * grosorBanda;
+      var rMed2 = (rExt2 + rInt2) / 2;
+      var lw2   = grosorBanda * 0.92;
+      ctx.beginPath();
+      ctx.arc(cx, cy, rMed2, ANG0, angFin);
+      ctx.strokeStyle = lustreGrad;
+      ctx.lineWidth   = lw2;
+      ctx.lineCap     = 'butt';
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
-  // ---- 4. Cara blanca interior (tapa el centro del arcoiris) ----
-  // Círculo blanco que crea el aspecto de "disco" con anillo de color en el borde
-  ctx.beginPath();
-  ctx.arc(cx, cy, RIn, 0, Math.PI * 2);
-  ctx.fillStyle = '#f5f1eb';
-  ctx.fill();
-
-  // ---- 5. Marcas de minuto sobre la cara blanca ----
+  // ── 5. Marcas de minuto — en el borde interior del anillo ──
   ctx.save();
-  for (let i = 0; i < 60; i++) {
-    const ang   = (i / 60) * Math.PI * 2 - Math.PI / 2;
-    const mayor = i % 5 === 0;
-    // Las marcas van en el borde exterior de la cara blanca
-    const r1 = RIn * (mayor ? 0.90 : 0.95);
-    const r2 = RIn * 1.0;
+  for (var tick = 0; tick < 60; tick++) {
+    var angTick  = (tick / 60) * Math.PI * 2 + ANG0;
+    var esMayor  = tick % 5 === 0;
+    var rTickOut = RAnIn + grosorAnillo * 0.12;
+    var rTickIn  = RAnIn - (esMayor ? W * 0.025 : W * 0.012);
     ctx.beginPath();
-    ctx.moveTo(cx + Math.cos(ang) * r1, cy + Math.sin(ang) * r1);
-    ctx.lineTo(cx + Math.cos(ang) * r2, cy + Math.sin(ang) * r2);
-    ctx.strokeStyle = mayor ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.20)';
-    ctx.lineWidth   = mayor ? W * 0.007 : W * 0.003;
+    ctx.moveTo(cx + Math.cos(angTick) * rTickIn,  cy + Math.sin(angTick) * rTickIn);
+    ctx.lineTo(cx + Math.cos(angTick) * rTickOut, cy + Math.sin(angTick) * rTickOut);
+    ctx.strokeStyle = esMayor ? 'rgba(0,0,0,0.50)' : 'rgba(0,0,0,0.20)';
+    ctx.lineWidth   = esMayor ? W * 0.006 : W * 0.003;
     ctx.stroke();
   }
   ctx.restore();
 
-  // ---- 6. Números en el borde del anillo de color (exterior) ----
-  const labels = [
-    { num: 5,  ang: (5  / 60) * Math.PI * 2 - Math.PI / 2 },
-    { num: 10, ang: (10 / 60) * Math.PI * 2 - Math.PI / 2 },
-    { num: 15, ang: (15 / 60) * Math.PI * 2 - Math.PI / 2 },
-    { num: 20, ang: (20 / 60) * Math.PI * 2 - Math.PI / 2 },
-    { num: 25, ang: (25 / 60) * Math.PI * 2 - Math.PI / 2 },
-    { num: 30, ang: (30 / 60) * Math.PI * 2 - Math.PI / 2 },
-    { num: 35, ang: (35 / 60) * Math.PI * 2 - Math.PI / 2 },
-    { num: 40, ang: (40 / 60) * Math.PI * 2 - Math.PI / 2 },
-    { num: 45, ang: (45 / 60) * Math.PI * 2 - Math.PI / 2 },
-    { num: 50, ang: (50 / 60) * Math.PI * 2 - Math.PI / 2 },
-    { num: 55, ang: (55 / 60) * Math.PI * 2 - Math.PI / 2 },
-    { num: 0,  ang: -Math.PI / 2 },
+  // ── 6. Números de colores en la cara blanca ──
+  // 12 etiquetas (5, 10, 15, … 55, 00) en el anillo exterior de la cara
+  var numData = [
+    { val: 5,  idx: 0  },
+    { val: 10, idx: 1  },
+    { val: 15, idx: 2  },
+    { val: 20, idx: 3  },
+    { val: 25, idx: 4  },
+    { val: 30, idx: 5  },
+    { val: 35, idx: 6  },
+    { val: 40, idx: 7  },
+    { val: 45, idx: 8  },
+    { val: 50, idx: 9  },
+    { val: 55, idx: 10 },
+    { val: 0,  idx: 11 },
   ];
-  // Radio para los números: entre RIn y ROut, cerca del exterior del anillo
-  const rNum = RIn + (ROut - RIn) * 0.55;
+  // Radio donde van los números: entre el borde exterior del anillo y el borde del disco
+  var rNum     = RAnOut + (RDisco * 0.97 - RAnOut) * 0.52;
+  var fszOuter = Math.round(W * 0.052);
   ctx.save();
-  ctx.font         = 'bold ' + Math.round(W * 0.045) + 'px system-ui, sans-serif';
+  ctx.font         = 'bold ' + fszOuter + 'px system-ui, sans-serif';
   ctx.textAlign    = 'center';
   ctx.textBaseline = 'middle';
-  labels.forEach(function(lb) {
-    const tx = cx + Math.cos(lb.ang) * rNum;
-    const ty = cy + Math.sin(lb.ang) * rNum;
-    // Determinar si esta posicion angular cae en la cuña de tiempo restante o en la cuña transcurrida
-    // angulo normalizado [0, 2PI) desde las 12
-    var normAng = lb.ang + Math.PI / 2;
-    if (normAng < 0) normAng += Math.PI * 2;
-    if (normAng > Math.PI * 2) normAng -= Math.PI * 2;
-    var enRestante = normAng <= progreso * Math.PI * 2;
-    ctx.fillStyle = enRestante ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.35)';
-    ctx.fillText(String(lb.num === 0 ? '00' : lb.num), tx, ty);
+  numData.forEach(function(nd) {
+    var angNum = (nd.val / 60) * Math.PI * 2 + ANG0;
+    var tx = cx + Math.cos(angNum) * rNum;
+    var ty = cy + Math.sin(angNum) * rNum;
+    ctx.fillStyle = NUM_COLORS[nd.idx];
+    ctx.fillText(nd.val === 0 ? '00' : String(nd.val), tx, ty);
   });
   ctx.restore();
 
-  // ---- 7. Borde circular del bisel exterior ----
+  // ── 7. Borde de bisel ──
   ctx.beginPath();
-  ctx.arc(cx, cy, ROut, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+  ctx.arc(cx, cy, RDisco * 0.97, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(160,190,210,0.8)';
+  ctx.lineWidth   = W * 0.022;
+  ctx.stroke();
+  // Línea interior del bisel
+  ctx.beginPath();
+  ctx.arc(cx, cy, RDisco * 0.97 - W * 0.012, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
   ctx.lineWidth   = W * 0.006;
   ctx.stroke();
 
-  // ---- 8. Hub central (boton amarillo) ----
-  // Sombra del hub
+  // ── 8. Hub central azul-gris ──
   ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.40)';
-  ctx.shadowBlur  = W * 0.025;
-  ctx.shadowOffsetY = W * 0.008;
+  ctx.shadowColor   = 'rgba(0,0,0,0.45)';
+  ctx.shadowBlur    = W * 0.03;
+  ctx.shadowOffsetY = W * 0.01;
+  // Base del hub (círculo ligeramente más grande, bisel)
+  var hubBiselGrad = ctx.createRadialGradient(
+    cx - RHub * 0.15, cy - RHub * 0.2, RHub * 0.1,
+    cx, cy, RHub * 1.15
+  );
+  hubBiselGrad.addColorStop(0, '#e0eaf2');
+  hubBiselGrad.addColorStop(1, '#8aa8bf');
+  ctx.beginPath();
+  ctx.arc(cx, cy, RHub * 1.15, 0, Math.PI * 2);
+  ctx.fillStyle = hubBiselGrad;
+  ctx.fill();
+  ctx.restore();
+
+  // Cara del hub
+  ctx.save();
   var hubGrad = ctx.createRadialGradient(
     cx - RHub * 0.25, cy - RHub * 0.30, RHub * 0.05,
-    cx, cy, RHub
+    cx + RHub * 0.1,  cy + RHub * 0.1,  RHub
   );
-  hubGrad.addColorStop(0, '#FFD966');
-  hubGrad.addColorStop(0.5, '#F59E0B');
-  hubGrad.addColorStop(1, '#B45309');
+  hubGrad.addColorStop(0,    '#d6e8f5');
+  hubGrad.addColorStop(0.45, '#b0cfe0');
+  hubGrad.addColorStop(1,    '#7a9fba');
   ctx.beginPath();
   ctx.arc(cx, cy, RHub, 0, Math.PI * 2);
   ctx.fillStyle = hubGrad;
   ctx.fill();
   ctx.restore();
-  // Brillo del hub
-  ctx.beginPath();
-  ctx.arc(cx - RHub * 0.22, cy - RHub * 0.28, RHub * 0.38, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.28)';
-  ctx.fill();
 
-  // ---- 9. Texto digital en el centro ----
+  // Brillo del hub (reflejo superior)
+  ctx.save();
+  var hubBrilloGrad = ctx.createRadialGradient(
+    cx - RHub * 0.28, cy - RHub * 0.32, 0,
+    cx - RHub * 0.28, cy - RHub * 0.32, RHub * 0.68
+  );
+  hubBrilloGrad.addColorStop(0,   'rgba(255,255,255,0.55)');
+  hubBrilloGrad.addColorStop(0.5, 'rgba(255,255,255,0.12)');
+  hubBrilloGrad.addColorStop(1,   'rgba(255,255,255,0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, RHub, 0, Math.PI * 2);
+  ctx.fillStyle = hubBrilloGrad;
+  ctx.fill();
+  ctx.restore();
+
+  // ── 9. Texto MM:SS ──
   const tiempo = _q('#timer-tiempo');
   const estado = _q('#timer-estado');
   if (tiempo) tiempo.textContent = _formatTiempo();
