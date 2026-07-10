@@ -92,21 +92,20 @@ function _renderShell() {
         pointer-events: none;
       }
       #timer-tiempo {
-        font-size: clamp(2rem, 7vw, 4rem);
-        font-weight: 900; color: white;
-        text-shadow: 0 2px 16px rgba(0,0,0,0.7);
+        font-size: clamp(1.6rem, 6vw, 3.2rem);
+        font-weight: 900; color: #1a1a2e;
         letter-spacing: -1px; line-height: 1;
       }
       #timer-estado {
-        font-size: clamp(0.7rem, 2vw, 0.95rem);
-        font-weight: 700; color: rgba(255,255,255,0.55);
-        margin-top: 6px; letter-spacing: .06em;
+        font-size: clamp(0.6rem, 1.8vw, 0.85rem);
+        font-weight: 700; color: rgba(0,0,0,0.38);
+        margin-top: 5px; letter-spacing: .06em;
         text-transform: uppercase;
       }
       #timer-hint {
         position: absolute; bottom: 20px;
         font-size: 0.72rem; font-weight: 700;
-        color: rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.30);
         text-align: center; pointer-events: none;
       }
       #timer-modal {
@@ -294,7 +293,7 @@ function _ajustarCanvas() {
   const size = Math.min(wrap.offsetWidth * 0.85, wrap.offsetHeight * 0.80, 520);
   canvas.width  = Math.floor(size);
   canvas.height = Math.floor(size);
-  _dibujar(_totalMs > 0 ? _msRestantes / _totalMs : 0);
+  _dibujar(_totalMs > 0 ? _msRestantes / _totalMs : 1);
 }
 
 // -- Control del temporizador ---
@@ -312,7 +311,6 @@ function _iniciar(totalMs) {
 }
 
 function _pausar() {
-  // Guardar exactamente cuanto tiempo queda en este momento
   _msRestantes = Math.max(0, _tiempoFin - performance.now());
   _detener();
   _dibujar(_msRestantes / _totalMs);
@@ -321,7 +319,6 @@ function _pausar() {
 function _reanudar() {
   if (_msRestantes <= 0) return;
   _detener();
-  // Recalcular tiempoFin desde ahora con el tiempo restante exacto
   _tiempoInicio = performance.now();
   _tiempoFin    = _tiempoInicio + _msRestantes;
   _corriendo    = true;
@@ -342,7 +339,6 @@ function _iniciarRAF() {
 
     const ahora = performance.now();
     _msRestantes = Math.max(0, _tiempoFin - ahora);
-    // Progreso perfectamente continuo: va de 1.0 a 0.0
     const progreso = _msRestantes / _totalMs;
 
     _dibujar(progreso);
@@ -398,72 +394,167 @@ function _formatTiempo() {
   return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
 }
 
-// -- Dibujo en canvas ---
+// -- Dibujo en canvas (estilo Time Timer) ---
 function _dibujar(progreso) {
-  if (progreso === undefined) progreso = _totalMs > 0 ? _msRestantes / _totalMs : 0;
+  if (progreso === undefined) progreso = _totalMs > 0 ? _msRestantes / _totalMs : 1;
   const canvas = _q('#timer-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const W = canvas.width;
   const H = canvas.height;
+  if (W <= 0 || H <= 0) return;
   const cx = W / 2;
   const cy = H / 2;
   ctx.clearRect(0, 0, W, H);
-  const arcoiris = ['#EF4444','#F97316','#EAB308','#22C55E','#3B82F6','#8B5CF6'];
-  const RMax   = W * 0.47;
-  const RMin   = W * 0.16;
-  const grosor = (RMax - RMin) / arcoiris.length;
-  const angInicio = -Math.PI / 2;
-  const angFin    = angInicio + progreso * Math.PI * 2;
+
+  // Radios
+  const ROut  = W * 0.47;   // borde exterior del anillo de color
+  const RIn   = W * 0.175;  // borde interior del anillo de color (agujero central)
+  const RFace = W * 0.455;  // cara blanca interior al borde
+  const RHub  = W * 0.10;   // botón central
+
+  // ---- 1. Sombra exterior / bisel ----
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.45)';
+  ctx.shadowBlur  = W * 0.04;
   ctx.beginPath();
-  ctx.arc(cx, cy, RMax, 0, Math.PI * 2);
-  ctx.fillStyle = '#0d0d1e';
+  ctx.arc(cx, cy, ROut, 0, Math.PI * 2);
+  ctx.fillStyle = '#e8e0d8';
   ctx.fill();
+  ctx.restore();
+
+  // ---- 2. Anillo arcoiris completo (fondo, siempre visible) ----
+  // Renderizado con conic-gradient simulado: dividimos en segmentos angostos
+  const ARCOIRIS = [
+    '#EF4444', // rojo
+    '#F97316', // naranja
+    '#EAB308', // amarillo
+    '#22C55E', // verde
+    '#3B82F6', // azul
+    '#8B5CF6', // violeta
+  ];
+  const pasos = 360;
+  for (let s = 0; s < pasos; s++) {
+    const a1 = (s / pasos) * Math.PI * 2 - Math.PI / 2;
+    const a2 = ((s + 1) / pasos) * Math.PI * 2 - Math.PI / 2;
+    // Color interpolado a lo largo del arcoiris
+    const t      = s / pasos;
+    const ci     = t * ARCOIRIS.length;
+    const idx    = Math.floor(ci) % ARCOIRIS.length;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, ROut, a1, a2);
+    ctx.closePath();
+    ctx.fillStyle = ARCOIRIS[idx];
+    ctx.fill();
+  }
+
+  // ---- 3. Cuña blanca que cubre el tiempo TRANSCURRIDO ----
+  // El tiempo restante va de 12 en sentido horario (progreso=1 → cuña=0, progreso=0 → cuña=todo)
+  if (progreso < 1) {
+    const angRestFin = -Math.PI / 2 + progreso * Math.PI * 2;
+    // La cuña blanca ocupa desde el fin del tiempo restante hasta las 12 (vuelta completa)
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, ROut + 2, angRestFin, -Math.PI / 2 + Math.PI * 2);
+    ctx.closePath();
+    ctx.fillStyle = '#f0ece6';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // ---- 4. Cara blanca interior (tapa el centro del arcoiris) ----
+  // Círculo blanco que crea el aspecto de "disco" con anillo de color en el borde
   ctx.beginPath();
-  ctx.arc(cx, cy, RMax, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-  ctx.lineWidth   = W * 0.008;
-  ctx.stroke();
-  arcoiris.forEach((color, i) => {
-    const r  = RMax - i * grosor - grosor * 0.5;
-    const lw = grosor * 0.78;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-    ctx.lineWidth   = lw;
-    ctx.lineCap     = 'butt';
-    ctx.stroke();
-    if (progreso <= 0) return;
-    ctx.shadowColor = color;
-    ctx.shadowBlur  = lw * 0.8;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, angInicio, angFin);
-    ctx.strokeStyle = color;
-    ctx.lineWidth   = lw;
-    ctx.lineCap     = 'round';
-    ctx.stroke();
-    ctx.shadowBlur  = 0;
-    ctx.lineCap     = 'butt';
-  });
+  ctx.arc(cx, cy, RIn, 0, Math.PI * 2);
+  ctx.fillStyle = '#f5f1eb';
+  ctx.fill();
+
+  // ---- 5. Marcas de minuto sobre la cara blanca ----
+  ctx.save();
   for (let i = 0; i < 60; i++) {
     const ang   = (i / 60) * Math.PI * 2 - Math.PI / 2;
     const mayor = i % 5 === 0;
-    const r1    = RMax * (mayor ? 0.90 : 0.94);
-    const r2    = RMax * 0.99;
+    // Las marcas van en el borde exterior de la cara blanca
+    const r1 = RIn * (mayor ? 0.90 : 0.95);
+    const r2 = RIn * 1.0;
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(ang) * r1, cy + Math.sin(ang) * r1);
     ctx.lineTo(cx + Math.cos(ang) * r2, cy + Math.sin(ang) * r2);
-    ctx.strokeStyle = mayor ? 'rgba(255,255,255,0.50)' : 'rgba(255,255,255,0.15)';
+    ctx.strokeStyle = mayor ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.20)';
     ctx.lineWidth   = mayor ? W * 0.007 : W * 0.003;
     ctx.stroke();
   }
-  const hubGrad = ctx.createRadialGradient(cx, cy - RMin * 0.1, RMin * 0.05, cx, cy, RMin);
-  hubGrad.addColorStop(0, '#252542');
-  hubGrad.addColorStop(1, '#0a0a18');
+  ctx.restore();
+
+  // ---- 6. Números en el borde del anillo de color (exterior) ----
+  const labels = [
+    { num: 5,  ang: (5  / 60) * Math.PI * 2 - Math.PI / 2 },
+    { num: 10, ang: (10 / 60) * Math.PI * 2 - Math.PI / 2 },
+    { num: 15, ang: (15 / 60) * Math.PI * 2 - Math.PI / 2 },
+    { num: 20, ang: (20 / 60) * Math.PI * 2 - Math.PI / 2 },
+    { num: 25, ang: (25 / 60) * Math.PI * 2 - Math.PI / 2 },
+    { num: 30, ang: (30 / 60) * Math.PI * 2 - Math.PI / 2 },
+    { num: 35, ang: (35 / 60) * Math.PI * 2 - Math.PI / 2 },
+    { num: 40, ang: (40 / 60) * Math.PI * 2 - Math.PI / 2 },
+    { num: 45, ang: (45 / 60) * Math.PI * 2 - Math.PI / 2 },
+    { num: 50, ang: (50 / 60) * Math.PI * 2 - Math.PI / 2 },
+    { num: 55, ang: (55 / 60) * Math.PI * 2 - Math.PI / 2 },
+    { num: 0,  ang: -Math.PI / 2 },
+  ];
+  // Radio para los números: entre RIn y ROut, cerca del exterior del anillo
+  const rNum = RIn + (ROut - RIn) * 0.55;
+  ctx.save();
+  ctx.font         = 'bold ' + Math.round(W * 0.045) + 'px system-ui, sans-serif';
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  labels.forEach(function(lb) {
+    const tx = cx + Math.cos(lb.ang) * rNum;
+    const ty = cy + Math.sin(lb.ang) * rNum;
+    // Determinar si esta posicion angular cae en la cuña de tiempo restante o en la cuña transcurrida
+    // angulo normalizado [0, 2PI) desde las 12
+    var normAng = lb.ang + Math.PI / 2;
+    if (normAng < 0) normAng += Math.PI * 2;
+    if (normAng > Math.PI * 2) normAng -= Math.PI * 2;
+    var enRestante = normAng <= progreso * Math.PI * 2;
+    ctx.fillStyle = enRestante ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.35)';
+    ctx.fillText(String(lb.num === 0 ? '00' : lb.num), tx, ty);
+  });
+  ctx.restore();
+
+  // ---- 7. Borde circular del bisel exterior ----
   ctx.beginPath();
-  ctx.arc(cx, cy, RMin * 0.88, 0, Math.PI * 2);
+  ctx.arc(cx, cy, ROut, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+  ctx.lineWidth   = W * 0.006;
+  ctx.stroke();
+
+  // ---- 8. Hub central (boton amarillo) ----
+  // Sombra del hub
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.40)';
+  ctx.shadowBlur  = W * 0.025;
+  ctx.shadowOffsetY = W * 0.008;
+  var hubGrad = ctx.createRadialGradient(
+    cx - RHub * 0.25, cy - RHub * 0.30, RHub * 0.05,
+    cx, cy, RHub
+  );
+  hubGrad.addColorStop(0, '#FFD966');
+  hubGrad.addColorStop(0.5, '#F59E0B');
+  hubGrad.addColorStop(1, '#B45309');
+  ctx.beginPath();
+  ctx.arc(cx, cy, RHub, 0, Math.PI * 2);
   ctx.fillStyle = hubGrad;
   ctx.fill();
+  ctx.restore();
+  // Brillo del hub
+  ctx.beginPath();
+  ctx.arc(cx - RHub * 0.22, cy - RHub * 0.28, RHub * 0.38, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,0.28)';
+  ctx.fill();
+
+  // ---- 9. Texto digital en el centro ----
   const tiempo = _q('#timer-tiempo');
   const estado = _q('#timer-estado');
   if (tiempo) tiempo.textContent = _formatTiempo();
