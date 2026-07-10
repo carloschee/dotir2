@@ -52,6 +52,7 @@ let _cartas = [];
 let _volteadas = [];
 let _bloqueado = false;
 let _parejas = 0;
+let _paresTotales = MAX_PARES;
 let _intentos = 0;
 let _tsInicioJuego = 0;
 
@@ -551,12 +552,11 @@ function _iniciarJuego() {
   if (!_temaActivo) return;
   _cartas = []; _volteadas = [];
   _bloqueado = false; _parejas = 0;
-  _bloqueado = false;
-  _parejas = 0;
   _intentos = 0;
   _tsInicioJuego = Date.now();
 
   const items = [..._temaActivo.items].sort(() => Math.random() - 0.5).slice(0, MAX_PARES);
+  _paresTotales = items.length;
   _cartas = [...items, ...items]
     .sort(() => Math.random() - 0.5)
     .map((item, idx) => ({ idx, itemId: item.id, volteada: false, encontrada: false }));
@@ -615,9 +615,9 @@ function _renderGrid() {
 
 function _voltear(idx) {
   const carta = _cartas[idx];
-  if (_bloqueado || carta.volteada || carta.encontrada) return;
+  if (!carta || _bloqueado || carta.volteada || carta.encontrada) return;
   carta.volteada = true;
-  _q('[data-idx="' + idx + '"]').classList.add('volteada');
+  _q('[data-idx="' + idx + '"]')?.classList.add('volteada');
   _volteadas.push(idx);
   if (_volteadas.length < 2) return;
   _bloqueado = true;
@@ -628,9 +628,10 @@ function _voltear(idx) {
     const langObj = IDIOMAS.find(l => l.id === idioma);
     TTS.speak(_nombre(item, idioma), { lang: langObj?.lang || 'es-MX', pitch: 1.2, rate: .9, delay: 250 });
     setTimeout(() => {
+      if (!_container || !_cartas[a] || !_cartas[b]) return;
       _cartas[a].encontrada = _cartas[b].encontrada = true;
-      _q('[data-idx="' + a + '"]').classList.add('encontrada');
-      _q('[data-idx="' + b + '"]').classList.add('encontrada');
+      _q('[data-idx="' + a + '"]')?.classList.add('encontrada');
+      _q('[data-idx="' + b + '"]')?.classList.add('encontrada');
       _parejas++;
       Telemetry.track('pareja_encontrada', {
         _modulo: 'memorama',
@@ -640,13 +641,14 @@ function _voltear(idx) {
       });
       _volteadas = []; _bloqueado = false;
       _agregarStack(_cartas[a].itemId, idioma);
-      if (_parejas === MAX_PARES) setTimeout(_victoria, 500);
+      if (_parejas === _paresTotales) setTimeout(_victoria, 500);
     }, 300);
   } else {
     _intentos++;
     setTimeout(() => {
-      _q('[data-idx="' + a + '"]').classList.remove('volteada');
-      _q('[data-idx="' + b + '"]').classList.remove('volteada');
+      if (!_container || !_cartas[a] || !_cartas[b]) return;
+      _q('[data-idx="' + a + '"]')?.classList.remove('volteada');
+      _q('[data-idx="' + b + '"]')?.classList.remove('volteada');
       _cartas[a].volteada = _cartas[b].volteada = false;
       _volteadas = []; _bloqueado = false;
     }, 900);
@@ -655,9 +657,10 @@ function _voltear(idx) {
 
 function _agregarStack(itemId, idioma) {
   const item = _itemMap[itemId];
+  const stack = _q('#mem-stack-wrap');
+  if (!item || !stack) return;
   const nombre = _nombre(item, idioma);
   const url = _imgUrl(item);
-  const stack = _q('#mem-stack-wrap');
   const tile = document.createElement('div');
   tile.className = 'mem-par-tile';
   tile.dataset.nombre = nombre;

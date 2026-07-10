@@ -370,7 +370,7 @@ function _renderGrid() {
     card.innerHTML =
       '<span class="fav-dot">&#11088;</span>' +
       '<img src="' + PICS_BASE + item.id + '.png"' +
-      ' onerror="this.style.opacity=\'0.2\';this.src=\'\'"' +
+      ' onerror="this.onerror=null;this.style.opacity=\'0.2\'"' +
       ' alt="' + item.label + '">' +
       '<span class="picto-label">' + item.label + '</span>';
     card.addEventListener('click', () => _seleccionarPicto(item));
@@ -417,7 +417,7 @@ function _renderFrase() {
     el.title = 'Toca para borrar';
     el.innerHTML =
       '<img src="' + PICS_BASE + item.id + '.png"' +
-      ' onerror="this.style.opacity=\'0.15\'"' +
+      ' onerror="this.onerror=null;this.style.opacity=\'0.15\'"' +
       ' alt="' + item.label + '">' +
       '<span>' + item.label + '</span>';
     el.addEventListener('click', () => { _frase.splice(i, 1); _renderFrase(); });
@@ -460,13 +460,14 @@ function _toggleFav(id, label) {
 }
 
 function _toggleHistorial() {
-  const panel = _container.querySelector('#saac-historial-panel');
+  const panel = _container?.querySelector('#saac-historial-panel');
+  if (!panel) return;
   const abierto = panel.classList.toggle('visible');
   if (abierto) _renderHistorial();
 }
 
 function _cerrarHistorial() {
-  _container.querySelector('#saac-historial-panel')?.classList.remove('visible');
+  _container?.querySelector('#saac-historial-panel')?.classList.remove('visible');
 }
 
 function _renderHistorial() {

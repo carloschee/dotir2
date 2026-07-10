@@ -60,11 +60,13 @@ export function destroy() {
 }
 
 export function onEnter() {
-  _iniciarAnimacion();
   const marco = _q('#med-marco');
   if (marco && VideoManager.playing) {
+    _ocultarVisualizador();
     VideoManager.montarEn(marco);
     VideoManager.mostrar();
+  } else {
+    _mostrarVisualizador();
   }
 }
 
@@ -83,11 +85,13 @@ export function pause() {
 export async function resume(container) {
   _container = container;
   _renderCintillo();
-  _iniciarAnimacion();
   const marco = _q('#med-marco');
   if (marco && VideoManager.playing) {
+    _ocultarVisualizador();
     VideoManager.montarEn(marco);
     VideoManager.mostrar();
+  } else {
+    _mostrarVisualizador();
   }
   if (AudioManager.playing && AudioManager.idx >= 0) {
     _marcarCintillo(AudioManager.idx);
@@ -294,6 +298,7 @@ function _iniciarAnimacion() {
     if (!_container) { cancelAnimationFrame(_rafId); _rafId = null; return; }
     const W = canvas.offsetWidth;
     const H = canvas.offsetHeight;
+    if (W <= 0 || H <= 0) return;
     if (canvas.width  !== W) canvas.width  = W;
     if (canvas.height !== H) canvas.height = H;
     if (AudioManager.analyser) {
@@ -316,6 +321,21 @@ function _detenerAnimacion() {
   _especCanvas = null;
 }
 
+function _roundRectTop(ctx, x, y, w, h, r) {
+  // ctx.roundRect requiere Safari 16+; fallback manual para iPads antiguos
+  if (typeof ctx.roundRect === 'function') {
+    ctx.roundRect(x, y, w, h, [r, r, 0, 0]);
+    return;
+  }
+  ctx.moveTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h);
+  ctx.lineTo(x, y + h);
+  ctx.closePath();
+}
+
 function _drawBarras(ctx, W, H, freq, time, len) {
   const count = Math.min(len, 80);
   const barW  = (W / count) * 0.72;
@@ -333,7 +353,7 @@ function _drawBarras(ctx, W, H, freq, time, len) {
     grad.addColorStop(1,   'hsla(' + ((hue+80)%360) + ',60%,30%,0.4)');
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.roundRect(x, H - h, barW, h, [Math.min(barW/2, 6), Math.min(barW/2, 6), 0, 0]);
+    _roundRectTop(ctx, x, H - h, barW, h, Math.min(barW / 2, 6));
     ctx.fill();
     if (v > 0.3) {
       ctx.fillStyle = 'rgba(255,255,255,' + (v * 0.6) + ')';
@@ -378,6 +398,7 @@ function _drawCircular(ctx, W, H, freq, len) {
 }
 
 function _drawEspectrograma(ctx, W, H, freq, len) {
+  if (W <= 0 || H <= 0) return;
   // Inicializar canvas offscreen si no existe o cambió de tamaño
   if (!_especCanvas || _especCanvas.width !== W || _especCanvas.height !== H) {
     _especCanvas        = document.createElement('canvas');

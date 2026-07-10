@@ -14,6 +14,7 @@ let _totalPags = 0;
 let _pdfjsLib  = null;
 let _renderTask= null;
 let _touchX0   = 0;
+let _abrirSeq  = 0;
 
 const _q = sel => _container && _container.querySelector(sel);
 
@@ -26,6 +27,7 @@ export async function init(container) {
 
 export function destroy() {
   _cancelarRender();
+  try { _pdfActual?.destroy?.(); } catch (e) {}
   _container = null;
   _pdfActual = null;
 }
@@ -156,14 +158,16 @@ async function _abrirLibro(lib, idx) {
     el.classList.toggle('activo', i === idx);
   });
 
+  const seq = ++_abrirSeq;
   try {
     const pdfjs = await _cargarPdfJS();
-    if (!_container) return;                          // guard
+    if (!_container || seq !== _abrirSeq) return;     // guard
 
     const url = PDF_BASE + lib.archivo + '.pdf';
     _cancelarRender();
-    _pdfActual = await pdfjs.getDocument(url).promise;
-    if (!_container) return;                          // guard
+    const doc = await pdfjs.getDocument(url).promise;
+    if (!_container || seq !== _abrirSeq) { doc.destroy?.(); return; }
+    _pdfActual = doc;
 
     _totalPags = _pdfActual.numPages;
     _pagActual = 1;
