@@ -108,5 +108,15 @@
     "titulo": "¿Por qué lloras?",
     "artista": "Nene León",
     "tipo": "audio"
+  },
+  {
+    "archivo": "vocabulario-vehiculos",
+    "titulo": "Vocabulario: los vehículos",
+    "tipo": "video"
+  },
+  {
+    "archivo": "vocabulario-clima",
+    "titulo": "Las frutas y verduras para niños",
+    "tipo": "video"
   }
 ]
